@@ -10,7 +10,7 @@ nameSupply = ["$" ++ (show i) | i <- [1 ..] ]
 
 buildTree :: Program -> NameSupply -> Term -> Tree
 buildTree p ns t = case drive p ns t of {
-	DecomposeStep drived -> Node t $ DecomposeStep (map (buildTree p ns) drived);
+	DecomposeStep driven -> Node t $ DecomposeStep (map (buildTree p ns) driven);
 	ContractStep cs -> Node t $ ContractStep [(c, buildTree p (drop (length vs) ns) t) | (c@(Contract _ (Pat _ vs)), t) <- cs];
 	TransientStep term -> Node t $ TransientStep (buildTree p ns term);
 	Stop -> Node t Stop;}

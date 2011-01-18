@@ -12,7 +12,7 @@ buildFoldableTree p (n:ns) t | whistle t = makeNode p ns $ generalize n t
 
 makeNode :: Program -> NameSupply -> Term -> Tree
 makeNode p ns t = case drive p ns t of {
-	DecomposeStep drived -> Node t $ DecomposeStep (map (buildFoldableTree p ns) drived);
+	DecomposeStep driven -> Node t $ DecomposeStep (map (buildFoldableTree p ns) driven);
 	ContractStep cs -> Node t $ ContractStep (map (\(c@(Contract _ (Pat _ vs)), t) -> (c, buildFoldableTree p (drop (length vs) ns) t)) cs);
 	TransientStep term -> Node t $ TransientStep (buildFoldableTree p ns term);
 	Stop -> Node t Stop;}

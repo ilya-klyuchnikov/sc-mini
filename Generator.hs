@@ -7,24 +7,24 @@ import Data.List
 
 -- simplifies tree - removes transient edges
 s :: Tree -> Tree
-s (Node e (DecomposeStep ts)) = 
-	(Node e (DecomposeStep $ map s ts))
+s (Node e (Decompose ts)) = 
+	(Node e (Decompose $ map s ts))
 
-s (Node e (ContractStep cs)) = 
-	Node e $ ContractStep $ map (\(c, t) -> (c, s t)) cs
+s (Node e (Variants cs)) = 
+	Node e $ Variants $ map (\(c, t) -> (c, s t)) cs
 
-s (Node e (TransientStep t@(Node e1 step))) | isBase e t = 
-	if isBase e1 t then Node e $ TransientStep $ s t else Node e step1 where
+s (Node e (Transient t@(Node e1 step))) | isBase e t = 
+	if isBase e1 t then Node e $ Transient $ s t else Node e step1 where
 		Node _ step1 = s t
 
-s (Node e (TransientStep t)) = 
+s (Node e (Transient t)) = 
 	s t
 
 s t = t
 
-isBase e1 (Node _ (DecomposeStep ts)) = or $ map (isBase e1) ts
-isBase e1 (Node _ (ContractStep cs)) = or $ map (isBase e1 . snd) cs 
-isBase e1 (Node _ (TransientStep t)) = isBase e1 t
+isBase e1 (Node _ (Decompose ts)) = or $ map (isBase e1) ts
+isBase e1 (Node _ (Variants cs)) = or $ map (isBase e1 . snd) cs 
+isBase e1 (Node _ (Transient t)) = isBase e1 t
 isBase e1 (Node e2 Fold) = isJust $ renaming e2 e1
 isBase e1 (Node e2 Stop) = False
 
@@ -32,19 +32,19 @@ isBase e1 (Node e2 Stop) = False
 res :: NameSupply -> [(Term, Term)] -> Tree -> (Term, Program, NameSupply)
 res ns mp (Node e Stop) = (e, Program [] [], ns)
 
-res ns mp (Node (Ctr cname _) (DecomposeStep ts)) = (Ctr cname args, p1, ns1) where
+res ns mp (Node (Ctr cname _) (Decompose ts)) = (Ctr cname args, p1, ns1) where
 	(args, p1, ns1) = make ns mp ts
 
-res ns mp (Node (Let v _ _) (DecomposeStep ts)) = (Let v e1 e2, p1, ns1) where
+res ns mp (Node (Let v _ _) (Decompose ts)) = (Let v e1 e2, p1, ns1) where
 	([e1, e2], p1, ns1) = make ns mp ts
 
-res (n:ns) mp (Node e (TransientStep t)) = (fcall, Program ((FFun f1 vs body):fs) gs, ns1) where
+res (n:ns) mp (Node e (Transient t)) = (fcall, Program ((FFun f1 vs body):fs) gs, ns1) where
 	vs = vnames e
 	f1 = "f" ++ n
 	fcall = FCall f1 $ map Var vs
 	(body, Program fs gs, ns1) = res ns ((e, fcall) : mp) t
 	
-res (n:ns) mp (Node e (ContractStep cs)) = (gcall, Program fs (newGs ++ gs), ns1) where
+res (n:ns) mp (Node e (Variants cs)) = (gcall, Program fs (newGs ++ gs), ns1) where
 	vs@(pv:vs') = vnames e
 	g1 = "g" ++ n
 	gcall = GCall g1 $ map Var vs

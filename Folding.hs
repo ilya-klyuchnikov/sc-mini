@@ -14,12 +14,12 @@ foldTree1 ts t@(Node e _) = maybe (fold1 ts t) (\ _ -> Node e Fold) candidate wh
 	candidate = find (isJust . renaming e . expr) ts
 	
 fold1 :: [Tree] -> Tree -> Tree
-fold1 ts (Node e (TransientStep c)) = 
-	let t1 = Node e $ TransientStep $ foldTree1 (t1:ts) c in t1
-fold1 ts (Node e (DecomposeStep cs)) =
-	let t1 = Node e $ DecomposeStep $ map (foldTree1 (t1:ts)) cs in t1
-fold1 ts (Node e (ContractStep cs)) =
-	let t1 = Node e $ ContractStep $ map (\(c, t) -> (c, foldTree1 (t1:ts) t)) cs in t1
+fold1 ts (Node e (Transient c)) = 
+	let t1 = Node e $ Transient $ foldTree1 (t1:ts) c in t1
+fold1 ts (Node e (Decompose cs)) =
+	let t1 = Node e $ Decompose $ map (foldTree1 (t1:ts)) cs in t1
+fold1 ts (Node e (Variants cs)) =
+	let t1 = Node e $ Variants $ map (\(c, t) -> (c, foldTree1 (t1:ts) t)) cs in t1
 fold1 ts (Node e Stop) =
 	(Node e Stop)
 

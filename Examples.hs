@@ -16,9 +16,9 @@ pprintTree :: String -> String -> Tree -> [String]
 pprintTree indent msg (Node expr next) = make next where
 	make Fold = (indent ++ msg) : [indent ++ "|__" ++  (show expr) ++ "__↑"]
 	make Stop = (indent ++ msg) : [indent ++ "|__" ++  (show expr)]
-	make (TransientStep t) = (indent ++ msg) : (indent ++ "|__" ++ show expr) : (pprintTree (indent ++ " ") "" t)
-	make (DecomposeStep ts) = (indent ++ msg) :  (indent ++ "|__" ++ show expr): (concat (map (pprintTree (indent ++ " ") "") ts))
-	make (ContractStep cs) = 
+	make (Transient t) = (indent ++ msg) : (indent ++ "|__" ++ show expr) : (pprintTree (indent ++ " ") "" t)
+	make (Decompose ts) = (indent ++ msg) :  (indent ++ "|__" ++ show expr): (concat (map (pprintTree (indent ++ " ") "") ts))
+	make (Variants cs) = 
 		(indent ++ msg) :  (indent ++ "|__" ++  show expr) : (concat (map (\(x, t) -> pprintTree (indent ++ " ") (show x) t) cs))
 
 program1 = Program [] [

@@ -14,7 +14,7 @@ driveTest p ns t = drive p ns t
 
 pprintTree :: String -> String -> Tree -> [String]
 pprintTree indent msg (Node expr next) = make next where
-	make (Fold _) = (indent ++ msg) : [indent ++ "|__" ++  (show expr) ++ "__↑"]
+	make (Fold _ _) = (indent ++ msg) : [indent ++ "|__" ++  (show expr) ++ "__↑"]
 	make Stop = (indent ++ msg) : [indent ++ "|__" ++  (show expr)]
 	make (Transient t) = (indent ++ msg) : (indent ++ "|__" ++ show expr) : (pprintTree (indent ++ " ") "" t)
 	make (Decompose ts) = (indent ++ msg) :  (indent ++ "|__" ++ show expr): (concat (map (pprintTree (indent ++ " ") "") ts))

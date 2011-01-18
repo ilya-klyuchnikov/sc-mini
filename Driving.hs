@@ -23,7 +23,7 @@ propagate :: Contract -> Expr -> Expr
 propagate (Contract v (Pat cn vs)) e | propagateInfo = subst [(v, Ctr cn $ map Var vs)] e
 propagate c e | otherwise = e
 
-driveG :: Program -> NameSupply -> String -> Expr -> [Expr] -> Step Expr
+driveG :: Program -> NameSupply -> Name -> Expr -> [Expr] -> Step Expr
 driveG p ns gname (Ctr cname cargs) args  = Transient (subst sub t) where 
 	(GFun _ (Pat _ cvs) vs t) = gFun p gname cname
 	sub = zip (cvs ++ vs) (cargs ++ args)
@@ -32,7 +32,7 @@ driveG p ns gname inner args = proceed (drive p ns inner) where
 	proceed (Transient t) = Transient (GCall gname (t:args));
 	proceed (Variants cs) = Variants [(c, GCall gname (t:args)) | (c, t) <- cs]
 
-variant :: String -> NameSupply -> [Expr] -> GFun -> (Contract, Expr)
+variant :: Name -> NameSupply -> [Expr] -> GFun -> (Contract, Expr)
 variant v ns args (GFun _ (Pat cname cvs) vs body) = (Contract v (Pat cname fresh), subst sub body) where
 	fresh = take (length cvs) ns
 	sub = zip (cvs ++ vs) (map Var fresh ++ args)

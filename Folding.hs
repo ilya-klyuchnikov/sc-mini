@@ -10,7 +10,8 @@ foldTree :: Tree -> Tree
 foldTree t = tieKnot [] t
 
 tieKnot :: [Tree] -> Tree -> Tree
-tieKnot ts t@(Node e _) = maybe (traverse ts t) (Node e . Fold) (find (isRenaming e . expr) ts)
+tieKnot ts t@(Node e _) = tied where
+	tied:_ = [Node e (Fold k r) | k@(Node b _) <- ts, Just r <- [renaming e b]] ++ [(traverse ts t)]
 	
 traverse :: [Tree] -> Tree -> Tree
 traverse ts (Node e (Transient c)) = t where

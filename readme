@@ -1,4 +1,9 @@
 This is the minimal supercompiler.
+Its design is an attempt to illustrate the following formula:
+	
+	Supercompilation = Driving + Folding + Generalization
+
+
 
 TODO: 
 -- Input/Output for terms 

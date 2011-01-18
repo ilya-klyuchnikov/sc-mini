@@ -23,7 +23,7 @@ s t = t
 isBase e1 (Node _ (Decompose ts)) = or $ map (isBase e1) ts
 isBase e1 (Node _ (Variants cs)) = or $ map (isBase e1 . snd) cs 
 isBase e1 (Node _ (Transient t)) = isBase e1 t
-isBase e1 (Node _ (Fold (Node e2 _))) = e1 == e2
+isBase e1 (Node _ (Fold (Node e2 _) _)) = e1 == e2
 isBase e1 (Node e2 Stop) = False
 
 --- generation of residual program
@@ -50,9 +50,9 @@ res (n:ns) mp (Node e (Variants cs)) = (gcall, Program fs (newGs ++ gs), ns1) wh
 	pats = [pat | (Contract v pat, _) <- cs]
 	newGs = [GFun g1 p vs' b | (p, b) <-  (zip pats bodies)]
 	
-res ns mp (Node e (Fold _)) = (call, Program [] [], ns) where
+res ns mp (Node e (Fold (Node base _) ren)) = (call, Program [] [], ns) where
 	call = subst [(x, Var y) | (x, y) <- ren] baseCall
-	(ren, baseCall):_ = [(ren, bcall) | (was, bcall) <- mp, ren <- maybeToList (renaming was e)]
+	Just baseCall = lookup base mp
 
 -- proceeds a list of trees 
 -- the main goal is to handle name supply
@@ -60,9 +60,3 @@ make :: NameSupply -> [(Expr, Expr)] -> [Tree] -> ([Expr], Program, NameSupply)
 make ns mp ts = foldl f ([], Program [] [], ns) ts where 
 	f (gens, Program fs gs, ns1) tree = (gens ++ [g], Program (fs ++ fs1) (gs ++ gs1), ns2) where 
 		(g, Program fs1 gs1, ns2) = res ns1 mp tree
-		
-vnames :: Expr -> [String]
-vnames (Var v) = [v]
-vnames (Ctr _ args)   = nub $ concat $ map vnames args
-vnames (FCall _ args) = nub $ concat $ map vnames args
-vnames (GCall _ args) = nub $ concat $ map vnames args

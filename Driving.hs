@@ -12,7 +12,8 @@ nameSupply = ["$" ++ (show i) | i <- [1 ..] ]
 buildTree :: Program -> NameSupply -> Expr -> Tree
 buildTree p ns t = case drive p ns t of
 	Decompose driven -> Node t $ Decompose (map (buildTree p ns) driven)
-	Variants cs -> Node t $ Variants [(c, buildTree p (drop (length vs) ns) t) | (c@(Contract _ (Pat _ vs)), t) <- cs]
+	Variants cs -> Node t $ Variants [(c, buildTree p ns1 $ propagate c e) 
+		| (c, e) <- cs, let ns1 = unused c ns]
 	Transient term -> Node t $ Transient (buildTree p ns term)
 	Stop -> Node t Stop
 
@@ -21,14 +22,14 @@ drive p ns (Var _) = Stop
 drive p ns (Ctr _ []) = Stop
 drive p ns (Ctr _ args) = Decompose args
 drive p ns (Let x t1 t2) = Decompose [t1, t2]
-drive p ns (FCall name args) = Transient (subst (zip vs args) t) where (FFun _ vs t) = fFun p name
-drive p ns (GCall gname (v:vs)) = case driveG p ns gname v vs of
-	Variants cs -> Variants $ map propagate cs
-	s -> s
+drive p ns (FCall name args) = Transient $ subst (zip vs args) e where FFun _ vs e = fFun p name
+drive p ns (GCall gname (v:vs)) = driveG p ns gname v vs
 	
-propagate :: (Contract, Expr) -> (Contract, Expr)
-propagate (c@(Contract v (Pat cn vs)), t) | propagateInfo = (c, subst [(v, Ctr cn $ map Var vs)] t)
-propagate (c, t) | otherwise = (c, t)
+propagate :: Contract -> Expr -> Expr
+propagate (Contract v (Pat cn vs)) e | propagateInfo = subst [(v, Ctr cn $ map Var vs)] e
+propagate c e | otherwise = e
+
+unused (Contract _ (Pat _ vs)) = drop (length vs)
 
 driveG :: Program -> NameSupply -> String -> Expr -> [Expr] -> Step Expr
 driveG p ns gname (Ctr cname cargs) args  = Transient (subst sub t) where 

@@ -40,3 +40,5 @@ renaming e1 e2 = f $ partition isNothing $ rawRenaming (e1, e2) where
 	f (x:_, _) = Nothing
 	f (_, ps) = g $ groupBy (\(a, b) (c, d) -> a == c) $ nub $ catMaybes ps
 	g xs = if all ((== 1) . length) xs then Just (concat xs) else Nothing
+	
+isRenaming e1 e2 = isJust $ renaming e1 e2

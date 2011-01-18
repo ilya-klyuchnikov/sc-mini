@@ -54,7 +54,7 @@ res (n:ns) mp (Node e (Variants cs)) = (gcall, Program fs (newGs ++ gs), ns1) wh
 	
 res ns mp (Node e Fold) = (call, Program [] [], ns) where
 	call = subst [(x, Var y) | (x, y) <- ren] baseCall
-	(ren, baseCall):_ = catMaybes [fmap (\ren -> (ren, bcall)) (renaming was e) | (was, bcall) <- mp]
+	(ren, baseCall):_ = [(ren, bcall) | (was, bcall) <- mp, ren <- maybeToList (renaming was e)]
 
 make :: NameSupply -> [(Expr, Expr)] -> [Tree] -> ([Expr], Program, NameSupply)
 make ns mp ts = foldl f ([], Program [] [], ns) ts where 

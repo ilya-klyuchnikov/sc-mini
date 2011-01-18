@@ -10,8 +10,8 @@ foldTree :: Tree -> Tree
 foldTree t = foldTree1 [] t
 
 foldTree1 :: [Tree] -> Tree -> Tree
-foldTree1 ts t@(Node e _) = maybe (fold1 ts t) (\ _ -> Node e Fold) candidate where
-	candidate = find (isJust . renaming e . expr) ts
+foldTree1 ts t@(Node e _) = 
+	if any (isRenaming e . expr) ts then Node e Fold else fold1 ts t
 	
 fold1 :: [Tree] -> Tree -> Tree
 fold1 ts (Node e (Transient c)) = t where

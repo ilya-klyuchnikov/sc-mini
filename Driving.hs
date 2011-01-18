@@ -3,7 +3,7 @@ import Language
 import Settings
 
 data Contract = Contract String Pat deriving (Show)
-data Step a = Transient a | Decompose [a] | Variants [(Contract, a)] | Stop | Fold deriving (Show)
+data Step a = Transient a | Decompose [a] | Variants [(Contract, a)] | Stop | Fold a deriving (Show)
 data Tree = Node Expr (Step Tree) deriving (Show)
 type Variant a = (Contract, a)
 
@@ -44,3 +44,5 @@ variant :: String -> NameSupply -> [Expr] -> GFun -> (Contract, Expr)
 variant v ns args (GFun _ (Pat cname cvs) vs body) = (Contract v (Pat cname fresh), subst sub body) where
 	fresh = take (length cvs) ns
 	sub = zip (cvs ++ vs) (map Var fresh ++ args)
+	
+expr (Node e _) = e

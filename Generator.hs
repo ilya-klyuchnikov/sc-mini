@@ -25,7 +25,7 @@ s t = t
 isBase e1 (Node _ (Decompose ts)) = or $ map (isBase e1) ts
 isBase e1 (Node _ (Variants cs)) = or $ map (isBase e1 . snd) cs 
 isBase e1 (Node _ (Transient t)) = isBase e1 t
-isBase e1 (Node e2 Fold) = isJust $ renaming e2 e1
+isBase e1 (Node _ (Fold (Node e2 _))) = e1 == e2
 isBase e1 (Node e2 Stop) = False
 
 --- generation of residual program
@@ -52,7 +52,7 @@ res (n:ns) mp (Node e (Variants cs)) = (gcall, Program fs (newGs ++ gs), ns1) wh
 	pats = [pat | (Contract v pat, _) <- cs]
 	newGs = [GFun g1 p vs' b | (p, b) <-  (zip pats bodies)]
 	
-res ns mp (Node e Fold) = (call, Program [] [], ns) where
+res ns mp (Node e (Fold _)) = (call, Program [] [], ns) where
 	call = subst [(x, Var y) | (x, y) <- ren] baseCall
 	(ren, baseCall):_ = [(ren, bcall) | (was, bcall) <- mp, ren <- maybeToList (renaming was e)]
 

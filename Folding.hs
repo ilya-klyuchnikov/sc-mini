@@ -10,8 +10,7 @@ foldTree :: Tree -> Tree
 foldTree t = foldTree1 [] t
 
 foldTree1 :: [Tree] -> Tree -> Tree
-foldTree1 ts t@(Node e _) = 
-	if any (isRenaming e . expr) ts then Node e Fold else fold1 ts t
+foldTree1 ts t@(Node e _) = maybe (fold1 ts t) (Node e . Fold) (find (isRenaming e . expr) ts)
 	
 fold1 :: [Tree] -> Tree -> Tree
 fold1 ts (Node e (Transient c)) = t where
@@ -21,5 +20,3 @@ fold1 ts (Node e (Decompose cs)) = t where
 fold1 ts (Node e (Variants cs)) = t where
 	t = Node e $ Variants [(c, foldTree1 (t:ts) v) | (c, v) <- cs]
 fold1 ts (Node e Stop) = (Node e Stop)
-
-expr (Node e _) = e

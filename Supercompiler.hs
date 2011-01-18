@@ -10,11 +10,11 @@ buildFoldableTree p (n:ns) t | whistle t = makeNode p ns $ generalize n t
                              | otherwise = makeNode p ns t
 
 makeNode :: Program -> NameSupply -> Expr -> Tree
-makeNode p ns t = case drive p ns t of {
-	Decompose driven -> Node t $ Decompose (map (buildFoldableTree p ns) driven);
-	Variants cs -> Node t $ Variants (map (\(c@(Contract _ (Pat _ vs)), t) -> (c, buildFoldableTree p (drop (length vs) ns) t)) cs);
-	Transient term -> Node t $ Transient (buildFoldableTree p ns term);
-	Stop -> Node t Stop;}
+makeNode p ns t = case drive p ns t of
+	Decompose driven -> Node t $ Decompose $ map (buildFoldableTree p ns) driven
+	Variants cs -> Node t $ Variants [(c, buildFoldableTree p (drop (length vs) ns) t) | (c@(Contract _ (Pat _ vs)), t) <- cs]
+	Transient term -> Node t $ Transient $ buildFoldableTree p ns term
+	Stop -> Node t Stop
 	
 whistle :: Expr -> Bool
 whistle t@(FCall _ _) = size t > maxConfSize

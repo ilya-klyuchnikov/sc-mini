@@ -11,7 +11,7 @@ s (Node e (Decompose ts)) =
 	(Node e (Decompose $ map s ts))
 
 s (Node e (Variants cs)) = 
-	Node e $ Variants $ map (\(c, t) -> (c, s t)) cs
+	Node e $ Variants [(c, s t) | (c, t) <- cs]
 
 s (Node e (Transient t@(Node e1 step))) | isBase e t = 
 	if isBase e1 t then Node e $ Transient $ s t else Node e step1 where
@@ -49,13 +49,12 @@ res (n:ns) mp (Node e (Variants cs)) = (gcall, Program fs (newGs ++ gs), ns1) wh
 	g1 = "g" ++ n
 	gcall = GCall g1 $ map Var vs
 	(bodies, Program fs gs, ns1) = make ns ((e, gcall) : mp) $ map snd cs
-	pats = map (\(Contract v pat, _) -> pat) cs
-	newGs = map (\(p, b) -> GFun g1 p vs' b) (zip pats bodies)
+	pats = [pat | (Contract v pat, _) <- cs]
+	newGs = [GFun g1 p vs' b | (p, b) <-  (zip pats bodies)]
 	
-res ns mp (Node e Fold) = (call1, Program [] [], ns) where
-	call1 = subst ren1 call where
-		(ren, call) = fromJust $ fromJust $ find isJust $ map (\(was, new) -> fmap (\ren -> (ren, new)) (renaming was e)) mp
-		ren1 = map (\(x, y) -> (x, Var y)) ren
+res ns mp (Node e Fold) = (call, Program [] [], ns) where
+	call = subst [(x, Var y) | (x, y) <- ren] baseCall
+	(ren, baseCall):_ = catMaybes [fmap (\ren -> (ren, bcall)) (renaming was e) | (was, bcall) <- mp]
 
 make :: NameSupply -> [(Expr, Expr)] -> [Tree] -> ([Expr], Program, NameSupply)
 make ns mp ts = foldl f ([], Program [] [], ns) ts where 

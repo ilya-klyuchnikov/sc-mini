@@ -37,7 +37,7 @@ driveG p ns gname (Ctr cname cargs) args  = Transient (subst sub t) where
 driveG p ns gname (Var v) args = Variants $ map (variant v ns args) (gFuns p gname)
 driveG p ns gname inner args = proceed (drive p ns inner) where
 	proceed (Transient t) = Transient (GCall gname (t:args));
-	proceed (Variants cs) = Variants $ map (\(c, t) -> (c, GCall gname (t:args))) cs
+	proceed (Variants cs) = Variants [(c, GCall gname (t:args)) | (c, t) <- cs]
 
 variant :: String -> NameSupply -> [Expr] -> GFun -> (Contract, Expr)
 variant v ns args (GFun _ (Pat cname cvs) vs body) = (Contract v (Pat cname fresh), subst sub body) where

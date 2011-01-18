@@ -14,13 +14,12 @@ foldTree1 ts t@(Node e _) = maybe (fold1 ts t) (\ _ -> Node e Fold) candidate wh
 	candidate = find (isJust . renaming e . expr) ts
 	
 fold1 :: [Tree] -> Tree -> Tree
-fold1 ts (Node e (Transient c)) = 
-	let t1 = Node e $ Transient $ foldTree1 (t1:ts) c in t1
-fold1 ts (Node e (Decompose cs)) =
-	let t1 = Node e $ Decompose $ map (foldTree1 (t1:ts)) cs in t1
-fold1 ts (Node e (Variants cs)) =
-	let t1 = Node e $ Variants $ map (\(c, t) -> (c, foldTree1 (t1:ts) t)) cs in t1
-fold1 ts (Node e Stop) =
-	(Node e Stop)
+fold1 ts (Node e (Transient c)) = t where
+	t = Node e $ Transient $ foldTree1 (t:ts) c
+fold1 ts (Node e (Decompose cs)) = t where 
+	t = Node e $ Decompose [foldTree1 (t:ts) c | c <- cs]
+fold1 ts (Node e (Variants cs)) = t where
+	t = Node e $ Variants [(c, foldTree1 (t:ts) v) | (c, v) <- cs]
+fold1 ts (Node e Stop) = (Node e Stop)
 
 expr (Node e _) = e

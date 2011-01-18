@@ -2,9 +2,8 @@ module Supercompiler where
 
 import Language
 import Driving
+import Settings
 import Data.List
-
-maxSize = 8
 
 buildFoldableTree :: Program -> NameSupply -> Term -> Tree
 buildFoldableTree p (n:ns) t | whistle t = makeNode p ns $ generalize n t
@@ -18,8 +17,8 @@ makeNode p ns t = case drive p ns t of {
 	Stop -> Node t Stop;}
 	
 whistle :: Term -> Bool
-whistle t@(FCall _ _) = size t > maxSize
-whistle t@(GCall _ _) = size t > maxSize
+whistle t@(FCall _ _) = size t > maxConfSize
+whistle t@(GCall _ _) = size t > maxConfSize
 whistle _ = False
 
 generalize :: String -> Term -> Term
@@ -30,7 +29,7 @@ gen n es = (maxE, vs ++ Var n : ws) where
 	maxE = maximumBy (\x y -> compare (size x) (size y)) es
 	(vs, w : ws) = break (maxE ==) es
 
-size :: Term -> Int
+size :: Term -> Integer
 size (Var _) = 1
 size (Ctr _ args) = 1 + sum (map size args)
 size (FCall _ args) = 1 + sum (map size args)

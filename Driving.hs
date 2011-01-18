@@ -1,5 +1,6 @@
 module Driving where
 import Language
+import Settings
 
 data Contract = Contract String Pat deriving (Show)
 data Step a = TransientStep a | DecomposeStep [a] | ContractStep [(Contract, a)] | Stop | Fold deriving (Show)
@@ -22,8 +23,12 @@ drive p ns (Ctr _ args) = DecomposeStep args
 drive p ns (Let x t1 t2) = DecomposeStep [t1, t2]
 drive p ns (FCall name args) = TransientStep (subst (zip vs args) t) where (FFun _ vs t) = fFun p name
 drive p ns (GCall gname (v:vs)) = case driveG p ns gname v vs of
-	ContractStep cs -> ContractStep [(c, subst [(v, Ctr cn $ map Var vs)] t) | (c@(Contract v (Pat cn vs)), t) <- cs]
+	ContractStep cs -> ContractStep $ map propagate cs
 	s -> s
+	
+propagate :: (Contract, Term) -> (Contract, Term)
+propagate (c@(Contract v (Pat cn vs)), t) | propagateInfo = (c, subst [(v, Ctr cn $ map Var vs)] t)
+propagate (c, t) | otherwise = (c, t)
 
 driveG :: Program -> NameSupply -> String -> Term -> [Term] -> Step Term
 driveG p ns gname (Ctr cname cargs) args  = TransientStep (subst sub t) where 

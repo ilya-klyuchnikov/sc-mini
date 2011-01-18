@@ -4,11 +4,11 @@ import Language
 import Data.List
 import Data.Maybe
 
-isGround :: Term -> Bool
+isGround :: Expr -> Bool
 isGround (Ctr _ args) = and $ map isGround args 
 isGround _ = False
 
-intStep :: Program -> Term -> Term
+intStep :: Program -> Expr -> Expr
 intStep p (Ctr name args) = 
 	Ctr name (grounds ++ (int p x : xs)) where 
 		(grounds, x : xs) = span isGround args
@@ -27,6 +27,6 @@ intStep p (GCall gname (e:es)) =
 intStep p (Let x e1 e2) =
 	subst [(x, e1)] e2
 
-int :: Program -> Term -> Term
+int :: Program -> Expr -> Expr
 int p e | isGround e = e
 		| otherwise = int p (intStep p e) 

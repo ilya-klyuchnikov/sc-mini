@@ -29,7 +29,7 @@ isBase e1 (Node e2 Fold) = isJust $ renaming e2 e1
 isBase e1 (Node e2 Stop) = False
 
 --- generation of residual program
-res :: NameSupply -> [(Term, Term)] -> Tree -> (Term, Program, NameSupply)
+res :: NameSupply -> [(Expr, Expr)] -> Tree -> (Expr, Program, NameSupply)
 res ns mp (Node e Stop) = (e, Program [] [], ns)
 
 res ns mp (Node (Ctr cname _) (Decompose ts)) = (Ctr cname args, p1, ns1) where
@@ -57,12 +57,12 @@ res ns mp (Node e Fold) = (call1, Program [] [], ns) where
 		(ren, call) = fromJust $ fromJust $ find isJust $ map (\(was, new) -> fmap (\ren -> (ren, new)) (renaming was e)) mp
 		ren1 = map (\(x, y) -> (x, Var y)) ren
 
-make :: NameSupply -> [(Term, Term)] -> [Tree] -> ([Term], Program, NameSupply)
+make :: NameSupply -> [(Expr, Expr)] -> [Tree] -> ([Expr], Program, NameSupply)
 make ns mp ts = foldl f ([], Program [] [], ns) ts where 
 	f (gens, Program fs gs, ns1) tree = (gens ++ [g], Program (fs ++ fs1) (gs ++ gs1), ns2) where 
 		(g, Program fs1 gs1, ns2) = res ns1 mp tree
 		
-vnames :: Term -> [String]
+vnames :: Expr -> [String]
 vnames (Var v) = [v]
 vnames (Ctr _ args)   = nub $ concat $ map vnames args
 vnames (FCall _ args) = nub $ concat $ map vnames args

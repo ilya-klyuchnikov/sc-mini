@@ -56,6 +56,8 @@ res ns mp (Node e (Fold _)) = (call, Program [] [], ns) where
 	call = subst [(x, Var y) | (x, y) <- ren] baseCall
 	(ren, baseCall):_ = [(ren, bcall) | (was, bcall) <- mp, ren <- maybeToList (renaming was e)]
 
+-- proceeds a list of trees 
+-- the main goal is to handle name supply
 make :: NameSupply -> [(Expr, Expr)] -> [Tree] -> ([Expr], Program, NameSupply)
 make ns mp ts = foldl f ([], Program [] [], ns) ts where 
 	f (gens, Program fs gs, ns1) tree = (gens ++ [g], Program (fs ++ fs1) (gs ++ gs1), ns2) where 

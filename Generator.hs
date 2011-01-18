@@ -13,9 +13,8 @@ s (Node e (Decompose ts)) =
 s (Node e (Variants cs)) = 
 	Node e $ Variants [(c, s t) | (c, t) <- cs]
 
-s (Node e (Transient t@(Node e1 step))) | isBase e t = 
-	if isBase e1 t then Node e $ Transient $ s t else Node e step1 where
-		Node _ step1 = s t
+s (Node e (Transient t@(Node e1 _))) | isBase e t = 
+	if isBase e1 t then Node e $ Transient $ s t else Node e (step (s t))
 
 s (Node e (Transient t)) = 
 	s t

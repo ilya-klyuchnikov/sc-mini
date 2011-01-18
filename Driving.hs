@@ -46,3 +46,4 @@ variant v ns args (GFun _ (Pat cname cvs) vs body) = (Contract v (Pat cname fres
 	sub = zip (cvs ++ vs) (map Var fresh ++ args)
 	
 expr (Node e _) = e
+step (Node _ s) = s

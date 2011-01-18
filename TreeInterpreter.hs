@@ -1,7 +1,6 @@
 module TreeInterpreter where
 
-import Driving
-import Language
+import Data
 import Data.Maybe
 
 intTree :: Subst -> Tree -> Expr

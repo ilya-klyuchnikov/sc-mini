@@ -1,7 +1,6 @@
 module Generator where
 	
-import Language
-import Driving
+import Data
 import Data.Maybe
 import Data.List
 

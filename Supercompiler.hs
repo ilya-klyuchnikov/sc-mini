@@ -1,6 +1,6 @@
 module Supercompiler where
 
-import Language
+import Data
 import Driving
 import Settings
 import Data.List
@@ -28,10 +28,3 @@ generalize n (GCall g es) = Let n e (GCall g es') where (e, es') = gen n es
 gen n es = (maxE, vs ++ Var n : ws) where
 	maxE = maximumBy (\x y -> compare (size x) (size y)) es
 	(vs, w : ws) = break (maxE ==) es
-
-size :: Expr -> Integer
-size (Var _) = 1
-size (Ctr _ args) = 1 + sum (map size args)
-size (FCall _ args) = 1 + sum (map size args)
-size (GCall _ args) = 1 + sum (map size args)
-size (Let _ e1 e2) = 1 + (size e1) + (size e2)

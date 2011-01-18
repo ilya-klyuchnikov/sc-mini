@@ -1,6 +1,6 @@
 module Interpreter where
 
-import Language
+import Data
 import Data.List
 import Data.Maybe
 

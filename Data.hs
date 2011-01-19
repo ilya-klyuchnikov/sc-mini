@@ -4,24 +4,32 @@ module Data where
 import Data.List
 import Data.Maybe
 
+import Text.ParserCombinators.ReadP
+import Char
+
+data Expr = Var Name | Ctr Name [Expr] | FCall Name [Expr] | GCall Name [Expr] | Let Name Expr Expr deriving (Eq)
 data Contract = Contract Name Pat deriving (Show)
 type Variant a = (Contract, a)
 data Step a = Transient a | Decompose [a] | Variants [(Contract, a)] | Stop | Fold a Renaming deriving (Show)
 data Tree = Node Expr (Step Tree) deriving (Show)
-data Expr = Var Name | Ctr Name [Expr] | FCall Name [Expr] | GCall Name [Expr] | Let Name Expr Expr deriving (Show, Eq)
-data Pat = Pat Name [Name] deriving (Show)
-data GFun = GFun Name Pat [Name] Expr deriving (Show)
-data FFun = FFun Name [Name] Expr deriving (Show)
-data Program = Program [FFun] [GFun] deriving (Show)
+data Pat = Pat Name [Name]
+data GFun = GFun Name Pat [Name] Expr
+data FFun = FFun Name [Name] Expr
+data Program = Program [FFun] [GFun]
 type Subst = [(Name, Expr)]
 type NameSupply = [Name]
 type Name = String
 type Renaming = [(Name, Name)]
+type State = (Expr, Program)
+data Config = Config Bool Bool Integer
+	
+readVar1 :: ReadS Name 
+readVar1 i = concat [lex s1 | (",", s1) <- lex i] 
 
 nameSupply = ["$" ++ (show i) | i <- [1 ..] ]
 expr (Node e _) = e
 step (Node _ s) = s
-unused (Contract _ (Pat _ vs)) = drop (length vs)
+unused (Contract _ (Pat _ vs)) = (\\ vs)
 
 fFun :: Program -> Name -> FFun
 fFun (Program fs _) fname = head [f | f@(FFun x _ _) <- fs, x == fname]
@@ -67,3 +75,75 @@ vnames (Var v) = [v]
 vnames (Ctr _ args)   = nub $ concat $ map vnames args
 vnames (FCall _ args) = nub $ concat $ map vnames args
 vnames (GCall _ args) = nub $ concat $ map vnames args
+
+-- READ/SHOW
+instance Show Expr where
+	show (Var n) = n
+	show (Ctr n es) = n ++ "(" ++ (intercalate ", " (map show es)) ++ ")"
+	show (FCall n es) = n ++ "(" ++ (intercalate ", " (map show es)) ++ ")"
+	show (GCall n es) = n ++ "(" ++ (intercalate ", " (map show es)) ++ ")"
+
+instance Show FFun where
+	show (FFun fn args body) = fn ++ "(" ++ intercalate ", " args ++ ") = " ++ (show body) ++ ";"
+
+instance Show GFun where
+	show (GFun gn p args body) = gn ++ "(" ++ intercalate ", " (show p:args) ++ ") = " ++ (show body) ++ ";"
+
+instance Show Pat where
+	show (Pat cn vs) = cn ++ "(" ++ intercalate "," vs ++ ")"
+	
+instance Show Program where
+	show (Program fs gs) = intercalate "\n" $ (map show fs) ++ (map show gs)
+	
+instance Read Expr where
+	readsPrec _ s = readsExpr s
+
+instance Read Program where
+	readsPrec _ s = readProgram s
+
+readExpr :: ReadP Expr
+readExpr = readS_to_P readsExpr
+
+readsExpr :: ReadS Expr
+readsExpr i = catMaybes [merge n (readArgs s)  s | (n, s) <- lex i] where
+	merge n@('g':_) [(args, s1)] _ = Just (GCall n args, s1)
+	merge n@('f':_) [(args, s1)] _ = Just (FCall n args, s1)
+	merge n@(x:_) [(args, s1)] _ | isUpper x = Just (Ctr n args, s1)
+	merge n@(x:_) [] s | isLower x = Just (Var n, s)
+	merge _ _ _ = Nothing
+
+readArgs :: ReadS [Expr]
+readArgs = readP_to_S $ between (char '(') (char ')') (sepBy readExpr (char ','))
+
+readVars :: ReadS [Name]
+readVars = readP_to_S $ between (char '(') (char ')') (sepBy (readS_to_P lex) (char ','))
+
+readFFun :: ReadS FFun
+readFFun i = [ (FFun n vars body, s4) | 
+	(n@('f':_), s) <- lex i, 
+	(vars, s1) <- readVars s, 
+	("=", s2) <- lex s1,
+	(body, s3) <- readsExpr s2,
+	(";", s4) <- lex s3]
+	
+readSPat :: ReadS Pat
+readSPat i = [(Pat n vars, s2)|
+	(n, s) <- lex i,
+	(vars, s2) <- readVars s]
+-- read g-function
+readGFun i = [ (GFun n p vs body, s6) |
+	(n@('g':_), s) <- lex i,
+	("(", s1) <- lex s,
+	(p, s2) <- readSPat s1,
+	(vs, s3) <- readP_to_S (manyTill (readS_to_P readVar1)  (char ')')) s2,
+	("=", s4) <- lex s3,
+	(body, s5) <- readsExpr s4,
+	(";", s6) <- lex s5
+	]
+
+readProgram s = [readP1 (Program [] []) s]
+
+readP1 p@(Program fs gs) s = next (readFFun s) (readGFun s) where
+	next [(f, s1)] _ = readP1 (Program (fs++[f]) gs) s1
+	next _ [(g, s1)] = readP1 (Program fs (gs++[g])) s1
+	next _ _ = (p, s)

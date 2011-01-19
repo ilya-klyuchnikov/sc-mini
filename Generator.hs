@@ -4,27 +4,14 @@ import Data
 import Data.Maybe
 import Data.List
 
--- simplifies tree - removes transient edges
-s :: Tree -> Tree
-s (Node e (Decompose ts)) = 
-	(Node e (Decompose $ map s ts))
-
-s (Node e (Variants cs)) = 
-	Node e $ Variants [(c, s t) | (c, t) <- cs]
-
-s (Node e (Transient t@(Node e1 _))) | isBase e t = 
-	if isBase e1 t then Node e $ Transient $ s t else Node e (step (s t))
-
-s (Node e (Transient t)) = 
-	s t
-
-s t = t
-
 isBase e1 (Node _ (Decompose ts)) = or $ map (isBase e1) ts
 isBase e1 (Node _ (Variants cs)) = or $ map (isBase e1 . snd) cs 
 isBase e1 (Node _ (Transient t)) = isBase e1 t
 isBase e1 (Node _ (Fold (Node e2 _) _)) = e1 == e2
 isBase e1 (Node e2 Stop) = False
+
+residuate tree = (expr, program) where
+	(expr, program, _) = res nameSupply [] tree
 
 --- generation of residual program
 res :: NameSupply -> [(Expr, Expr)] -> Tree -> (Expr, Program, NameSupply)

@@ -66,13 +66,13 @@ test10 = (buildTree program10 nameSupply goal10)
 
 run program goal = putStr $ unlines $ take 100 $ pprintTree "" "" (buildTree program nameSupply goal)
 runFold program goal = putStr $ unlines $ take 100 $ pprintTree "" "" (foldTree (buildTree program nameSupply goal))
-runFold1 program goal = putStr $ unlines $ take 100 $ pprintTree "" "" (foldTree (buildFoldableTree program nameSupply goal))
+runFold1 program goal = putStr $ unlines $ take 100 $ pprintTree "" "" (foldTree (buildFTree program nameSupply goal))
 
 tree :: Tree
-tree = (foldTree (buildFoldableTree program1 nameSupply goal01))
+tree = (foldTree (buildFTree program1 nameSupply goal01))
 
 p = (p', t') where
-	(p', t', _) = res nameSupply [] (s tree)
+	(p', t', _) = res nameSupply [] (simplify tree)
 	
 printTree t = putStr $ unlines $ take 100 $ pprintTree "" "" t
 

@@ -6,8 +6,8 @@ import Settings
 buildTree :: Program -> NameSupply -> Expr -> Tree
 buildTree p ns t = case drive p ns t of
 	Decompose driven -> Node t $ Decompose (map (buildTree p ns) driven)
-	Variants cs -> Node t $ Variants [(c, buildTree p ns1 $ propagate c e) 
-		| (c, e) <- cs, let ns1 = unused c ns]
+	Variants cs -> Node t $ Variants [(c, buildTree p (unused c ns) tuned) 
+		| (c, e) <- cs, let tuned = propagateContract c e]
 	Transient term -> Node t $ Transient (buildTree p ns term)
 	Stop -> Node t Stop
 
@@ -19,9 +19,9 @@ drive p ns (Let x t1 t2) = Decompose [t1, t2]
 drive p ns (FCall name args) = Transient $ subst (zip vs args) e where FFun _ vs e = fFun p name
 drive p ns (GCall gname (v:vs)) = driveG p ns gname v vs
 	
-propagate :: Contract -> Expr -> Expr
-propagate (Contract v (Pat cn vs)) e | propagateInfo = subst [(v, Ctr cn $ map Var vs)] e
-propagate c e | otherwise = e
+propagateContract :: Contract -> Expr -> Expr
+propagateContract (Contract v (Pat cn vs)) e | propagateInfo = subst [(v, Ctr cn $ map Var vs)] e
+propagateContract c e | otherwise = e
 
 driveG :: Program -> NameSupply -> Name -> Expr -> [Expr] -> Step Expr
 driveG p ns gname (Ctr cname cargs) args  = Transient (subst sub t) where 
@@ -29,7 +29,7 @@ driveG p ns gname (Ctr cname cargs) args  = Transient (subst sub t) where
 	sub = zip (cvs ++ vs) (cargs ++ args)
 driveG p ns gname (Var v) args = Variants $ map (variant v ns args) (gFuns p gname)
 driveG p ns gname inner args = proceed (drive p ns inner) where
-	proceed (Transient t) = Transient (GCall gname (t:args));
+	proceed (Transient t) = Transient (GCall gname (t:args))
 	proceed (Variants cs) = Variants [(c, GCall gname (t:args)) | (c, t) <- cs]
 
 variant :: Name -> NameSupply -> [Expr] -> GFun -> (Contract, Expr)

@@ -1,5 +1,5 @@
 module Settings where
 	
 -- trigger for whistle
-maxConfSize = 10
+maxConfSize = 100
 propagateInfo = True

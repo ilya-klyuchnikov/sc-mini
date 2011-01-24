@@ -43,3 +43,6 @@ t2 = ( "fMatch(Cons(A(), Nil()), str)", --"fMatch(Cons(A(), Cons(A(), Cons(B(), 
 	\ gX(Cons(s, ss), p, pp,  op, os) = gIf(gEqSymb(p, s), gM(pp, ss, op, os), gN(os, op));\
 	\ gN(Nil(), op) = False(); \
 	\ gN(Cons(s, ss), op) = gM(op, ss, op, ss);")
+	
+main = do
+	putStr (runTask t2)

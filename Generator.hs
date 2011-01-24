@@ -3,6 +3,7 @@ module Generator where
 import Data
 import Data.Maybe
 import Data.List
+import Settings
 
 isBase e1 (Node _ (Decompose ts)) = or $ map (isBase e1) ts
 isBase e1 (Node _ (Variants cs)) = or $ map (isBase e1 . snd) cs 
@@ -31,11 +32,12 @@ res (n:ns) mp (Node e (Transient t)) = (fcall, Program ((FFun f1 vs body):fs) gs
 	
 res (n:ns) mp (Node e (Variants cs)) = (gcall, Program fs (newGs ++ gs), ns1) where
 	vs@(pv:vs') = vnames e
+	(vs_, vs'_) = if (not propagateInfo) && (isRepeated pv e) then (pv:vs, vs) else (vs, vs')
 	g1 = "g" ++ n
-	gcall = GCall g1 $ map Var vs
+	gcall = GCall g1 $ map Var vs_ -- here
 	(bodies, Program fs gs, ns1) = make ns ((e, gcall) : mp) $ map snd cs
 	pats = [pat | (Contract v pat, _) <- cs]
-	newGs = [GFun g1 p vs' b | (p, b) <-  (zip pats bodies)]
+	newGs = [GFun g1 p vs'_ b | (p, b) <-  (zip pats bodies)]
 	
 res ns mp (Node e (Fold (Node base _) ren)) = (call, Program [] [], ns) where
 	call = subst [(x, Var y) | (x, y) <- ren] baseCall

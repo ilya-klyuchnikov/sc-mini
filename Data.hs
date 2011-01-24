@@ -70,11 +70,20 @@ size (FCall _ args) = 1 + sum (map size args)
 size (GCall _ args) = 1 + sum (map size args)
 size (Let _ e1 e2) = 1 + (size e1) + (size e2)
 
+-- a SET (so, without duplicates) of all variable names encountered in a given expression
+-- variables are in the order they are encountered
 vnames :: Expr -> [Name]
-vnames (Var v) = [v]
-vnames (Ctr _ args)   = nub $ concat $ map vnames args
-vnames (FCall _ args) = nub $ concat $ map vnames args
-vnames (GCall _ args) = nub $ concat $ map vnames args
+vnames = nub . vnames1
+
+-- a LIST (so, with possible duplicates) of all variable names encounterd in a given expressions
+-- variables are in the order they are encountered
+vnames1 :: Expr -> [Name]
+vnames1 (Var v) = [v]
+vnames1 (Ctr _ args)   = concat $ map vnames args
+vnames1 (FCall _ args) = concat $ map vnames args
+vnames1 (GCall _ args) = concat $ map vnames args
+
+isRepeated vn e = (length $ filter (== vn) (vnames1 e)) > 1
 
 -- READ/SHOW
 instance Show Expr where

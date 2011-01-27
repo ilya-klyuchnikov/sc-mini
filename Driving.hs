@@ -21,7 +21,7 @@ drive p ns (GCall gname (v:vs)) = driveG p ns gname v vs
 	
 propagateContract :: Contract -> Expr -> Expr
 propagateContract (Contract v (Pat cn vs)) e | propagateInfo = subst [(v, Ctr cn $ map Var vs)] e
-propagateContract c e | otherwise = e
+propagateContract c e = e
 
 driveG :: Program -> NameSupply -> Name -> Expr -> [Expr] -> Step Expr
 driveG p ns gname (Ctr cname cargs) args  = Transient (subst sub t) where 

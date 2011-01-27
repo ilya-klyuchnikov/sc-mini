@@ -11,25 +11,38 @@ import Data.Maybe
 import Generator
 import Examples
 
-conf1 = Config True True 100
+-- no simplification, no propagation
+conf1 = Config False False 100
+
+-- no simplification
+conf2 = Config False True 100
+
+-- no information propagation
+conf3 = Config True False 100
+
+-- supercompilation
+conf4 = Config True True 100
+
 
 load :: (String, String) -> State
 load (p1, p2) = (read p1, read p2)
 
-runTask (g, p) = 
-	"was:\n" ++ (show goal1) ++ "\n" ++ (show program1) ++ "\n\ntransformed:\n" ++ (show goal2) ++ "\n" ++ (show program2) ++ "\n"
+runTask conf (g, p) = 
+	"before:\n" ++ (show goal1) ++ "\n" ++ (show program1) ++ "\n\nafter:\n" ++ (show goal2) ++ "\n" ++ (show program2) ++ "\n\n"
 	where
 		(goal1, program1) = (read g, read p)
-		(goal2, program2) = supercompile conf1 (goal1, program1)
+		(goal2, program2) = supercompile conf (goal1, program1)
 		
-bt (g, p) =
-	unlines $ take 100 $ pprintTree "" "" $ foldTree $ buildFTree p nameSupply g
+--bt (g, p) =
+--	unlines $ take 100 $ pprintTree "" "" $ foldTree $ buildFTree p nameSupply g
 
 t1 = ("gApp(gApp(x, y), z)",
 	" gApp(Nil(), ys) = ys;\
 	\ gApp(Cons(x, xs), ys) = Cons(x, gApp(xs, ys));")
-	
-t2 = ( "fMatch(Cons(A(), Nil()), str)", --"fMatch(Cons(A(), Cons(A(), Cons(B(), Nil()))), str)",
+
+goal1 = "fMatch(Cons(A(), Cons(A(), Cons(B(), Nil()))), str)"
+goal2 = "fMatch(Cons(A(), Cons(A(), Nil())), str)"
+t2 goal = ( goal, --"fMatch(Cons(A(), Nil()), str)",
 	" gEqSymb(A(), y) = gEqA(y);\
 	\ gEqSymb(B(), y) = gEqB(y);\
 	\ gEqA(A()) = True();  gEqA(B()) = False();\
@@ -45,4 +58,20 @@ t2 = ( "fMatch(Cons(A(), Nil()), str)", --"fMatch(Cons(A(), Cons(A(), Cons(B(), 
 	\ gN(Cons(s, ss), op) = gM(op, ss, op, ss);")
 	
 main = do
-	putStr (runTask t2)
+	putStrLn "no simplification, no propagation"
+	putStrLn (runTask conf1 (t2 goal1))
+	
+	putStrLn "no simplification"
+	putStrLn (runTask conf2 (t2 goal1))
+	
+	putStrLn "no propagation"
+	putStrLn (runTask conf3 (t2 goal1))
+	
+	putStrLn "supercompilation"
+	putStrLn (runTask conf4 (t2 goal1))
+	
+	putStrLn "no propagation"
+	putStrLn (runTask conf3 (t2 goal2))
+	
+	putStrLn "supercompilation"
+	putStrLn (runTask conf4 (t2 goal2))

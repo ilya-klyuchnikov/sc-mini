@@ -21,6 +21,7 @@ pprintTree indent msg (Node expr next) = make next where
 	make (Variants cs) = 
 		(indent ++ msg) :  (indent ++ "|__" ++  show expr) : (concat (map (\(x, t) -> pprintTree (indent ++ " ") (show x) t) cs))
 
+{-
 program1 = Program [] [
 	GFun "gApp" (Pat "Nil" []) ["ys"] (Var "ys"),
 	GFun "gApp" (Pat "Cons" ["x", "xs"]) ["ys"] (Ctr "Cons" [(Var "x") , GCall "gApp" [(Var "xs"), (Var "ys")]])
@@ -91,3 +92,4 @@ main = do
 	--runFold program2 goalRev
 	putStr "\n"
 	runFold1 program2 goalRev
+-}

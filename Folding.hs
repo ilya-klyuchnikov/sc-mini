@@ -9,9 +9,15 @@ import Data.Maybe
 foldTree :: Tree -> Tree
 foldTree t = tieKnot [] t
 
+-- we tie a knot only for calls
+-- it is enough in the first-order settings
 tieKnot :: [Tree] -> Tree -> Tree
 tieKnot ts t@(Node e _) = tied where
-	tied:_ = [Node e (Fold k r) | k@(Node b _) <- ts, Just r <- [renaming e b]] ++ [(traverse ts t)]
+	tied:_ = [Node e (Fold knot r) | knot@(Node b _) <- ts, Just r <- [renaming e b], isCall e] ++ [(traverse ts t)]
+	
+isCall (FCall _ _) = True
+isCall (GCall _ _) = True
+isCall _ = False
 	
 traverse :: [Tree] -> Tree -> Tree
 traverse ts (Node e (Transient c)) = t where

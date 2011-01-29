@@ -79,9 +79,10 @@ vnames = nub . vnames1
 -- variables are in the order they are encountered
 vnames1 :: Expr -> [Name]
 vnames1 (Var v) = [v]
-vnames1 (Ctr _ args)   = concat $ map vnames args
-vnames1 (FCall _ args) = concat $ map vnames args
-vnames1 (GCall _ args) = concat $ map vnames args
+vnames1 (Ctr _ args)   = concat $ map vnames1 args
+vnames1 (FCall _ args) = concat $ map vnames1 args
+vnames1 (GCall _ args) = concat $ map vnames1 args
+vnames1 (Let _ e1 e2) = vnames1 e1 ++ vnames1 e2
 
 isRepeated vn e = (length $ filter (== vn) (vnames1 e)) > 1
 
@@ -91,6 +92,7 @@ instance Show Expr where
 	show (Ctr n es) = n ++ "(" ++ (intercalate ", " (map show es)) ++ ")"
 	show (FCall n es) = n ++ "(" ++ (intercalate ", " (map show es)) ++ ")"
 	show (GCall n es) = n ++ "(" ++ (intercalate ", " (map show es)) ++ ")"
+	show (Let v e1 e2) = "let " ++ v ++ " = " ++ (show e1) ++ " in " ++ (show e2)
 
 instance Show FFun where
 	show (FFun fn args body) = fn ++ "(" ++ intercalate ", " args ++ ") = " ++ (show body) ++ ";"

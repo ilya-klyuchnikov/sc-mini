@@ -6,8 +6,7 @@ import Settings
 buildTree :: Program -> NameSupply -> Expr -> Tree
 buildTree p ns t = case drive p ns t of
 	Decompose driven -> Node t $ Decompose (map (buildTree p ns) driven)
-	Variants cs -> Node t $ Variants [(c, buildTree p (unused c ns) tuned) 
-		| (c, e) <- cs, let tuned = propagateContract c e]
+	Variants cs -> Node t $ Variants [(c, buildTree p (unused c ns) e) | (c, e) <- cs] --let tuned = propagateContract c e
 	Transient term -> Node t $ Transient (buildTree p ns term)
 	Stop -> Node t Stop
 

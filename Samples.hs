@@ -2,7 +2,7 @@ module Samples where
 
 import Data
 import Driving
-import Interpreter
+--import Interpreter
 import TreeInterpreter
 import Supercompiler
 import Folding
@@ -21,7 +21,7 @@ conf2 = Config False True 100
 conf3 = Config True False 100
 
 -- supercompilation
-conf4 = Config True True 100
+conf4 = Config True True 40
 
 
 load :: (String, String) -> State
@@ -56,6 +56,19 @@ t2 goal = ( goal, --"fMatch(Cons(A(), Nil()), str)",
 	\ gX(Cons(s, ss), p, pp,  op, os) = gIf(gEqSymb(p, s), gM(pp, ss, op, os), gN(os, op));\
 	\ gN(Nil(), op) = False(); \
 	\ gN(Cons(s, ss), op) = gM(op, ss, op, ss);")
+	
+t3 = ("gEq(x, fSqr(S(x)))",
+	" gAdd(Z(), y) = y;\
+	\ gAdd(S(x), y) = S(gAdd(x, y));\
+	\ gMult(Z(), y) = Z();\
+	\ gMult(S(x), y) = gAdd(y, gMult(x, y));\ 
+	\ fSqr(x) = gMult(x, x); \
+	\ gEq(Z(), y) = gEqZ(y);\
+	\ gEq(S(x), y) = gEqS(y, x);\
+	\ gEqZ(Z()) = True();\
+	\ gEqZ(S(x)) = False();\
+	\ gEqS(Z(), x) = False();\
+	\ gEqS(S(y), x) = gEq(x, y);")
 	
 main = do
 	putStrLn "no simplification, no propagation"

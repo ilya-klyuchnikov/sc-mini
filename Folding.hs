@@ -13,7 +13,7 @@ foldTree t = tieKnot [] t
 -- it is enough in the first-order settings
 tieKnot :: [Tree] -> Tree -> Tree
 tieKnot ts t@(Node e _) = tied where
-	tied:_ = [Node e (Fold knot r) | knot@(Node b _) <- ts, Just r <- [renaming e b], isCall e] ++ [(traverse ts t)]
+	tied:_ = [Node e (Fold knot r) | knot@(Node b _) <- ts, Just r <- [renaming b e], isCall e] ++ [(traverse ts t)]
 	
 isCall (FCall _ _) = True
 isCall (GCall _ _) = True

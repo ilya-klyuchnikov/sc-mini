@@ -158,3 +158,14 @@ readP1 p@(Program fs gs) s = next (readFFun s) (readGFun s) where
 	next [(f, s1)] _ = readP1 (Program (fs++[f]) gs) s1
 	next _ [(g, s1)] = readP1 (Program fs (gs++[g])) s1
 	next _ _ = (p, s)
+	
+printTree t = unlines $ take 10000 $ pprintTree "" "" t
+
+pprintTree :: String -> String -> Tree -> [String]
+pprintTree indent msg (Node expr next) = make next where
+	make (Fold _ _) = (indent ++ msg) : [indent ++ "|__" ++  (show expr) ++ "__↑"]
+	make Stop = (indent ++ msg) : [indent ++ "|__" ++  (show expr)]
+	make (Transient t) = (indent ++ msg) : (indent ++ "|__" ++ show expr) : (pprintTree (indent ++ " ") "3" t)
+	make (Decompose ts) = (indent ++ msg) :  (indent ++ "|__" ++ show expr): (concat (map (pprintTree (indent ++ " ") "4") ts))
+	make (Variants cs) = 
+		(indent ++ msg) :  (indent ++ "|__" ++  show expr) : (concat (map (\(x, t) -> pprintTree (indent ++ " ") (show x) t) cs))

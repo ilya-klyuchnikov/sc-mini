@@ -4,14 +4,22 @@ import Data
 import Data.List
 import Data.Maybe
 
-isGround :: Expr -> Bool
-isGround (Ctr _ args) = and $ map isGround args 
-isGround _ = False
+import Debug.Trace
+
+type Task = (Program, Expr)
+type Value = Expr
+
+intFacade :: Task -> Subst -> (Value, Integer)
+intFacade (prog, e) s = intC prog (subst s e)
+
+int :: Program -> Expr -> Expr
+int p e | isValue e = e
+        | otherwise = traceShow e (int p (intStep p e))
 
 intStep :: Program -> Expr -> Expr
 intStep p (Ctr name args) = 
-	Ctr name (grounds ++ (int p x : xs)) where 
-		(grounds, x : xs) = span isGround args
+	Ctr name (grounds ++ (intStep p x : xs)) where 
+		(grounds, x : xs) = span isValue args
 
 intStep p (FCall name args) = 
 	(subst (zip vs args) t) where 
@@ -27,6 +35,11 @@ intStep p (GCall gname (e:es)) =
 intStep p (Let x e1 e2) =
 	subst [(x, e1)] e2
 
-int :: Program -> Expr -> Expr
-int p e | isGround e = e
-		| otherwise = int p (intStep p e) 
+isValue :: Expr -> Bool
+isValue (Ctr _ args) = and $ map isValue args 
+isValue _ = False
+
+intC :: Program -> Expr -> (Expr, Integer) 
+intC p e = intC' p (e, 0) 
+intC' p (e, n) | isValue e = (e, n)
+               | otherwise = intC' p (intStep p e, n + 1)

@@ -5,19 +5,15 @@ import Driving
 import Data.List
 import Data.Maybe
 
--- folding (without generalization) of an infinite tree into a graph
+-- folding of foldable infinite tree into a graph
 foldTree :: Tree -> Tree
 foldTree t = tieKnot [] t
 
 -- we tie a knot only for calls
 -- it is enough in the first-order settings
 tieKnot :: [Tree] -> Tree -> Tree
-tieKnot ts t@(Node e _) = tied where
-	tied:_ = [Node e (Fold knot r) | knot@(Node b _) <- ts, Just r <- [renaming b e], isCall e] ++ [(traverse ts t)]
-	
-isCall (FCall _ _) = True
-isCall (GCall _ _) = True
-isCall _ = False
+tieKnot ts t@(Node e _) = n where
+	n:_ = [Node e (Fold k r) | k <- ts, Just r <- [renaming (expr k) e], isCall e] ++ [(traverse ts t)]
 	
 traverse :: [Tree] -> Tree -> Tree
 traverse ts (Node e (Transient c)) = t where

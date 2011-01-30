@@ -8,8 +8,8 @@ import Debug.Trace
 
 type Value = Expr
 
-intFacade :: (Program, Expr) -> Subst -> (Value, Integer)
-intFacade (prog, e) s = intC prog (subst s e)
+intFacade :: State -> Subst -> (Value, Integer)
+intFacade (e, prog) s = intC prog (subst s e)
 
 int :: Program -> Expr -> Expr
 int p e | isValue e = e

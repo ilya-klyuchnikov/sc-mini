@@ -6,10 +6,9 @@ import Data.Maybe
 
 import Debug.Trace
 
-type Task = (Program, Expr)
 type Value = Expr
 
-intFacade :: Task -> Subst -> (Value, Integer)
+intFacade :: (Program, Expr) -> Subst -> (Value, Integer)
 intFacade (prog, e) s = intC prog (subst s e)
 
 int :: Program -> Expr -> Expr
@@ -18,8 +17,8 @@ int p e | isValue e = e
 
 intStep :: Program -> Expr -> Expr
 intStep p (Ctr name args) = 
-	Ctr name (grounds ++ (intStep p x : xs)) where 
-		(grounds, x : xs) = span isValue args
+	Ctr name (values ++ (intStep p x : xs)) where 
+		(values, x : xs) = span isValue args
 
 intStep p (FCall name args) = 
 	(subst (zip vs args) t) where 

@@ -4,8 +4,6 @@ import Data
 import Data.List
 import Data.Maybe
 
-import Debug.Trace
-
 type Value = Expr
 
 intFacade :: State -> Subst -> (Value, Integer)
@@ -13,7 +11,7 @@ intFacade (e, prog) s = intC prog (subst s e)
 
 int :: Program -> Expr -> Expr
 int p e | isValue e = e
-        | otherwise = traceShow e (int p (intStep p e))
+        | otherwise = int p (intStep p e)
 
 intStep :: Program -> Expr -> Expr
 intStep p (Ctr name args) = 
@@ -42,3 +40,10 @@ intC :: Program -> Expr -> (Expr, Integer)
 intC p e = intC' p (e, 0) 
 intC' p (e, n) | isValue e = (e, n)
                | otherwise = intC' p (intStep p e, n + 1)
+
+-- only for tracing
+traceInt :: Program -> Expr -> IO()
+traceInt p e | isValue e = putStrLn (show e)
+			 | otherwise = do
+				putStrLn (show e)
+				traceInt p (intStep p e)

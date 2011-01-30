@@ -9,8 +9,7 @@ import Char
 
 data Expr = Var Name | Ctr Name [Expr] | FCall Name [Expr] | GCall Name [Expr] | Let Name Expr Expr deriving (Eq)
 data Contract = Contract Name Pat deriving (Show)
-type Variant a = (Contract, a)
-data Step a = Transient a | Decompose [a] | Variants [(Contract, a)] | Stop | Fold a Renaming deriving (Show)
+data Step a = Transient a | Variants [(Contract, a)] | Stop | Decompose [a] | Fold a Renaming deriving (Show)
 data Tree = Node Expr (Step Tree) deriving (Show)
 data Pat = Pat Name [Name]
 data GFun = GFun Name Pat [Name] Expr
@@ -46,6 +45,11 @@ subst sub (Ctr name args)  = Ctr name (map (subst sub) args)
 subst sub (FCall name args)  = FCall name (map (subst sub) args)
 subst sub (GCall name args) = GCall name (map (subst sub) args)
 subst sub (Let x e1 e2) = Let x (subst sub e1) (subst sub e2)
+
+isCall :: Expr -> Bool
+isCall (FCall _ _) = True
+isCall (GCall _ _) = True
+isCall _ = False
 
 rawRenaming :: (Expr, Expr) -> [Maybe (Name, Name)]
 rawRenaming ((Var x), (Var y)) = [Just (x, y)]

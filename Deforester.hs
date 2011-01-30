@@ -6,8 +6,7 @@ import Folding
 import Generator
 import ATransformer
 
--- The feature of deforester is simplifying of 
--- folded tree.
+-- The main feature of deforester is simplification of folded tree.
 deforest :: State -> State
 deforest (e, p) =
 	residuate $ simplify $ foldTree $ buildFTree drive p nameSupply e

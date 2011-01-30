@@ -7,6 +7,7 @@ import Driving
 import ATransformer
 import Deforester
 
+-- The main feature of supercompiler is propagation of information.
 supercompile :: State -> State
 supercompile (expr, program) =
 	residuate $ simplify $ foldTree $ buildFTree pimpedDrive program nameSupply expr where

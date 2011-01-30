@@ -7,16 +7,30 @@ programText =
 	" gAdd(Z(), y) = y;\
 	\ gAdd(S(x), y) = S(gAdd(x, y));\
 	\ gMult(Z(), y) = Z();\
-	\ gMult(S(x), y) = gAdd(gMult(x, y), y);\ 
-	\ fSqr(x) = gMult(x, x); "
+	\ gMult(S(x), y) = gAdd(y, gMult(x, y));\ 
+	\ fSqr(x) = gMult(x, x); \	
+	\ gEven(Z()) = True();\
+	\ gEven(S(x)) = gOdd(x);\
+	\ gOdd(Z()) = False();\
+	\ gOdd(S(x)) = gEven(x);\
+	\ gEq(Z(), y) = gEqZ(y);\
+	\ gEq(S(x), y) = gEqS(y, x);\
+	\ gEqZ(Z()) = True();\
+	\ gEqZ(S(x)) = False();\
+	\ gEqS(Z(), x) = False();\
+	\ gEqS(S(y), x) = gEq(x, y);"
 
-exp1Text = "fSqr(S(S(Z())))"
-exp1Text' = "fSqr(S(S(x)))"
+exp0Text = "gAdd(S(S(Z())), S(S(Z())))"
+exp1Text = "gEven(fSqr(S(Z())))"
+exp1Text' = "gEven(fSqr(S(x)))"
 exp2Text = "fSqr(S(S(S(Z()))))"
 exp3Text = "fSqr(S(S(S(S(Z())))))"
 
-prog :: Prog	
+prog :: Program	
 prog = read programText
+
+exp0 :: Expr
+exp0 = read exp0Text
 
 exp1 :: Expr
 exp1 = read exp1Text

@@ -9,29 +9,17 @@ import Folding
 import Data.List
 import Data.Maybe
 import Generator
-
--- no simplification, no propagation
-conf1 = Config False False 100
-
--- no simplification
-conf2 = Config False True 30
-
--- no information propagation
-conf3 = Config True False 1000
-
--- supercompilation
-conf4 = Config True True 30
-
+import ATransformer
+import Deforester
 
 load :: (String, String) -> State
 load (p1, p2) = (read p1, read p2)
 
-runTask conf (g, p) = 
+doTask f (g, p) = 
 	"before:\n" ++ (show goal1) ++ "\n" ++ (show program1) ++ "\n\nafter:\n" ++ (show goal2) ++ "\n" ++ (show program2) ++ "\n\n"
 	where
 		(goal1, program1) = (read g, read p)
-		(goal2, program2) = supercompile conf (goal1, program1)
-		
+		(goal2, program2) = f (goal1, program1)		
 --bt (g, p) =
 --	unlines $ take 100 $ pprintTree "" "" $ foldTree $ buildFTree p nameSupply g
 
@@ -88,23 +76,25 @@ t4 = ("gMult(x, S(Z()))",
 
 	
 main = do
-	putStrLn "no simplification, no propagation"
-	putStrLn (runTask conf1 (t2 goal1))
+	putStrLn "just transformation"
+	putStrLn (doTask transform (t2 goal1))
 	
-	putStrLn "no simplification"
-	putStrLn (runTask conf2 (t2 goal1))
-	
-	putStrLn "no propagation"
-	putStrLn (runTask conf3 (t2 goal1))
-	
+	putStrLn "deforestation"
+	putStrLn (doTask deforest (t2 goal1))
+		
 	putStrLn "supercompilation"
-	putStrLn (runTask conf4 (t2 goal1))
+	putStrLn (doTask supercompile (t2 goal1))
 	
-	--putStrLn "no propagation"
-	--putStrLn (runTask conf3 (t2 goal2))
+	--putStrLn "deforestation"
+	--putStrLn (doTask deforest (t2 goal2))
 	
-	putStrLn "supercompilation"
-	putStrLn (runTask conf4 (t2 goal2))
+	--putStrLn "supercompilation"
+	--putStrLn (doTask supercompile (t2 goal2))
 	
-	putStrLn "supercompilation"
-	putStrLn (runTask conf4 t3)
+	-- this example shows that sometimes deforestation
+	-- is better than supercompilation
+	putStrLn "2) deforestation"
+	putStrLn (doTask deforest t3)
+	
+	putStrLn "2) supercompilation"
+	putStrLn (doTask supercompile t3)

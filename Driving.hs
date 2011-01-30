@@ -2,7 +2,7 @@ module Driving where
 
 import Data
 
--- build possibly infinite process tree
+-- Builds an infinite (in a general case) process tree.
 buildTree :: Program -> NameSupply -> Expr -> Tree
 buildTree p ns t = case drive p ns t of
 	Decompose driven -> Node t $ Decompose (map (buildTree p ns) driven)
@@ -11,6 +11,7 @@ buildTree p ns t = case drive p ns t of
 	Variants cs -> 
 		Node t $ Variants [(c, buildTree p (unused c ns) e) | (c, e) <- cs]
 
+-- Models a behavior of interpreter.
 drive :: Program -> NameSupply -> Expr -> Step Expr
 drive p ns (Var _) = Stop
 drive p ns (Ctr _ []) = Stop
@@ -25,7 +26,6 @@ drive p ns (GCall gname ((Var v):args)) = Variants $ map (variant v ns args) (gF
 drive p ns (GCall gname (inner:args)) = proceed (drive p ns inner) where
 	proceed (Transient t) = Transient (GCall gname (t:args))
 	proceed (Variants cs) = Variants [(c, GCall gname (t:args)) | (c, t) <- cs]
-
 
 variant :: Name -> NameSupply -> [Expr] -> GFun -> (Contract, Expr)
 variant v ns args (GFun _ (Pat cname cvs) vs body) = (Contract v (Pat cname fresh), subst sub body) where

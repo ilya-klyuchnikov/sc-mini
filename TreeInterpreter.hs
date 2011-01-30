@@ -2,8 +2,9 @@ module TreeInterpreter where
 
 import Data
 import Data.Maybe
+type Value = Expr
 
-intTree :: Subst -> Tree -> Expr
+intTree :: Subst -> Tree -> Value
 intTree env (Node e Stop) = 
 	subst env e 
 

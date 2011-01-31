@@ -12,7 +12,7 @@ import Generator
 import ATransformer
 import Deforester
 
-p1Text = " gAdd(Z(), y) = y;\
+prog1Text = " gAdd(Z(), y) = y;\
 	\ gAdd(S(x), y) = S(gAdd(x, y));\
 	\ gMult(Z(), y) = Z();\
 	\ gMult(S(x), y) = gAdd(y, gMult(x, y));\ 
@@ -20,12 +20,14 @@ p1Text = " gAdd(Z(), y) = y;\
 	\ gEven(Z()) = True();\
 	\ gEven(S(x)) = gOdd(x);\
 	\ gOdd(Z()) = False();\
-	\ gOdd(S(x)) = gEven(x);"
+	\ gOdd(S(x)) = gEven(x);\
+	\ gAdd1(Z(), y) = y; \
+	\ gAdd1(S(x), y) = gAdd1(x, S(y));"
 
-p1 :: Program
-p1 = read p1Text
+prog1 :: Program
+prog1 = read prog1Text
 
-p2Text = " gEqSymb(A(), y) = gEqA(y);\
+prog2Text = " gEqSymb(A(), y) = gEqA(y);\
 	\ gEqSymb(B(), y) = gEqB(y);\
 	\ gEqA(A()) = True();  gEqA(B()) = False();\
 	\ gEqB(A()) = False(); gEqB(B()) = True();\
@@ -39,8 +41,8 @@ p2Text = " gEqSymb(A(), y) = gEqA(y);\
 	\ gN(Nil(), op) = False(); \
 	\ gN(Cons(s, ss), op) = gM(op, ss, op, ss);"
 	
-p2 :: Program
-p2 = read p2Text
+prog2 :: Program
+prog2 = read prog2Text
 
 conf0Text = "gEven(fSqr(S(x)))"
 
@@ -58,12 +60,6 @@ conf2Text = "fMatch(Cons(A(), Cons(A(), Cons(B(), Nil()))), str)"
 conf2 :: Expr
 conf2 = read conf2Text
 
-one :: Expr
-one = read "S(Z())"
-
-two :: Expr
-two = read "S(S(Z()))"
-
 goal1 :: Expr
 goal1 = read "fSqr(S(S(Z())))"
 
@@ -77,42 +73,78 @@ example1 :: IO ()
 example1 = do
 	putStr (show goal1)
 	putStr " => "
-	putStrLn $ show (intC p1 goal1)
+	putStrLn $ show (intC prog1 goal1)
 
 example2 :: IO ()
 example2 = do
 	putStr (show goal1)
 	putStr " => "
-	putStrLn $ show (intC p1 goal2)
+	putStrLn $ show (intC prog1 goal2)
 	
 example3 :: IO ()
 example3 = do
 	putStr (show goal1)
 	putStr " => "
-	putStrLn $ show (intC p1 goal3)
+	putStrLn $ show (intC prog1 goal3)
 	
 example4 :: IO ()
 example4 = do
-	traceInt p1 goal1
+	traceInt prog1 goal1
 	
 example5 :: IO ()
 example5 = do
-	traceInt p1 conf0
+	traceInt prog1 conf0
+	
+example6 = 
+	putStrLn $ show $ drive prog1 nameSupply (read "gOdd(gAdd(x, gMult(x, S(x))))")
+example7 = 
+	putStrLn $ show $ drive prog1 nameSupply (read "gOdd(S(gAdd(x1, gMult(x, S(x)))))")
 
-state1 = (conf1, p1)
+example8 :: IO ()
+example8 = 
+	putStrLn $ printTree $ buildTree prog1 nameSupply conf1
+
+example9 :: IO ()
+example9 = do
+	putStrLn $ show $ intTree [("x", read "S(S(Z()))")] (buildTree prog1 nameSupply conf1)
+	putStrLn $ show $ intTree [("x", read "S(S(S(Z())))")] (buildTree prog1 nameSupply conf1)
+	
+example10 :: IO ()
+example10 = 
+	putStrLn $ printTree $ foldTree $ buildTree prog1 nameSupply conf1
+	
+example11 :: IO ()
+example11 =
+	putStrLn $ printTree $ foldTree $ buildTree prog1 nameSupply (read "gAdd1(x, y)")
+	
+example12 :: IO ()
+example12 =
+	putStrLn $ printTree $ foldTree $ buildFTree drive prog1 nameSupply (read "gAdd1(x, y)")
+
+state1 = (conf1, prog1)
 state1t = transform state1
 state1d = deforest state1
 state1s = supercompile state1
 
-state2 = (conf2, p2)
-example10 = transform state2
-example11 = deforest state2
-example12 = supercompile state2
+t1d = def state1
+t1t = tr state1
+
+state2 = (conf2, prog2)
+example101 = transform state2
+example102 = deforest state2
+example103 = supercompile state2
 
 number 0 = Ctr "Z" []
 number n = Ctr "S" [number (n - 1)]
 
 run st n = intFacade st [("x", number n)]
+
+e1 :: Expr 
+e1 = read "gEven(gAdd(x, gMult(v1, x)))"
+
+e2 :: Expr 
+e2 = read "gEven(gAdd(v3, gMult(v1, x)))"
+
 
 main = do
 	example1
@@ -122,5 +154,17 @@ main = do
 	example3
 	putStrLn ""
 	example4
+	--putStrLn ""
+	--example5
 	putStrLn ""
-	example5
+	example6
+	putStrLn ""
+	example7
+	putStrLn ""
+	example8
+	putStrLn ""
+	example9
+	putStrLn ""
+	example10
+	putStrLn ""
+	example11

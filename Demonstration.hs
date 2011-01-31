@@ -141,6 +141,9 @@ state1t = transform state1
 state1d = deforest state1
 state1s = supercompile state1
 
+def (e, p) = simplify $ foldTree $ buildFTree drive p nameSupply e
+tr (e, p) = foldTree $ buildFTree drive p nameSupply e
+
 t1d = def state1
 t1t = tr state1
 

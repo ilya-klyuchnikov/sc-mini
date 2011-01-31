@@ -10,8 +10,10 @@ import Deforester
 -- The main feature of supercompiler is propagation of information.
 supercompile :: State -> State
 supercompile (expr, program) =
-	residuate $ simplify $ foldTree $ buildFTree pimpedDrive program nameSupply expr where
-		pimpedDrive p ns e = propagateContract (drive p ns e)
+	residuate $ simplify $ foldTree $ buildFTree (propagate drive) program nameSupply expr
+
+propagate dr = f where
+	f p ns e = propagateContract (dr p ns e)
 
 propagateContract :: Step Expr -> Step Expr
 propagateContract (Variants vs) = 

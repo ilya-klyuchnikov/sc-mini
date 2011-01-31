@@ -11,6 +11,9 @@ deforest :: State -> State
 deforest (e, p) =
 	residuate $ simplify $ foldTree $ buildFTree drive p nameSupply e
 	
+def (e, p) = simplify $ foldTree $ buildFTree drive p nameSupply e
+tr (e, p) = foldTree $ buildFTree drive p nameSupply e
+	
 simplify :: Tree -> Tree
 simplify (Node e (Decompose ts)) = (Node e (Decompose $ map simplify ts))
 simplify (Node e (Variants cs)) = Node e $ Variants [(c, simplify t) | (c, t) <- cs]

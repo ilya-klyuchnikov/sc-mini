@@ -8,7 +8,7 @@ import Text.ParserCombinators.ReadP
 import Char
 
 data Expr = Var Name | Ctr Name [Expr] | FCall Name [Expr] | GCall Name [Expr] | Let Name Expr Expr deriving (Eq)
-data Contract = Contract Name Pat deriving (Show)
+data Contract = Contract Name Pat
 data Step a = Transient a | Variants [(Contract, a)] | Stop | Decompose [a] | Fold a Renaming deriving (Show)
 data Tree = Node Expr (Step Tree) deriving (Show)
 data Pat = Pat Name [Name]
@@ -25,7 +25,7 @@ data Config = Config Bool Bool Integer
 readVar1 :: ReadS Name 
 readVar1 i = concat [lex s1 | (",", s1) <- lex i] 
 
-nameSupply = ["$" ++ (show i) | i <- [1 ..] ]
+nameSupply = ["v" ++ (show i) | i <- [1 ..] ]
 expr (Node e _) = e
 step (Node _ s) = s
 unused (Contract _ (Pat _ vs)) = (\\ vs)
@@ -62,8 +62,11 @@ rawRenaming _  = [Nothing]
 renaming :: Expr -> Expr -> Maybe[(Name, Name)]
 renaming e1 e2 = f $ partition isNothing $ rawRenaming (e1, e2) where
 	f (x:_, _) = Nothing
-	f (_, ps) = g $ groupBy (\(a, b) (c, d) -> a == c) $ nub $ catMaybes ps
-	g xs = if all ((== 1) . length) xs then Just (concat xs) else Nothing
+	f (_, ps) = g gs1 gs2
+		where 
+			gs1 = groupBy (\(a, b) (c, d) -> a == c) $ sortBy (\(a, b) (c, d) -> compare a c) $ nub $ catMaybes ps
+			gs2 = groupBy (\(a, b) (c, d) -> b == d) $ sortBy (\(a, b) (c, d) -> compare b d) $ nub $ catMaybes ps
+	g xs ys = if all ((== 1) . length) xs && all ((== 1) . length) ys then Just (concat xs) else Nothing
 	
 isRenaming e1 e2 = isJust $ renaming e1 e2
 
@@ -106,6 +109,9 @@ instance Show GFun where
 
 instance Show Pat where
 	show (Pat cn vs) = cn ++ "(" ++ intercalate "," vs ++ ")"
+	
+instance Show Contract where
+	show (Contract n p) = n ++ " = " ++ (show p)
 	
 instance Show Program where
 	show (Program fs gs) = intercalate "\n" $ (map show fs) ++ (map show gs)
@@ -163,13 +169,13 @@ readP1 p@(Program fs gs) s = next (readFFun s) (readGFun s) where
 	next _ [(g, s1)] = readP1 (Program fs (gs++[g])) s1
 	next _ _ = (p, s)
 	
-printTree t = unlines $ take 10000 $ pprintTree "" "" t
+printTree t = unlines $ take 1000 $ pprintTree "" "" t
 
 pprintTree :: String -> String -> Tree -> [String]
 pprintTree indent msg (Node expr next) = make next where
-	make (Fold _ _) = (indent ++ msg) : [indent ++ "|__" ++  (show expr) ++ "__↑"]
+	make (Fold _ ren) = (indent ++ msg) : [indent ++ "|__" ++  (show expr) ++ "__↑" ++ (show ren)]
 	make Stop = (indent ++ msg) : [indent ++ "|__" ++  (show expr)]
-	make (Transient t) = (indent ++ msg) : (indent ++ "|__" ++ show expr) : (pprintTree (indent ++ " ") "3" t)
-	make (Decompose ts) = (indent ++ msg) :  (indent ++ "|__" ++ show expr): (concat (map (pprintTree (indent ++ " ") "4") ts))
+	make (Transient t) = (indent ++ msg) : (indent ++ "|__" ++ show expr) : (pprintTree (indent ++ " ") "|" t)
+	make (Decompose ts) = (indent ++ msg) :  (indent ++ "|__" ++ show expr): (concat (map (pprintTree (indent ++ " ") "|") ts))
 	make (Variants cs) = 
-		(indent ++ msg) :  (indent ++ "|__" ++  show expr) : (concat (map (\(x, t) -> pprintTree (indent ++ " ") (show x) t) cs))
+		(indent ++ msg) :  (indent ++ "|__" ++  show expr) : (concat (map (\(x, t) -> pprintTree (indent ++ " ") ("?" ++ show x) t) cs))

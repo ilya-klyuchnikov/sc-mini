@@ -120,6 +120,21 @@ example11 =
 example12 :: IO ()
 example12 =
 	putStrLn $ printTree $ foldTree $ buildFTree drive prog1 nameSupply (read "gAdd1(x, y)")
+	
+example12a :: IO ()
+example12a =
+	putStrLn $ printTree $ foldTree $ buildFTree drive prog1 nameSupply conf1
+	
+example13 :: IO ()
+example13 = do
+	putStrLn "just transformation"
+	putStrLn "before:\n"
+	putStrLn (show conf1)
+	putStrLn (show prog1)
+	let (c2, p2) = transform (conf1, prog1)
+	putStrLn "\nafter:\n"
+	putStrLn (show c2)
+	putStrLn (show p2)
 
 state1 = (conf1, prog1)
 state1t = transform state1
@@ -168,3 +183,8 @@ main = do
 	example10
 	putStrLn ""
 	example11
+	putStrLn ""
+	example12
+	putStrLn ""
+	example13
+	putStrLn ""

@@ -1,4 +1,4 @@
-module ATransformer where
+module Prototype where
 	
 import Data
 import Driving
@@ -8,10 +8,10 @@ import Settings
 import Data.List
 
 -- One may say, that it is the simplest (yet very degenerative) supercompiler,
--- so we call it A transformer.
+-- so we call it a prototype.
 -- It fits the description of supercompiler, cited in the paper, but doesn't 
 -- perform any simplifications so far.
-transform :: State -> State
+transform :: Task -> Task
 transform (expr, program) =
 	residuate $ foldTree $ buildFTree drive program nameSupply expr
 

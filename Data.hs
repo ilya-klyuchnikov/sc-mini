@@ -19,8 +19,7 @@ type Subst = [(Name, Expr)]
 type NameSupply = [Name]
 type Name = String
 type Renaming = [(Name, Name)]
-type State = (Expr, Program)
-data Config = Config Bool Bool Integer
+type Task = (Expr, Program)
 	
 readVar1 :: ReadS Name 
 readVar1 i = concat [lex s1 | (",", s1) <- lex i] 

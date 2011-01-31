@@ -4,10 +4,10 @@ import Data
 import Driving
 import Folding
 import Generator
-import ATransformer
+import Prototype
 
 -- The main feature of deforester is simplification of folded tree.
-deforest :: State -> State
+deforest :: Task -> Task
 deforest (e, p) =
 	residuate $ simplify $ foldTree $ buildFTree drive p nameSupply e
 	

@@ -6,7 +6,7 @@ import Data.Maybe
 
 type Value = Expr
 
-intFacade :: State -> Subst -> (Value, Integer)
+intFacade :: Task -> Subst -> (Value, Integer)
 intFacade (e, prog) s = intC prog (subst s e)
 
 int :: Program -> Expr -> Expr

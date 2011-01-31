@@ -4,16 +4,16 @@ import Data
 import Generator
 import Folding
 import Driving
-import ATransformer
+import Prototype
 import Deforester
 
 -- The main feature of supercompiler is propagation of information.
-supercompile :: State -> State
+supercompile :: Task -> Task
 supercompile (expr, program) =
 	residuate $ simplify $ foldTree $ buildFTree (propagate drive) program nameSupply expr
 
 -- Pimp driving with positive information propagation.
-propagate :: Drive -> Drive
+propagate :: Driver -> Driver
 propagate dr = f where
 	f p ns e = propagateContract (dr p ns e)
 

@@ -9,7 +9,7 @@ import Folding
 import Data.List
 import Data.Maybe
 import Generator
-import ATransformer
+import Prototype
 import Deforester
 
 prog1Text = " gAdd(Z(), y) = y;\

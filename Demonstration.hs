@@ -55,7 +55,9 @@ conf1Text = "gEven(fSqr(x))"
 conf1 :: Expr
 conf1 = read conf1Text
 
-conf2Text = "fMatch(Cons(A(), Cons(A(), Cons(B(), Nil()))), str)"
+conf2Text = "fMatch(Cons(A(), Cons(A(), Cons(B(), Nil()))), s)"
+
+conf3T = "fMatch(Cons(A(), Cons(A(), Nil())), s)"
 
 conf2 :: Expr
 conf2 = read conf2Text
@@ -135,6 +137,51 @@ example13 = do
 	putStrLn "\nafter:\n"
 	putStrLn (show c2)
 	putStrLn (show p2)
+
+example14 :: IO()
+example14 = do
+	putStrLn "just transformation"
+	putStrLn "before:\n"
+	putStrLn (show conf2)
+	putStrLn (show prog2)
+	let (c2, p2) = transform (conf2, prog2)
+	putStrLn "\nafter:\n"
+	putStrLn (show c2)
+	putStrLn (show p2)
+	
+example15 :: IO()
+example15 = do
+	putStrLn "deforestantion"
+	putStrLn "before:\n"
+	putStrLn (show conf2)
+	putStrLn (show prog2)
+	let (c2, p2) = deforest (conf2, prog2)
+	putStrLn "\nafter:\n"
+	putStrLn (show c2)
+	putStrLn (show p2)
+	
+example16 :: IO()
+example16 = do
+	putStrLn "supercompilation"
+	putStrLn "before:\n"
+	putStrLn (show conf2)
+	putStrLn (show prog2)
+	let (c2, p2) = supercompile (conf2, prog2)
+	putStrLn "\nafter:\n"
+	putStrLn (show c2)
+	putStrLn (show p2)
+	
+example16a :: IO()
+example16a = 
+	putStrLn $ printTree $ simplify $ foldTree $ buildFTree (propagate drive) prog2 nameSupply conf2
+	
+example16b :: IO()
+example16b = 
+	putStrLn $ printTree $ simplify $ foldTree $ buildFTree drive prog2 nameSupply ( read conf3T)
+	
+--example17 :: IO()
+example17 =
+	drive prog2 nameSupply (read "gX(s, A(), t, t, s)")
 
 state1 = (conf1, prog1)
 state1t = transform state1

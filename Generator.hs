@@ -11,7 +11,7 @@ isBase e1 (Node _ (Transient t)) = isBase e1 t
 isBase e1 (Node _ (Fold (Node e2 _) _)) = e1 == e2
 isBase e1 (Node e2 Stop) = False
 
-residuate :: Tree -> (Expr, Program)
+residuate :: Tree -> Task
 residuate tree = (expr, program) where
 	(expr, program, _) = res nameSupply [] tree
 

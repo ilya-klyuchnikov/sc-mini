@@ -12,6 +12,8 @@ supercompile :: State -> State
 supercompile (expr, program) =
 	residuate $ simplify $ foldTree $ buildFTree (propagate drive) program nameSupply expr
 
+-- Pimp driving with positive information propagation.
+propagate :: Drive -> Drive
 propagate dr = f where
 	f p ns e = propagateContract (dr p ns e)
 

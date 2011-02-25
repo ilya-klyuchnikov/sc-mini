@@ -1,6 +1,7 @@
 module Driving where
 
 import Data
+import DataUtil
 
 -- Builds an infinite (in a general case) process tree.
 buildTree :: Program -> NameSupply -> Expr -> Tree

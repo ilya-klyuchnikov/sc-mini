@@ -1,11 +1,11 @@
 module Prototype where
 	
 import Data
+import DataUtil
 import Driving
 import Folding
 import Generator
-import Settings
-import Data.List
+import List
 
 -- One may say, that it is the simplest (yet very degenerative) supercompiler,
 -- so we call it a prototype.
@@ -27,6 +27,7 @@ buildFTree d p  ns    t | otherwise = case d p ns t of
 	Variants cs -> 
 		Node t $ Variants [(c, buildFTree d p (unused c ns) e) | (c, e) <- cs]
 
+maxExpSize = 40
 -- The simplest ad-hoc whistle: it limits the size of an expression.
 whistle :: Expr -> Bool
 whistle t@(FCall _ _) = size t > maxExpSize

@@ -1,6 +1,7 @@
 module Deforester where
 
 import Data
+import DataUtil
 import Driving
 import Folding
 import Generator

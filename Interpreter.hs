@@ -1,8 +1,7 @@
 module Interpreter where
 
 import Data
-import Data.List
-import Data.Maybe
+import DataUtil
 
 type Value = Expr
 

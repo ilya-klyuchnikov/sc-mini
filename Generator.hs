@@ -1,9 +1,7 @@
 module Generator where
 	
 import Data
-import Data.Maybe
-import Data.List
-import Settings
+import DataUtil
 
 isBase e1 (Node _ (Decompose ts)) = or $ map (isBase e1) ts
 isBase e1 (Node _ (Variants cs)) = or $ map (isBase e1 . snd) cs 

@@ -1,7 +1,9 @@
 module TreeInterpreter where
 
 import Data
-import Data.Maybe
+import DataUtil
+import Maybe
+
 type Value = Expr
 
 intTree :: Subst -> Tree -> Value

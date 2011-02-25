@@ -1,9 +1,8 @@
 module Folding(foldTree) where
 
 import Data
+import DataUtil
 import Driving
-import Data.List
-import Data.Maybe
 
 -- folding of foldable infinite tree into a graph
 foldTree :: Tree -> Tree

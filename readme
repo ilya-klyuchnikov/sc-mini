@@ -18,3 +18,5 @@ In order to catch the idea of supercompiler, just look into the following files 
 
 ------
 Provide more comments.
+1) change intTree from 
+intTree env tree -> intTree tree env

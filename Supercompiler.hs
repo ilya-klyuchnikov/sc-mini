@@ -1,6 +1,7 @@
 module Supercompiler where
 
 import Data
+import DataUtil
 import Generator
 import Folding
 import Driving

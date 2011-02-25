@@ -1,6 +1,7 @@
 module Demonstration where
 
 import Data
+import DataUtil
 import Driving
 import Interpreter
 import TreeInterpreter
@@ -62,36 +63,30 @@ conf3T = "fMatch(Cons(A(), Cons(A(), Nil())), s)"
 conf2 :: Expr
 conf2 = read conf2Text
 
-goal1 :: Expr
-goal1 = read "fSqr(S(S(Z())))"
-
-goal2 :: Expr
-goal2 = read "fSqr(S(S(S(Z()))))"
-
-goal3 :: Expr
-goal3 = read "fSqr(S(S(S(S(Z())))))"
-
 example1 :: IO ()
 example1 = do
-	putStr (show goal1)
+	let goal = read "gEven(fSqr(S(S(Z()))))"
+	putStr (show goal)
 	putStr " => "
-	putStrLn $ show (intC prog1 goal1)
+	putStrLn $ show (intC prog1 goal)
 
 example2 :: IO ()
 example2 = do
-	putStr (show goal1)
+	let goal = read "gEven(fSqr(S(S(S(Z())))))"
+	putStr (show goal)
 	putStr " => "
-	putStrLn $ show (intC prog1 goal2)
+	putStrLn $ show (intC prog1 goal)
 	
 example3 :: IO ()
 example3 = do
-	putStr (show goal1)
+	let goal = read "gEven(fSqr(S(S(S(S(Z()))))))"
+	putStr (show goal)
 	putStr " => "
-	putStrLn $ show (intC prog1 goal3)
+	putStrLn $ show (intC prog1 goal)
 	
 example4 :: IO ()
 example4 = do
-	traceInt prog1 goal1
+	traceInt prog1 (read "gEven(fSqr(S(Z())))")
 	
 example5 :: IO ()
 example5 = do
@@ -177,7 +172,15 @@ example16a =
 	
 example16b :: IO()
 example16b = 
-	putStrLn $ printTree $ simplify $ foldTree $ buildFTree drive prog2 nameSupply ( read conf3T)
+	putStrLn $ printTree $ simplify $ foldTree $ buildFTree drive prog2 nameSupply (read conf3T)
+
+example16c :: IO()
+example16c = 
+	putStrLn $ printTree $ simplify $ foldTree $ buildFTree drive prog2 nameSupply conf2
+	
+example16c1 :: IO()
+example16c1 = 
+	putStrLn $ printTree $ foldTree $ buildFTree drive prog2 nameSupply conf2
 	
 --example17 :: IO()
 example17 =
@@ -238,3 +241,4 @@ main = do
 	putStrLn ""
 	example13
 	putStrLn ""
+	

@@ -4,7 +4,9 @@ import Data
 import Maybe
 import Char
 import List
+
 -- TODO: get rid of this imports
+import Data.List
 import Text.ParserCombinators.ReadP
 
 readVar1 :: ReadS Name 
@@ -153,3 +155,32 @@ pprintTree indent msg (Node expr next) = make next where
 	make (Decompose ts) = (indent ++ msg) :  (indent ++ "|__" ++ show expr): (concat (map (pprintTree (indent ++ " ") "|") ts))
 	make (Variants cs) = 
 		(indent ++ msg) :  (indent ++ "|__" ++  show expr) : (concat (map (\(x, t) -> pprintTree (indent ++ " ") ("?" ++ show x) t) cs))
+
+instance Show Expr where
+	show (Var n) = n
+	show (Ctr n es) = n ++ "(" ++ (intercalate ", " (map show es)) ++ ")"
+	show (FCall n es) = n ++ "(" ++ (intercalate ", " (map show es)) ++ ")"
+	show (GCall n es) = n ++ "(" ++ (intercalate ", " (map show es)) ++ ")"
+	show (Let (v, e1) e2) = "let " ++ v ++ " = " ++ (show e1) ++ " in " ++ (show e2)
+
+instance Show FDef where
+	show (FDef fn args body) = fn ++ "(" ++ intercalate ", " args ++ ") = " ++ (show body) ++ ";"
+
+instance Show GDef where
+	show (GDef gn p args body) = gn ++ "(" ++ intercalate ", " (show p:args) ++ ") = " ++ (show body) ++ ";"
+
+instance Show Pat where
+	show (Pat cn vs) = cn ++ "(" ++ intercalate "," vs ++ ")"
+	
+instance Show Contract where
+	show (Contract n p) = n ++ " == " ++ (show p)
+	
+instance Show Program where
+	show (Program fs gs) = intercalate "\n" $ (map show fs) ++ (map show gs)
+	
+instance Show a => Show (Step a) where
+	show (Transient a) = "-> " ++ (show a)
+	show (Variants vs) = intercalate " | " $ map (\(c, e) -> (show c) ++ " => " ++ (show e)) vs 
+	show Stop = "!"
+	show (Decompose ds) = show ds
+	show (Fold e _) = "↑" ++ (show e)

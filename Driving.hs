@@ -4,11 +4,10 @@ import Data
 import DataUtil
 
 -- Builds an infinite (in a general case) process tree using a provided state machine.
-
-buildTree :: Machine Conf -> Conf -> Graph Conf
+buildTree :: Machine Conf -> Conf -> Tree Conf
 buildTree m e = buildTree' m nameSupply e
 
-buildTree' :: Machine Conf -> NameSupply -> Conf -> Graph Conf
+buildTree' :: Machine Conf -> NameSupply -> Conf -> Tree Conf
 buildTree' m ns t = case m ns t of
 	Decompose driven -> Node t $ Decompose (map (buildTree' m ns) driven)
 	Transient term -> Node t $ Transient (buildTree' m ns term)

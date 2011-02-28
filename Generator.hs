@@ -23,7 +23,7 @@ res ns mp (Node (Ctr cname _) (Decompose ts)) = (Ctr cname args, p1, ns1) where
 --res ns mp (Node (Let v _ _) (Decompose ts)) = (Let v e1 e2, p1, ns1) where
 --	([e1, e2], p1, ns1) = make ns mp ts
 
-res ns mp (Node (Let v _ _) (Decompose ts)) = (subst [(v, e1)] e2, p1, ns1) where
+res ns mp (Node (Let (v, _) _) (Decompose ts)) = (subst [(v, e1)] e2, p1, ns1) where
 	([e1, e2], p1, ns1) = make ns mp ts
 
 res (n:ns) mp (Node e (Transient t)) = (fcall, Program ((FFun f1 vs body):fs) gs, ns1) where

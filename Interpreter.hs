@@ -3,10 +3,11 @@ module Interpreter where
 import Data
 import DataUtil
 
-intFacade :: Task -> Subst -> (Value, Integer)
-intFacade (e, prog) s = intC prog (subst s e)
+sll_run :: Task -> Env -> Value
+sll_run (e, program) env = int program (subst env e)
 
-int :: Program -> Expr -> Expr
+-- small-step semantics
+int :: Program -> Expr -> Value
 int p e | isValue e = e
         | otherwise = int p (intStep p e)
 
@@ -26,21 +27,23 @@ intStep p (GCall gname (Ctr cname cargs : args)) =
 intStep p (GCall gname (e:es)) = 
 	(GCall gname (intStep p e : es))
 	
-intStep p (Let x e1 e2) =
-	subst [(x, e1)] e2
+intStep p (Let binding e2) =
+	subst [binding] e2
 
 isValue :: Expr -> Bool
 isValue (Ctr _ args) = and $ map isValue args 
 isValue _ = False
+
+sll_trace :: Task -> Subst -> (Value, Integer)
+sll_trace (e, prog) s = intC prog (subst s e)
 
 intC :: Program -> Expr -> (Expr, Integer) 
 intC p e = intC' p (e, 0) 
 intC' p (e, n) | isValue e = (e, n)
                | otherwise = intC' p (intStep p e, n + 1)
 
--- only for tracing
-traceInt :: Program -> Expr -> IO()
-traceInt p e | isValue e = putStrLn (show e)
-			 | otherwise = do
-				putStrLn (show e)
-				traceInt p (intStep p e)
+log_sll_trace :: Program -> Expr -> IO()
+log_sll_trace p e | isValue e = putStrLn (show e)
+                  | otherwise = do
+                    putStrLn (show e)
+                    log_sll_trace p (intStep p e)

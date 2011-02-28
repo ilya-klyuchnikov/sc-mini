@@ -2,14 +2,15 @@ module Data where
 
 import Data.List
 
-data Expr = Var Name | Ctr Name [Expr] | FCall Name [Expr] | GCall Name [Expr] | Let Name Expr Expr deriving (Eq)
-data Contract = Contract Name Pat
-data Step a = Transient a | Variants [(Contract, a)] | Stop | Decompose [a] | Fold a Renaming deriving (Show)
-data Tree = Node Expr (Step Tree) 
+data Expr = Var Name | Ctr Name [Expr] | FCall Name [Expr] | GCall Name [Expr] | Let (Name, Expr) Expr deriving (Eq)
 data Pat = Pat Name [Name]
 data GFun = GFun Name Pat [Name] Expr
 data FFun = FFun Name [Name] Expr
 data Program = Program [FFun] [GFun]
+
+data Contract = Contract Name Pat
+data Step a = Transient a | Variants [(Contract, a)] | Stop | Decompose [a] | Fold a Renaming deriving (Show)
+data Tree = Node Expr (Step Tree) 
 
 -- We use type synonyms to make declarations more clear (and expressive)
 type Subst = [(Name, Expr)]
@@ -28,7 +29,7 @@ instance Show Expr where
 	show (Ctr n es) = n ++ "(" ++ (intercalate ", " (map show es)) ++ ")"
 	show (FCall n es) = n ++ "(" ++ (intercalate ", " (map show es)) ++ ")"
 	show (GCall n es) = n ++ "(" ++ (intercalate ", " (map show es)) ++ ")"
-	show (Let v e1 e2) = "let " ++ v ++ " = " ++ (show e1) ++ " in " ++ (show e2)
+	show (Let (v, e1) e2) = "let " ++ v ++ " = " ++ (show e1) ++ " in " ++ (show e2)
 
 instance Show FFun where
 	show (FFun fn args body) = fn ++ "(" ++ intercalate ", " args ++ ") = " ++ (show body) ++ ";"

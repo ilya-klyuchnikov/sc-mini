@@ -86,11 +86,11 @@ example3 = do
 	
 example4 :: IO ()
 example4 = do
-	traceInt prog1 (read "gEven(fSqr(S(Z())))")
+	log_sll_trace prog1 (read "gEven(fSqr(S(Z())))")
 	
 example5 :: IO ()
 example5 = do
-	traceInt prog1 conf0
+	log_sll_trace prog1 conf0
 	
 example6 = 
 	putStrLn $ show $ drive prog1 nameSupply (read "gOdd(gAdd(x, gMult(x, S(x))))")
@@ -205,7 +205,7 @@ example103 = supercompile state2
 number 0 = Ctr "Z" []
 number n = Ctr "S" [number (n - 1)]
 
-run st n = intFacade st [("x", number n)]
+run st n = sll_trace st [("x", number n)]
 
 e1 :: Expr 
 e1 = read "gEven(gAdd(x, gMult(v1, x)))"

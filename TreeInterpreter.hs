@@ -8,7 +8,7 @@ intTree :: Tree -> Env -> Value
 intTree (Node e Stop) env = 
 	subst env e 
 
-intTree (Node (Let v e1 e2) (Decompose [t1, t2])) env = 
+intTree (Node (Let (v, e1) e2) (Decompose [t1, t2])) env = 
 	intTree t2 ((v, intTree t1 env) : env)
 
 intTree (Node (Ctr cname _) (Decompose ts)) env =

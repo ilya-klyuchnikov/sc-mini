@@ -37,9 +37,9 @@ whistle _ = False
 -- a function call is extracted.
 generalize :: Name -> Expr -> Expr
 generalize n (FCall f es) = 
-	Let n e (FCall f es') where (e, es') = gen n es
+	Let (n, e) (FCall f es') where (e, es') = gen n es
 generalize n (GCall g es) = 
-	Let n e (GCall g es') where (e, es') = gen n es
+	Let (n, e) (GCall g es') where (e, es') = gen n es
 
 -- Helper for generalize.
 gen :: Name -> [Expr] -> (Expr, [Expr])	

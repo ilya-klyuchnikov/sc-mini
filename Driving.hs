@@ -17,7 +17,7 @@ drive :: DriverGen
 drive p ns (Var _) = Stop
 drive p ns (Ctr _ []) = Stop
 drive p ns (Ctr _ args) = Decompose args
-drive p ns (Let x t1 t2) = Decompose [t1, t2]
+drive p ns (Let (x, t1) t2) = Decompose [t1, t2]
 drive p ns (FCall name args) = Transient $ subst (zip vs args) e where 
 	FFun _ vs e = fFun p name
 drive p ns (GCall gname ((Ctr cname cargs):args)) = Transient (subst sub t) where

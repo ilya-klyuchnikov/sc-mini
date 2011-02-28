@@ -29,7 +29,7 @@ subst sub (Var x)  = maybe (Var x) id (lookup x sub)
 subst sub (Ctr name args)  = Ctr name (map (subst sub) args)
 subst sub (FCall name args)  = FCall name (map (subst sub) args)
 subst sub (GCall name args) = GCall name (map (subst sub) args)
-subst sub (Let x e1 e2) = Let x (subst sub e1) (subst sub e2)
+subst sub (Let (x, e1) e2) = Let (x, (subst sub e1)) (subst sub e2)
 
 isCall :: Expr -> Bool
 isCall (FCall _ _) = True
@@ -45,7 +45,7 @@ rawRenaming ((Var x), (Var y)) = [Just (x, y)]
 rawRenaming ((Ctr n1 args1), (Ctr n2 args2)) | n1 == n2 = concat $ map rawRenaming $ zip args1 args2
 rawRenaming ((FCall n1 args1), (FCall n2 args2)) | n1 == n2 = concat $ map rawRenaming $ zip args1 args2
 rawRenaming ((GCall n1 args1), (GCall n2 args2)) | n1 == n2 = concat $ map rawRenaming $ zip args1 args2
-rawRenaming (Let v e1 e2, Let v' e1' e2') = rawRenaming (e1, e1') ++ rawRenaming (e2, subst [(v, Var v')] e2')
+rawRenaming (Let (v, e1) e2, Let (v', e1') e2') = rawRenaming (e1, e1') ++ rawRenaming (e2, subst [(v, Var v')] e2')
 rawRenaming _  = [Nothing]
 
 renaming :: Expr -> Expr -> Maybe[(Name, Name)]
@@ -64,7 +64,7 @@ size (Var _) = 1
 size (Ctr _ args) = 1 + sum (map size args)
 size (FCall _ args) = 1 + sum (map size args)
 size (GCall _ args) = 1 + sum (map size args)
-size (Let _ e1 e2) = 1 + (size e1) + (size e2)
+size (Let (_, e1) e2) = 1 + (size e1) + (size e2)
 
 -- a SET (so, without duplicates) of all variable names encountered in a given expression
 -- variables are in the order they are encountered
@@ -78,7 +78,7 @@ vnames1 (Var v) = [v]
 vnames1 (Ctr _ args)   = concat $ map vnames1 args
 vnames1 (FCall _ args) = concat $ map vnames1 args
 vnames1 (GCall _ args) = concat $ map vnames1 args
-vnames1 (Let _ e1 e2) = vnames1 e1 ++ vnames1 e2
+vnames1 (Let (_, e1) e2) = vnames1 e1 ++ vnames1 e2
 
 isRepeated vn e = (length $ filter (== vn) (vnames1 e)) > 1
 

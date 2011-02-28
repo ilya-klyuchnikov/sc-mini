@@ -33,8 +33,8 @@ buildFTree' d ns     t | otherwise = case d ns t of
 maxExpSize = 40
 -- The simplest ad-hoc whistle: it limits the size of an expression.
 whistle :: Expr -> Bool
-whistle t@(FCall _ _) = size t > maxExpSize
-whistle t@(GCall _ _) = size t > maxExpSize
+whistle e@(FCall _ args) = not (all isVar args) && size e > maxExpSize
+whistle e@(GCall _ args) = not (all isVar args) && size e > maxExpSize
 whistle _ = False
 
 -- The simplest ad-hoc generalization: the largest argument of
@@ -48,5 +48,8 @@ generalize n (GCall g es) =
 -- Helper for generalize.
 gen :: Name -> [Expr] -> (Expr, [Expr])	
 gen n es = (maxE, vs ++ Var n : ws) where
-	maxE = maximumBy (\x y -> compare (size x) (size y)) es
+	maxE = maximumBy (\x y -> compare ((eType x) * (size x)) ((eType y)*(size y))) es
 	(vs, w : ws) = break (maxE ==) es
+	
+eType (Var _) = 0
+eType _ = 1

@@ -18,11 +18,11 @@ intStep p (Ctr name args) =
 
 intStep p (FCall name args) = 
 	(subst (zip vs args) t) where 
-		(FFun _ vs t) = fFun p name
+		(FDef _ vs t) = fDef p name
 
 intStep p (GCall gname (Ctr cname cargs : args)) = 
 	subst (zip (cvs ++ vs) (cargs ++ args)) t where 
-		(GFun _ (Pat _ cvs) vs t) = gFun p gname cname
+		(GDef _ (Pat _ cvs) vs t) = gDef p gname cname
 
 intStep p (GCall gname (e:es)) = 
 	(GCall gname (intStep p e : es))

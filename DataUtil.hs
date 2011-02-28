@@ -15,14 +15,14 @@ expr (Node e _) = e
 step (Node _ s) = s
 unused (Contract _ (Pat _ vs)) = (\\ vs)
 
-fFun :: Program -> Name -> FFun
-fFun (Program fs _) fname = head [f | f@(FFun x _ _) <- fs, x == fname]
+fDef :: Program -> Name -> FDef
+fDef (Program fs _) fname = head [f | f@(FDef x _ _) <- fs, x == fname]
 
-gFuns :: Program -> Name -> [GFun]
-gFuns (Program _ gs) gname = [g | g@(GFun x _ _ _) <- gs, x == gname]
+gDefs :: Program -> Name -> [GDef]
+gDefs (Program _ gs) gname = [g | g@(GDef x _ _ _) <- gs, x == gname]
 
-gFun :: Program -> Name -> Name -> GFun
-gFun p gname cname = head [g | g@(GFun _ (Pat c _) _ _) <- gFuns p gname, c == cname]
+gDef :: Program -> Name -> Name -> GDef
+gDef p gname cname = head [g | g@(GDef _ (Pat c _) _ _) <- gDefs p gname, c == cname]
 
 subst :: Subst -> Expr -> Expr
 subst sub (Var x)  = maybe (Var x) id (lookup x sub)
@@ -109,8 +109,8 @@ readArgs = readP_to_S $ between (char '(') (char ')') (sepBy readExpr (char ',')
 readVars :: ReadS [Name]
 readVars = readP_to_S $ between (char '(') (char ')') (sepBy (readS_to_P lex) (char ','))
 
-readFFun :: ReadS FFun
-readFFun i = [ (FFun n vars body, s4) | 
+readFDef :: ReadS FDef
+readFDef i = [ (FDef n vars body, s4) | 
 	(n@('f':_), s) <- lex i, 
 	(vars, s1) <- readVars s, 
 	("=", s2) <- lex s1,
@@ -122,7 +122,7 @@ readSPat i = [(Pat n vars, s2)|
 	(n, s) <- lex i,
 	(vars, s2) <- readVars s]
 -- read g-function
-readGFun i = [ (GFun n p vs body, s6) |
+readGDef i = [ (GDef n p vs body, s6) |
 	(n@('g':_), s) <- lex i,
 	("(", s1) <- lex s,
 	(p, s2) <- readSPat s1,
@@ -134,7 +134,7 @@ readGFun i = [ (GFun n p vs body, s6) |
 
 readProgram s = [readP1 (Program [] []) s]
 
-readP1 p@(Program fs gs) s = next (readFFun s) (readGFun s) where
+readP1 p@(Program fs gs) s = next (readFDef s) (readGDef s) where
 	next [(f, s1)] _ = readP1 (Program (fs++[f]) gs) s1
 	next _ [(g, s1)] = readP1 (Program fs (gs++[g])) s1
 	next _ _ = (p, s)

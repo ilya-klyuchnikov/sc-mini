@@ -4,9 +4,9 @@ import Data.List
 
 data Expr = Var Name | Ctr Name [Expr] | FCall Name [Expr] | GCall Name [Expr] | Let (Name, Expr) Expr deriving (Eq)
 data Pat = Pat Name [Name]
-data GFun = GFun Name Pat [Name] Expr
-data FFun = FFun Name [Name] Expr
-data Program = Program [FFun] [GFun]
+data GDef = GDef Name Pat [Name] Expr
+data FDef = FDef Name [Name] Expr
+data Program = Program [FDef] [GDef]
 
 data Contract = Contract Name Pat
 data Step a = Transient a | Variants [(Contract, a)] | Stop | Decompose [a] | Fold a Renaming deriving (Show)
@@ -31,11 +31,11 @@ instance Show Expr where
 	show (GCall n es) = n ++ "(" ++ (intercalate ", " (map show es)) ++ ")"
 	show (Let (v, e1) e2) = "let " ++ v ++ " = " ++ (show e1) ++ " in " ++ (show e2)
 
-instance Show FFun where
-	show (FFun fn args body) = fn ++ "(" ++ intercalate ", " args ++ ") = " ++ (show body) ++ ";"
+instance Show FDef where
+	show (FDef fn args body) = fn ++ "(" ++ intercalate ", " args ++ ") = " ++ (show body) ++ ";"
 
-instance Show GFun where
-	show (GFun gn p args body) = gn ++ "(" ++ intercalate ", " (show p:args) ++ ") = " ++ (show body) ++ ";"
+instance Show GDef where
+	show (GDef gn p args body) = gn ++ "(" ++ intercalate ", " (show p:args) ++ ") = " ++ (show body) ++ ";"
 
 instance Show Pat where
 	show (Pat cn vs) = cn ++ "(" ++ intercalate "," vs ++ ")"

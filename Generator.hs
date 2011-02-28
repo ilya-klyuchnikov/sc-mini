@@ -20,13 +20,10 @@ res ns mp (Node e Stop) = (e, Program [] [], ns)
 res ns mp (Node (Ctr cname _) (Decompose ts)) = (Ctr cname args, p1, ns1) where
 	(args, p1, ns1) = make ns mp ts
 
---res ns mp (Node (Let v _ _) (Decompose ts)) = (Let v e1 e2, p1, ns1) where
---	([e1, e2], p1, ns1) = make ns mp ts
-
 res ns mp (Node (Let (v, _) _) (Decompose ts)) = (subst [(v, e1)] e2, p1, ns1) where
 	([e1, e2], p1, ns1) = make ns mp ts
 
-res (n:ns) mp (Node e (Transient t)) = (fcall, Program ((FFun f1 vs body):fs) gs, ns1) where
+res (n:ns) mp (Node e (Transient t)) = (fcall, Program ((FDef f1 vs body):fs) gs, ns1) where
 	vs = vnames e
 	f1 = "f" ++ n
 	fcall = FCall f1 $ map Var vs
@@ -39,7 +36,7 @@ res (n:ns) mp (Node e (Variants cs)) = (gcall, Program fs (newGs ++ gs), ns1) wh
 	gcall = GCall g1 $ map Var vs_ -- here
 	(bodies, Program fs gs, ns1) = make ns ((e, gcall) : mp) $ map snd cs
 	pats = [pat | (Contract v pat, _) <- cs]
-	newGs = [GFun g1 p vs'_ b | (p, b) <-  (zip pats bodies)]
+	newGs = [GDef g1 p vs'_ b | (p, b) <-  (zip pats bodies)]
 	isUsed vname cs = any (any (== vname) . vnames . expr . snd) cs
 	
 res ns mp (Node e (Fold (Node base _) ren)) = (call, Program [] [], ns) where

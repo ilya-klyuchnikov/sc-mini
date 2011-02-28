@@ -40,6 +40,7 @@ isVar :: Expr -> Bool
 isVar (Var _) = True
 isVar _ = False
 
+-- list of local fails and local successes 
 rawRenaming :: (Expr, Expr) -> [Maybe (Name, Name)]
 rawRenaming ((Var x), (Var y)) = [Just (x, y)]
 rawRenaming ((Ctr n1 args1), (Ctr n2 args2)) | n1 == n2 = concat $ map rawRenaming $ zip args1 args2
@@ -48,6 +49,7 @@ rawRenaming ((GCall n1 args1), (GCall n2 args2)) | n1 == n2 = concat $ map rawRe
 rawRenaming (Let (v, e1) e2, Let (v', e1') e2') = rawRenaming (e1, e1') ++ rawRenaming (e2, subst [(v, Var v')] e2')
 rawRenaming _  = [Nothing]
 
+-- global success = no local failures ++ all local successes are the same
 renaming :: Expr -> Expr -> Maybe[(Name, Name)]
 renaming e1 e2 = f $ partition isNothing $ rawRenaming (e1, e2) where
 	f (x:_, _) = Nothing

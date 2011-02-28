@@ -8,14 +8,12 @@ import Driving
 import Prototype
 import Deforester
 
--- The main feature of supercompiler is propagation of information.
 supercompile :: Task -> Task
 supercompile (expr, program) =
-	residuate $ simplify $ foldTree $ buildFTree (propagate (drive program)) nameSupply expr
+	residuate $ simplify $ foldTree $ buildFTree (addPropagation $ buildMachine program) expr
 
--- Pimp driving with positive information propagation.
-propagate :: Driver -> Driver
-propagate dr = f where
+addPropagation :: Machine -> Machine
+addPropagation dr = f where
 	f ns e = propagateContract (dr ns e)
 
 propagateContract :: Step Expr -> Step Expr

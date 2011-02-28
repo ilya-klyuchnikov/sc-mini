@@ -93,34 +93,34 @@ example5 = do
 	log_sll_trace prog1 conf0
 	
 example6 = 
-	putStrLn $ show $ drive prog1 nameSupply (read "gOdd(gAdd(x, gMult(x, S(x))))")
+	putStrLn $ show $ (buildMachine prog1) nameSupply (read "gOdd(gAdd(x, gMult(x, S(x))))")
 example7 = 
-	putStrLn $ show $ drive prog1 nameSupply (read "gOdd(S(gAdd(x1, gMult(x, S(x)))))")
+	putStrLn $ show $ (buildMachine prog1) nameSupply (read "gOdd(S(gAdd(x1, gMult(x, S(x)))))")
 
 example8 :: IO ()
 example8 = 
-	putStrLn $ printTree $ buildTree (drive prog1) nameSupply conf1
+	putStrLn $ printTree $ buildTree (buildMachine prog1) conf1
 
 example9 :: IO ()
 example9 = do
-	putStrLn $ show $ intTree (buildTree (drive prog1) nameSupply conf1) [("x", read "S(S(Z()))")]
-	putStrLn $ show $ intTree (buildTree (drive prog1) nameSupply conf1) [("x", read "S(S(S(Z())))")]
+	putStrLn $ show $ intTree (buildTree (buildMachine prog1) conf1) [("x", read "S(S(Z()))")]
+	putStrLn $ show $ intTree (buildTree (buildMachine prog1) conf1) [("x", read "S(S(S(Z())))")]
 	
 example10 :: IO ()
 example10 = 
-	putStrLn $ printTree $ foldTree $ buildTree (drive prog1) nameSupply conf1
+	putStrLn $ printTree $ foldTree $ buildTree (buildMachine prog1) conf1
 	
 example11 :: IO ()
 example11 =
-	putStrLn $ printTree $ foldTree $ buildTree (drive prog1) nameSupply (read "gAdd1(x, y)")
+	putStrLn $ printTree $ foldTree $ buildTree (buildMachine prog1) (read "gAdd1(x, y)")
 	
 example12 :: IO ()
 example12 =
-	putStrLn $ printTree $ foldTree $ buildFTree (drive prog1) nameSupply (read "gAdd1(x, y)")
+	putStrLn $ printTree $ foldTree $ buildFTree (buildMachine prog1) (read "gAdd1(x, y)")
 	
 example12a :: IO ()
 example12a =
-	putStrLn $ printTree $ foldTree $ buildFTree (drive prog1) nameSupply conf1
+	putStrLn $ printTree $ foldTree $ buildFTree (buildMachine prog1) conf1
 	
 example13 :: IO ()
 example13 = do
@@ -168,31 +168,31 @@ example16 = do
 	
 example16a :: IO()
 example16a = 
-	putStrLn $ printTree $ simplify $ foldTree $ buildFTree (propagate (drive prog2)) nameSupply conf2
+	putStrLn $ printTree $ simplify $ foldTree $ buildFTree (addPropagation (buildMachine prog2)) conf2
 	
 example16b :: IO()
 example16b = 
-	putStrLn $ printTree $ simplify $ foldTree $ buildFTree (drive prog2) nameSupply (read conf3T)
+	putStrLn $ printTree $ simplify $ foldTree $ buildFTree (buildMachine prog2) (read conf3T)
 
 example16c :: IO()
 example16c = 
-	putStrLn $ printTree $ simplify $ foldTree $ buildFTree (drive prog2) nameSupply conf2
+	putStrLn $ printTree $ simplify $ foldTree $ buildFTree (buildMachine prog2) conf2
 	
 example16c1 :: IO()
 example16c1 = 
-	putStrLn $ printTree $ foldTree $ buildFTree (drive prog2) nameSupply conf2
+	putStrLn $ printTree $ foldTree $ buildFTree (buildMachine prog2) conf2
 	
 --example17 :: IO()
 example17 =
-	drive prog2 nameSupply (read "gX(s, A(), t, t, s)")
+	buildMachine prog2 nameSupply (read "gX(s, A(), t, t, s)")
 
 state1 = (conf1, prog1)
 state1t = transform state1
 state1d = deforest state1
 state1s = supercompile state1
 
-def (e, p) = simplify $ foldTree $ buildFTree (drive p) nameSupply e
-tr (e, p) = foldTree $ buildFTree (drive p) nameSupply e
+def (e, p) = simplify $ foldTree $ buildFTree (buildMachine p) e
+tr (e, p) = foldTree $ buildFTree (buildMachine p) e
 
 t1d = def state1
 t1t = tr state1

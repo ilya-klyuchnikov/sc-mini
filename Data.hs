@@ -21,8 +21,8 @@ type Task = (Expr, Program)
 type Value = Expr
 type Env = [(Name, Value)]
 
-type DriverGen = Program -> Driver
-type Driver = NameSupply -> Expr -> Step Expr
+type Machine = NameSupply -> Expr -> Step Expr
+type MachineGen = Program -> Machine
 	
 instance Show Expr where
 	show (Var n) = n

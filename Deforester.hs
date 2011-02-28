@@ -7,10 +7,9 @@ import Folding
 import Generator
 import Prototype
 
--- The main feature of deforester is simplification of folded tree.
 deforest :: Task -> Task
 deforest (e, p) =
-	residuate $ simplify $ foldTree $ buildFTree (drive p) nameSupply e
+	residuate $ simplify $ foldTree $ buildFTree (buildMachine p) e
 	
 simplify :: Tree -> Tree
 simplify (Node e (Decompose ts)) = (Node e (Decompose $ map simplify ts))

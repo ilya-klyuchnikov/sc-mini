@@ -23,4 +23,3 @@ type Tree a = Graph a
 type Node a = Tree a
 
 type Machine a = NameSupply -> a -> Step a
-type MachineGen p a = p -> Machine a

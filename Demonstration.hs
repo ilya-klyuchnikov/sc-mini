@@ -13,6 +13,11 @@ import Generator
 import Prototype
 import Deforester
 
+log_sll_trace :: Program -> Expr -> IO ()
+log_sll_trace p e | isValue e = putStrLn (show e)
+                  | otherwise =
+                    putStrLn (show e) >> log_sll_trace p (intStep p e)
+
 prog1Text = " gAdd(Z(), y) = y;\
 	\ gAdd(S(x), y) = S(gAdd(x, y));\
 	\ gMult(Z(), y) = Z();\

@@ -6,8 +6,6 @@ import DataUtil
 foldTree :: Tree Conf -> Graph Conf
 foldTree t = fixTree (tieKnot []) t
 
--- we tie a knot only for calls
--- it is enough in the first-order settings
 tieKnot :: [Node Conf] -> Node Conf -> Tree Conf -> Graph Conf
 tieKnot ns n t@(Node e _) =
 	case [(k, r) | k <- n:ns, isCall e, Just r <- [renaming (expr k) e]] of

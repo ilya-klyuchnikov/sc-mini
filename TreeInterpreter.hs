@@ -4,26 +4,24 @@ import Data
 import DataUtil
 import Maybe
 
-type Value = Expr
-
-intTree :: Subst -> Tree -> Value
-intTree env (Node e Stop) = 
+intTree :: Tree -> Env -> Value
+intTree (Node e Stop) env = 
 	subst env e 
 
-intTree env (Node (Let v e1 e2) (Decompose [t1, t2])) = 
-	intTree ((v, intTree env t1) : env) t2
+intTree (Node (Let v e1 e2) (Decompose [t1, t2])) env = 
+	intTree t2 ((v, intTree t1 env) : env)
 
-intTree env (Node (Ctr cname _) (Decompose ts)) =
-	Ctr cname $ map (intTree env) ts
+intTree (Node (Ctr cname _) (Decompose ts)) env =
+	Ctr cname $ map (\t -> intTree t env) ts
 	
-intTree env (Node _ (Transient t)) = 
-	intTree env t
+intTree (Node _ (Transient t)) env = 
+	intTree t env
 
-intTree env (Node e (Variants cs)) = 
+intTree (Node e (Variants cs)) env = 
 	 head $ catMaybes $ map (try env) cs
 
-try :: Subst -> (Contract, Tree) -> (Maybe Expr)
+try :: Env -> (Contract, Tree) -> (Maybe Expr)
 try env (Contract v (Pat pn vs), t) = 
-	if cn == pn then (Just $ intTree extendedEnv t) else Nothing where 
+	if cn == pn then (Just $ intTree t extendedEnv) else Nothing where 
 		c@(Ctr cn args) = subst env (Var v)
 		extendedEnv = (v, c) : zip vs args ++ env

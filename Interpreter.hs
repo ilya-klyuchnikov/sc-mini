@@ -3,8 +3,6 @@ module Interpreter where
 import Data
 import DataUtil
 
-type Value = Expr
-
 intFacade :: Task -> Subst -> (Value, Integer)
 intFacade (e, prog) s = intC prog (subst s e)
 

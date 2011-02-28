@@ -3,11 +3,6 @@ module Driving where
 import Data
 import DataUtil
 
--- model generator
-type DriverGen = Program -> Driver
--- model of program
-type Driver = NameSupply -> Expr -> Step Expr
-
 -- Builds an infinite (in a general case) process tree.
 buildTree :: Driver -> NameSupply -> Expr -> Tree
 buildTree drive ns t = case drive ns t of

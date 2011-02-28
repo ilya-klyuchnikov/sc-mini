@@ -7,16 +7,11 @@ Its design is an attempt to illustrate the following formula:
 However, it turns out to be not so easy task. So here we illustrate this formula step by step:
 
 1) Prototype = Driving + Generalization + Folding
-2) Deforester = Transformer + Simplification
+2) Deforester = Prototype + Simplification of graph of configurations
 3) Supercompiler = Deforester + Positive Information Propagation
 
-In order to catch the idea of supercompiler, just look into the following files into the following order:
+In order to catch the idea of this supercompiler, just look into the following modules into the following order:
 
 1) Prototype.hs
 2) Deforester.hs
 3) Supercompiler.hs
-
-------
-Provide more comments.
-1) change intTree from 
-intTree env tree -> intTree tree env

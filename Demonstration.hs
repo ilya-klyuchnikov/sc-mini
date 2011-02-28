@@ -103,8 +103,8 @@ example8 =
 
 example9 :: IO ()
 example9 = do
-	putStrLn $ show $ intTree [("x", read "S(S(Z()))")] (buildTree (drive prog1) nameSupply conf1)
-	putStrLn $ show $ intTree [("x", read "S(S(S(Z())))")] (buildTree (drive prog1) nameSupply conf1)
+	putStrLn $ show $ intTree (buildTree (drive prog1) nameSupply conf1) [("x", read "S(S(Z()))")]
+	putStrLn $ show $ intTree (buildTree (drive prog1) nameSupply conf1) [("x", read "S(S(S(Z())))")]
 	
 example10 :: IO ()
 example10 = 
@@ -176,11 +176,11 @@ example16b =
 
 example16c :: IO()
 example16c = 
-	putStrLn $ printTree $ simplify $ foldTree $ buildFTree drive prog2 nameSupply conf2
+	putStrLn $ printTree $ simplify $ foldTree $ buildFTree (drive prog2) nameSupply conf2
 	
 example16c1 :: IO()
 example16c1 = 
-	putStrLn $ printTree $ foldTree $ buildFTree drive prog2 nameSupply conf2
+	putStrLn $ printTree $ foldTree $ buildFTree (drive prog2) nameSupply conf2
 	
 --example17 :: IO()
 example17 =
@@ -191,8 +191,8 @@ state1t = transform state1
 state1d = deforest state1
 state1s = supercompile state1
 
-def (e, p) = simplify $ foldTree $ buildFTree drive p nameSupply e
-tr (e, p) = foldTree $ buildFTree drive p nameSupply e
+def (e, p) = simplify $ foldTree $ buildFTree (drive p) nameSupply e
+tr (e, p) = foldTree $ buildFTree (drive p) nameSupply e
 
 t1d = def state1
 t1t = tr state1

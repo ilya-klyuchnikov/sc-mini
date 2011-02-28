@@ -10,11 +10,18 @@ data Pat = Pat Name [Name]
 data GFun = GFun Name Pat [Name] Expr
 data FFun = FFun Name [Name] Expr
 data Program = Program [FFun] [GFun]
+
+-- We use type synonyms to make declarations more clear (and expressive)
 type Subst = [(Name, Expr)]
 type NameSupply = [Name]
 type Name = String
 type Renaming = [(Name, Name)]
 type Task = (Expr, Program)
+type Value = Expr
+type Env = [(Name, Value)]
+
+type DriverGen = Program -> Driver
+type Driver = NameSupply -> Expr -> Step Expr
 	
 instance Show Expr where
 	show (Var n) = n

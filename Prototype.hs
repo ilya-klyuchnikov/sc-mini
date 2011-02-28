@@ -18,10 +18,10 @@ transform (expr, program) =
 -- Build foldable tree, - ensures that the size of expressions
 -- in nodes are limited (by whistle).
 
-buildFTree :: Machine -> Expr -> Tree
+buildFTree :: Machine Conf -> Conf -> Tree Conf
 buildFTree m e = buildFTree' m nameSupply e
 
-buildFTree' :: Machine -> NameSupply -> Expr -> Tree
+buildFTree' :: Machine Conf -> NameSupply -> Conf -> Tree Conf
 buildFTree' d (n:ns) e | whistle e = buildFTree' d ns $ generalize n e
 buildFTree' d ns     t | otherwise = case d ns t of
 	Decompose driven -> Node t $ Decompose (map (buildFTree' d ns) driven)

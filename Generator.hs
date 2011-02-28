@@ -9,12 +9,12 @@ isBase e1 (Node _ (Transient t)) = isBase e1 t
 isBase e1 (Node _ (Fold (Node e2 _) _)) = e1 == e2
 isBase e1 (Node e2 Stop) = False
 
-residuate :: Tree -> Task
+residuate :: Graph Conf -> Task
 residuate tree = (expr, program) where
 	(expr, program, _) = res nameSupply [] tree
 
 --- generation of residual program
-res :: NameSupply -> [(Expr, Expr)] -> Tree -> (Expr, Program, NameSupply)
+res :: NameSupply -> [(Conf, Conf)] -> Graph Conf -> (Conf, Program, NameSupply)
 res ns mp (Node e Stop) = (e, Program [] [], ns)
 
 res ns mp (Node (Ctr cname _) (Decompose ts)) = (Ctr cname args, p1, ns1) where
@@ -45,7 +45,7 @@ res ns mp (Node e (Fold (Node base _) ren)) = (call, Program [] [], ns) where
 
 -- proceeds a list of trees 
 -- the main goal is to handle name supply
-make :: NameSupply -> [(Expr, Expr)] -> [Tree] -> ([Expr], Program, NameSupply)
+make :: NameSupply -> [(Conf, Conf)] -> [Graph Conf] -> ([Conf], Program, NameSupply)
 make ns mp ts = foldl f ([], Program [] [], ns) ts where 
 	f (gens, Program fs gs, ns1) tree = (gens ++ [g], Program (fs ++ fs1) (gs ++ gs1), ns2) where 
 		(g, Program fs1 gs1, ns2) = res ns1 mp tree

@@ -30,9 +30,14 @@ intStep p (GCall gname (e:es)) =
 intStep p (Let binding e2) =
 	subst [binding] e2
 
-isValue :: Expr -> Bool
-isValue (Ctr _ args) = and $ map isValue args 
-isValue _ = False
+-- big-step semantics
+eval :: Program -> Expr -> Expr
+eval p (Ctr name args) = 
+	Ctr name $ map (eval p) args
+
+eval p (FCall name args) = 
+	eval p (subst (zip vs args) t) where
+		(FDef _ vs t) = fDef p name
 
 sll_trace :: Task -> Subst -> (Value, Integer)
 sll_trace (e, prog) s = intC prog (subst s e)

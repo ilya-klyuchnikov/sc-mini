@@ -5,10 +5,10 @@ import DataUtil
 
 -- Builds an infinite (in a general case) process tree using a provided state machine.
 
-buildTree :: Machine -> Expr -> Tree
+buildTree :: Machine Conf -> Conf -> Graph Conf
 buildTree m e = buildTree' m nameSupply e
 
-buildTree' :: Machine -> NameSupply -> Expr -> Tree
+buildTree' :: Machine Conf -> NameSupply -> Conf -> Graph Conf
 buildTree' m ns t = case m ns t of
 	Decompose driven -> Node t $ Decompose (map (buildTree' m ns) driven)
 	Transient term -> Node t $ Transient (buildTree' m ns term)
@@ -16,9 +16,9 @@ buildTree' m ns t = case m ns t of
 	Variants cs -> 
 		Node t $ Variants [(c, buildTree' m (unused c ns) e) | (c, e) <- cs]
 
-buildMachine :: MachineGen
+buildMachine :: MachineGen Program Conf
 buildMachine p = drive where
-	drive :: Machine
+	drive :: Machine Conf
 	drive ns (Var _) = Stop
 	drive ns (Ctr _ []) = Stop
 	drive ns (Ctr _ args) = Decompose args

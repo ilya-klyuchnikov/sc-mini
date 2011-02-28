@@ -10,19 +10,23 @@ data Program = Program [FDef] [GDef]
 
 data Contract = Contract Name Pat
 data Step a = Transient a | Variants [(Contract, a)] | Stop | Decompose [a] | Fold a Renaming deriving (Show)
-data Tree = Node Expr (Step Tree) 
+data Graph a = Node a (Step (Graph a))
+type Tree a = Graph a
+type Node a = Tree a
 
 -- We use type synonyms to make declarations more clear (and expressive)
-type Subst = [(Name, Expr)]
-type NameSupply = [Name]
 type Name = String
 type Renaming = [(Name, Name)]
-type Task = (Expr, Program)
+type Subst = [(Name, Expr)]
+type NameSupply = [Name]
+
+type Conf = Expr
 type Value = Expr
+type Task = (Conf, Program)
 type Env = [(Name, Value)]
 
-type Machine = NameSupply -> Expr -> Step Expr
-type MachineGen = Program -> Machine
+type Machine a = NameSupply -> a -> Step a
+type MachineGen p a = p -> Machine a
 	
 instance Show Expr where
 	show (Var n) = n

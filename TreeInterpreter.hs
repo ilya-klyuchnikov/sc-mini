@@ -4,7 +4,7 @@ import Data
 import DataUtil
 import Maybe
 
-intTree :: Tree -> Env -> Value
+intTree :: Tree Conf -> Env -> Value
 intTree (Node e Stop) env = 
 	subst env e 
 
@@ -20,7 +20,7 @@ intTree (Node _ (Transient t)) env =
 intTree (Node e (Variants cs)) env = 
 	 head $ catMaybes $ map (try env) cs
 
-try :: Env -> (Contract, Tree) -> (Maybe Expr)
+try :: Env -> (Contract, Tree Conf) -> (Maybe Expr)
 try env (Contract v (Pat pn vs), t) = 
 	if cn == pn then (Just $ intTree t extendedEnv) else Nothing where 
 		c@(Ctr cn args) = subst env (Var v)

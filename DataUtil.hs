@@ -40,6 +40,10 @@ isVar :: Expr -> Bool
 isVar (Var _) = True
 isVar _ = False
 
+isValue :: Expr -> Bool
+isValue (Ctr _ args) = and $ map isValue args 
+isValue _ = False
+
 -- list of local fails and local successes 
 rawRenaming :: (Expr, Expr) -> [Maybe (Name, Name)]
 rawRenaming ((Var x), (Var y)) = [Just (x, y)]
@@ -141,7 +145,7 @@ readP1 p@(Program fs gs) s = next (readFDef s) (readGDef s) where
 	
 printTree t = unlines $ take 1000 $ pprintTree "" "" t
 
-pprintTree :: String -> String -> Tree -> [String]
+pprintTree :: String -> String -> Graph Conf -> [String]
 pprintTree indent msg (Node expr next) = make next where
 	make (Fold _ ren) = (indent ++ msg) : [indent ++ "|__" ++  (show expr) ++ "__↑" ++ (show ren)]
 	make Stop = (indent ++ msg) : [indent ++ "|__" ++  (show expr)]

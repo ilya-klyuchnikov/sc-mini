@@ -36,6 +36,10 @@ isCall (FCall _ _) = True
 isCall (GCall _ _) = True
 isCall _ = False
 
+isVar :: Expr -> Bool
+isVar (Var _) = True
+isVar _ = False
+
 rawRenaming :: (Expr, Expr) -> [Maybe (Name, Name)]
 rawRenaming ((Var x), (Var y)) = [Just (x, y)]
 rawRenaming ((Ctr n1 args1), (Ctr n2 args2)) | n1 == n2 = concat $ map rawRenaming $ zip args1 args2

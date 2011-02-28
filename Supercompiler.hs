@@ -11,12 +11,12 @@ import Deforester
 -- The main feature of supercompiler is propagation of information.
 supercompile :: Task -> Task
 supercompile (expr, program) =
-	residuate $ simplify $ foldTree $ buildFTree (propagate drive) program nameSupply expr
+	residuate $ simplify $ foldTree $ buildFTree (propagate (drive program)) nameSupply expr
 
 -- Pimp driving with positive information propagation.
 propagate :: Driver -> Driver
 propagate dr = f where
-	f p ns e = propagateContract (dr p ns e)
+	f ns e = propagateContract (dr ns e)
 
 propagateContract :: Step Expr -> Step Expr
 propagateContract (Variants vs) = 

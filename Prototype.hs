@@ -13,19 +13,18 @@ import List
 -- perform any simplifications so far.
 transform :: Task -> Task
 transform (expr, program) =
-	residuate $ foldTree $ buildFTree drive program nameSupply expr
+	residuate $ foldTree $ buildFTree (drive program) nameSupply expr
 
-type Driver = Program -> NameSupply -> Expr -> Step Expr
 -- Build foldable tree, - ensures that the size of expressions
 -- in nodes are limited (by whistle).
-buildFTree :: Driver -> Program -> NameSupply -> Expr -> Tree
-buildFTree d p (n:ns) e | whistle e = buildFTree d p ns $ generalize n e
-buildFTree d p  ns    t | otherwise = case d p ns t of
-	Decompose driven -> Node t $ Decompose (map (buildFTree d p ns) driven)
-	Transient term -> Node t $ Transient (buildFTree d p ns term)
+buildFTree :: Driver -> NameSupply -> Expr -> Tree
+buildFTree d (n:ns) e | whistle e = buildFTree d ns $ generalize n e
+buildFTree d ns     t | otherwise = case d ns t of
+	Decompose driven -> Node t $ Decompose (map (buildFTree d ns) driven)
+	Transient term -> Node t $ Transient (buildFTree d ns term)
 	Stop -> Node t Stop
 	Variants cs -> 
-		Node t $ Variants [(c, buildFTree d p (unused c ns) e) | (c, e) <- cs]
+		Node t $ Variants [(c, buildFTree d (unused c ns) e) | (c, e) <- cs]
 
 maxExpSize = 40
 -- The simplest ad-hoc whistle: it limits the size of an expression.

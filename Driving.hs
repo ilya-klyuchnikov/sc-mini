@@ -3,17 +3,22 @@ module Driving where
 import Data
 import DataUtil
 
+-- model generator
+type DriverGen = Program -> Driver
+-- model of program
+type Driver = NameSupply -> Expr -> Step Expr
+
 -- Builds an infinite (in a general case) process tree.
-buildTree :: Program -> NameSupply -> Expr -> Tree
-buildTree p ns t = case drive p ns t of
-	Decompose driven -> Node t $ Decompose (map (buildTree p ns) driven)
-	Transient term -> Node t $ Transient (buildTree p ns term)
+buildTree :: Driver -> NameSupply -> Expr -> Tree
+buildTree drive ns t = case drive ns t of
+	Decompose driven -> Node t $ Decompose (map (buildTree drive ns) driven)
+	Transient term -> Node t $ Transient (buildTree drive ns term)
 	Stop -> Node t Stop
 	Variants cs -> 
-		Node t $ Variants [(c, buildTree p (unused c ns) e) | (c, e) <- cs]
+		Node t $ Variants [(c, buildTree drive (unused c ns) e) | (c, e) <- cs]
 
 -- Models a behavior of interpreter.
-drive :: Program -> NameSupply -> Expr -> Step Expr
+drive :: DriverGen
 drive p ns (Var _) = Stop
 drive p ns (Ctr _ []) = Stop
 drive p ns (Ctr _ args) = Decompose args

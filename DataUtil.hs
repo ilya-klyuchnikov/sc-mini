@@ -174,10 +174,10 @@ fn :: String -> String
 fn (_:s:ss) = (toLower s) : ss
 
 instance Show FDef where
-	show (FDef fn args body) = fn ++ "(" ++ intercalate ", " args ++ ") = " ++ (show body) ++ ";"
+	show (FDef n args body) = (fn n) ++ "(" ++ intercalate ", " args ++ ") = " ++ (show body) ++ ";"
 
 instance Show GDef where
-	show (GDef gn p args body) = gn ++ "(" ++ intercalate ", " (show p:args) ++ ") = " ++ (show body) ++ ";"
+	show (GDef n p args body) = (fn n) ++ "(" ++ intercalate ", " (show p:args) ++ ") = " ++ (show body) ++ ";"
 
 instance Show Pat where
 	show (Pat cn vs) = cn ++ "(" ++ intercalate "," vs ++ ")"

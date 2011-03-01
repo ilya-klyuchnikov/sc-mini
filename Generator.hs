@@ -25,14 +25,14 @@ res ns mp (Node (Let (v, _) _) (Decompose ts)) = (subst [(v, e1)] e2, p1, ns1) w
 
 res (n:ns) mp (Node e (Transient t)) = (fcall, Program ((FDef f1 vs body):fs) gs, ns1) where
 	vs = vnames e
-	f1 = "f" ++ n
+	f1 = "ff" ++ (tail n)
 	fcall = FCall f1 $ map Var vs
 	(body, Program fs gs, ns1) = res ns ((e, fcall) : mp) t
 	
 res (n:ns) mp (Node e (Variants cs)) = (gcall, Program fs (newGs ++ gs), ns1) where
 	vs@(pv:vs') = vnames e
 	(vs_, vs'_) = if (isRepeated pv e) && (isUsed pv cs) then (pv:vs, vs) else (vs, vs')
-	g1 = "g" ++ n
+	g1 = "gg" ++ (tail n)
 	gcall = GCall g1 $ map Var vs_
 	(bodies, Program fs gs, ns1) = make ns ((e, gcall) : mp) $ map snd cs
 	pats = [pat | (Contract v pat, _) <- cs]

@@ -3,7 +3,6 @@ module Driving where
 import Data
 import DataUtil
 
--- Builds an infinite (in a general case) process tree using a provided state machine.
 buildTree :: Machine Conf -> Conf -> Tree Conf
 buildTree m e = bt m nameSupply e
 

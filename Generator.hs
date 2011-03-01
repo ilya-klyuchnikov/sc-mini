@@ -37,7 +37,7 @@ res (n:ns) mp (Node e (Variants cs)) = (gcall, Program fs (newGs ++ gs), ns1) wh
 	(bodies, Program fs gs, ns1) = make ns ((e, gcall) : mp) $ map snd cs
 	pats = [pat | (Contract v pat, _) <- cs]
 	newGs = [GDef g1 p vs'_ b | (p, b) <-  (zip pats bodies)]
-	isUsed vname cs = any (any (== vname) . vnames . expr . snd) cs
+	isUsed vname cs = any (any (== vname) . vnames . nodeLabel . snd) cs
 	
 res ns mp (Node e (Fold (Node base _) ren)) = (call, Program [] [], ns) where
 	call = subst [(x, Var y) | (x, y) <- ren] baseCall

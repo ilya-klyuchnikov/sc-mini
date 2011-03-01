@@ -1,4 +1,10 @@
-module DataUtil where
+module DataUtil(
+	isValue,isCall,isVar,size,
+	fDef, gDef, gDefs,
+	subst, renaming, vnames,nameSupply,
+	nodeLabel,isRepeated,
+	printTree,unused
+	) where
 	
 import Data
 import Maybe
@@ -12,8 +18,9 @@ import Text.ParserCombinators.ReadP
 readVar1 :: ReadS Name 
 readVar1 i = concat [lex s1 | (",", s1) <- lex i] 
 
+nameSupply :: NameSupply
 nameSupply = ["v" ++ (show i) | i <- [1 ..] ]
-expr (Node e _) = e
+nodeLabel (Node l _) = l
 step (Node _ s) = s
 unused (Contract _ (Pat _ vs)) = (\\ vs)
 
@@ -32,7 +39,6 @@ subst sub (Ctr name args)  = Ctr name (map (subst sub) args)
 subst sub (FCall name args)  = FCall name (map (subst sub) args)
 subst sub (GCall name args) = GCall name (map (subst sub) args)
 subst sub (Let (x, e1) e2) = Let (x, (subst sub e1)) (subst sub e2)
-
 
 isCall :: Expr -> Bool
 isCall (FCall _ _) = True
@@ -57,7 +63,7 @@ rawRenaming (Let (v, e1) e2, Let (v', e1') e2') = rawRenaming (e1, e1') ++ rawRe
 rawRenaming _  = [Nothing]
 
 -- global success = no local failures ++ all local successes are the same
-renaming :: Expr -> Expr -> Maybe[(Name, Name)]
+renaming :: Expr -> Expr -> Maybe Renaming
 renaming e1 e2 = f $ partition isNothing $ rawRenaming (e1, e2) where
 	f (x:_, _) = Nothing
 	f (_, ps) = g gs1 gs2

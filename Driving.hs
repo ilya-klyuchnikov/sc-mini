@@ -14,8 +14,8 @@ bt m ns c = case m ns c of
 	Stop -> Node c Stop
 	Variants cs -> Node c $ Variants [(c, bt m (unused c ns) e) | (c, e) <- cs]
 
-buildMachine :: Program -> Machine Conf
-buildMachine p = drive where
+driveMachine :: Program -> Machine Conf
+driveMachine p = drive where
 	drive :: Machine Conf
 	drive ns (Var _) = Stop
 	drive ns (Ctr _ []) = Stop

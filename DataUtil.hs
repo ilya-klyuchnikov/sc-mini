@@ -33,6 +33,7 @@ subst sub (FCall name args)  = FCall name (map (subst sub) args)
 subst sub (GCall name args) = GCall name (map (subst sub) args)
 subst sub (Let (x, e1) e2) = Let (x, (subst sub e1)) (subst sub e2)
 
+
 isCall :: Expr -> Bool
 isCall (FCall _ _) = True
 isCall (GCall _ _) = True

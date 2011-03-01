@@ -10,7 +10,7 @@ import Deforester
 
 supercompile :: Task -> Task
 supercompile (e, p) =
-  residuate $ simplify $ foldTree $ buildFTree (addPropagation $ buildMachine p) e
+  residuate $ simplify $ foldTree $ buildFTree (addPropagation $ driveMachine p) e
 
 addPropagation :: Machine Conf -> Machine Conf
 addPropagation m ns e = propagateContract (m ns e)

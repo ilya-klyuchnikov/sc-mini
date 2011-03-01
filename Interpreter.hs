@@ -30,11 +30,11 @@ eval p (Ctr name args) =
 	Ctr name [eval p arg | arg <- args]
 
 eval p (FCall name args) = 
-	subst (zip vs [eval p arg | arg <- args]) body where
+	eval p (subst (zip vs [eval p arg | arg <- args]) body) where
 		(FDef _ vs body) = fDef p name
 
 eval p (GCall gname args) = 
-	subst (zip (cvs ++ vs) (cargs ++ gargs)) body where
+	eval p (subst (zip (cvs ++ vs) (cargs ++ gargs)) body) where
 		(Ctr cname cargs) : gargs = [eval p arg | arg <- args]
 		(GDef _ (Pat _ cvs) vs body) = gDef p gname cname
 

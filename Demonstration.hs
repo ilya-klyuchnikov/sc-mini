@@ -42,216 +42,158 @@ prog2 = read
 	\ gX(Cons(s, ss), p, pp,  op, os) = gIf(gEqSymb(p, s), gM(pp, ss, op, os), gN(os, op));\
 	\ gN(Nil(), op) = False(); \
 	\ gN(Cons(s, ss), op) = gM(op, ss, op, ss);"
-
-
-
-demo01 :: IO ()
-demo01 = do
-	let goal = read "gEven(fSqr(S(S(Z()))))"
-	putStr (show goal)
-	putStr " => "
-	putStrLn $ show (intC prog1 goal)
-
-
-conf0Text = "gEven(fSqr(S(x)))"
-
-conf0 :: Expr
-conf0 = read conf0Text
-
-
-conf1Text = "gEven(fSqr(x))"
-
-conf1 :: Expr
-conf1 = read conf1Text
-
-conf2Text = "fMatch(Cons(A(), Cons(A(), Cons(B(), Nil()))), s)"
-
-conf3T = "fMatch(Cons(A(), Cons(A(), Nil())), s)"
-
-conf2 :: Expr
-conf2 = read conf2Text
 	
-example1a :: IO ()
-example1a = do
-	let goal = read "gEven(fSqr(S(S(Z()))))"
-	putStr (show goal)
-	putStr " => "
-	putStrLn $ show (eval prog1 goal)
+prog3 :: Program
+prog3 = read
+	" fInf() = S(fInf()); \
+	\ fB(x) = f(S(x));"
 
-example2 :: IO ()
-example2 = do
-	let goal = read "gEven(fSqr(S(S(S(Z())))))"
-	putStr (show goal)
-	putStr " => "
-	putStrLn $ show (intC prog1 goal)
-	
-example3 :: IO ()
-example3 = do
-	let goal = read "gEven(fSqr(S(S(S(S(Z()))))))"
-	putStr (show goal)
-	putStr " => "
-	putStrLn $ show (intC prog1 goal)
-	
-example4 :: IO ()
-example4 = do
-	log_sll_trace prog1 (read "gEven(fSqr(S(Z())))")
-	
-example5 :: IO ()
-example5 = do
-	log_sll_trace prog1 conf0
-	
-example6 = 
-	putStrLn $ show $ (driveMachine prog1) nameSupply (read "gOdd(gAdd(x, gMult(x, S(x))))")
-example7 = 
-	putStrLn $ show $ (driveMachine prog1) nameSupply (read "gOdd(S(gAdd(x1, gMult(x, S(x)))))")
+-- counting steps of interpreter
+demo01 = 
+	intC prog1 $ read "gEven(fSqr(S(S(Z()))))"
 
-example8 :: IO ()
-example8 = 
-	putStrLn $ printTree $ buildTree (driveMachine prog1) conf1
+-- int and eval produce the same values
+demo02 =
+	int prog1 $ read "gEven(fSqr(S(S(Z()))))"
+demo03 =
+	eval prog1 $ read "gEven(fSqr(S(S(Z()))))"
+demo04 =
+	int prog1 $ read "fSqr(S(S(Z())))"
+demo05 =
+	eval prog1 $ read "fSqr(S(S(Z())))"
 
-example9 :: IO ()
-example9 = do
-	putStrLn $ show $ intTree (buildTree (driveMachine prog1) conf1) [("x", read "S(S(Z()))")]
-	putStrLn $ show $ intTree (buildTree (driveMachine prog1) conf1) [("x", read "S(S(S(Z())))")]
+-- trying interpret undefined expression	
+demo06 =
+	int  prog1 $ read "fSqr(S(S(x)))"
+
+-- trying eval undefined expression
+demo07 =
+	eval prog1 $ read "fSqr(S(S(x)))"
+
+-- "interpret" infinite number	
+demo08 =
+	int  prog3 $ read "fInf()"
+
+-- "eval" infinite number	
+demo09 =
+	eval prog3 $ read "fInf()"
+
+-- 	driving (variants)
+demo10 =
+	(driveMachine prog1) nameSupply (read "gOdd(gAdd(x, gMult(x, S(x))))")
+
+-- driving (transient step)	
+demo11 = 
+	(driveMachine prog1) nameSupply (read "gOdd(S(gAdd(v1, gMult(x, S(x)))))")
 	
-example10 :: IO ()
-example10 = 
-	putStrLn $ printTree $ foldTree $ buildTree (driveMachine prog1) conf1
-	
-example11 :: IO ()
-example11 =
+-- building infinite tree
+demo12 =
+	putStrLn $ printTree $ buildTree (driveMachine prog1) (read "gEven(fSqr(x))")
+
+-- using intTree (infinite tree) to run task 
+demo13 =
+	intTree (buildTree (driveMachine prog1) (read "gEven(fSqr(x))")) [("x", read "S(S(Z()))")]
+
+-- using intTree (infinite tree) to run task
+demo14 =
+	intTree (buildTree (driveMachine prog1) (read "gEven(fSqr(x))")) [("x", read "S(S(S(Z())))")]
+
+-- successful folding
+demo15 =
+	putStrLn $ printTree $ foldTree $ buildTree (driveMachine prog1) (read "gEven(fSqr(x))")
+
+-- an example of "not foldable" tree
+demo16 =
 	putStrLn $ printTree $ foldTree $ buildTree (driveMachine prog1) (read "gAdd1(x, y)")
-	
-example12 :: IO ()
-example12 =
+
+-- an example of generalization, set sizeBound = 5 to get the same result as in the paper
+demo17 =
 	putStrLn $ printTree $ foldTree $ buildFTree (driveMachine prog1) (read "gAdd1(x, y)")
 	
-example12a :: IO ()
-example12a =
-	putStrLn $ printTree $ foldTree $ buildFTree (driveMachine prog1) conf1
+-- even/sqr - just transformation
+demo18 = do
+	let (c2, p2) = transform ((read "gEven(fSqr(x))"), prog1)
+	putStrLn "\ntransformation:\n"
+	putStrLn (show c2)
+	putStrLn (show p2)
 	
-example13 :: IO ()
-example13 = do
-	putStrLn "just transformation"
-	putStrLn "before:\n"
-	putStrLn (show conf1)
-	putStrLn (show prog1)
-	let (c2, p2) = transform (conf1, prog1)
-	putStrLn "\nafter:\n"
+-- even/sqr - deforestation
+demo19 = do
+	let (c2, p2) = deforest ((read "gEven(fSqr(x))"), prog1)
+	putStrLn "\ndeforestation:\n"
 	putStrLn (show c2)
 	putStrLn (show p2)
 
-example14 :: IO()
-example14 = do
-	putStrLn "just transformation"
-	putStrLn "before:\n"
-	putStrLn (show conf2)
-	putStrLn (show prog2)
+-- even/sqr - supercompilation
+demo20 = do
+	let (c2, p2) = supercompile ((read "gEven(fSqr(x))"), prog1)
+	putStrLn "supercompilation:\n"
+	putStrLn (show c2)
+	putStrLn (show p2)
+
+-- KMP - transformation
+demo21 = do
 	let (c2, p2) = transform (conf2, prog2)
-	putStrLn "\nafter:\n"
+	putStrLn "\ntransformation:\n"
 	putStrLn (show c2)
 	putStrLn (show p2)
 	
-example15 :: IO()
-example15 = do
-	putStrLn "deforestantion"
-	putStrLn "before:\n"
-	putStrLn (show conf2)
-	putStrLn (show prog2)
+-- KMP - deforestation
+demo22 = do
 	let (c2, p2) = deforest (conf2, prog2)
-	putStrLn "\nafter:\n"
+	putStrLn "\ndeforest:\n"
 	putStrLn (show c2)
 	putStrLn (show p2)
-	
-example16 :: IO()
-example16 = do
-	putStrLn "supercompilation"
-	putStrLn "before:\n"
-	putStrLn (show conf2)
-	putStrLn (show prog2)
+
+-- KMP - supercompilation
+demo23 = do
 	let (c2, p2) = supercompile (conf2, prog2)
-	putStrLn "\nafter:\n"
+	putStrLn "\nsupercompile:\n"
 	putStrLn (show c2)
 	putStrLn (show p2)
-	
-example16a :: IO()
+
+-- KMP -- transform -- graph
 example16a = 
-	putStrLn $ printTree $ simplify $ foldTree $ buildFTree (addPropagation (driveMachine prog2)) conf2
-	
-example16b :: IO()
-example16b = 
-	putStrLn $ printTree $ simplify $ foldTree $ buildFTree (driveMachine prog2) (read conf3T)
-
-example16c :: IO()
-example16c = 
-	putStrLn $ printTree $ simplify $ foldTree $ buildFTree (driveMachine prog2) conf2
-	
-example16c1 :: IO()
-example16c1 = 
 	putStrLn $ printTree $ foldTree $ buildFTree (driveMachine prog2) conf2
-	
---example17 :: IO()
-example17 =
-	driveMachine prog2 nameSupply (read "gX(s, A(), t, t, s)")
 
-state1 = (conf1, prog1)
-state1t = transform state1
-state1d = deforest state1
-state1s = supercompile state1
+-- KMP -- deforest -- graph
+example16b = 
+	putStrLn $ printTree $ simplify $ foldTree $ buildFTree (driveMachine prog2) conf2
+
+-- KMP -- supercompile -- graph
+example16c = 
+	putStrLn $ printTree $ simplify $ foldTree $ buildFTree (addPropagation (driveMachine prog2)) conf2
+
+-- all further stuff is for "benchmarking"
+
+conf1 :: Expr
+conf1 = read "gEven(fSqr(x))"
+conf2 :: Expr
+conf2 = read "fMatch(Cons(A(), Cons(A(), Cons(B(), Nil()))), s)"
+
+-- input task
+t1 = (conf1, prog1)
+-- transformed task
+t1t = transform t1
+-- deforested task
+t1d = deforest t1
+-- supercompiled task
+t1s = supercompile t1
+
+
+run st n = sll_trace st [("x", peano n)]
 
 def (e, p) = simplify $ foldTree $ buildFTree (driveMachine p) e
 tr (e, p) = foldTree $ buildFTree (driveMachine p) e
 
-t1d = def state1
-t1t = tr state1
+t1d' = def t1
+t1t' = tr t1
 
-state2 = (conf2, prog2)
-example101 = transform state2
-example102 = deforest state2
-example103 = supercompile state2
-
-number 0 = Ctr "Z" []
-number n = Ctr "S" [number (n - 1)]
-
-run st n = sll_trace st [("x", number n)]
-
-e1 :: Expr 
-e1 = read "gEven(gAdd(x, gMult(v1, x)))"
-
-e2 :: Expr 
-e2 = read "gEven(gAdd(v3, gMult(v1, x)))"
+peano 0 = Ctr "Z" []
+peano n = Ctr "S" [peano (n - 1)]
 
 
-main = do
-	demo01
-	putStrLn ""
-	example2
-	putStrLn ""
-	example3
-	putStrLn ""
-	example4
-	--putStrLn ""
-	--example5
-	putStrLn ""
-	example6
-	putStrLn ""
-	example7
-	putStrLn ""
-	example8
-	putStrLn ""
-	example9
-	putStrLn ""
-	example10
-	putStrLn ""
-	example11
-	putStrLn ""
-	example12
-	putStrLn ""
-	example13
-	putStrLn ""
-
-log_sll_trace :: Program -> Expr -> IO ()
-log_sll_trace p e | isValue e = putStrLn (show e)
-                  | otherwise =
-                    putStrLn (show e) >> log_sll_trace p (intStep p e)
-	
+benchmark0 = map (snd . (run t1)) [1 .. 50]
+benchmark1 = map (snd . (run t1t)) [1 .. 50]
+benchmark2 = map (snd . (run t1d)) [1 .. 50]
+benchmark3 = map (snd . (run t1s)) [1 .. 50]	

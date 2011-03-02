@@ -12,6 +12,7 @@ import Data.Maybe
 import Generator
 import Prototype
 import Deforester
+import Util
 
 prog1 :: Program
 prog1 = read
@@ -101,6 +102,10 @@ demo14 =
 -- successful folding
 demo15 =
 	putStrLn $ printTree $ foldTree $ buildTree (driveMachine prog1) (read "gEven(fSqr(x))")
+	
+-- successful folding (tex)
+demo15a =
+	putStrLn $ pprintLTree $ foldTree $ buildTree (driveMachine prog1) (read "gEven(fSqr(x))")
 
 -- an example of "not foldable" tree
 demo16 =
@@ -164,6 +169,9 @@ example16b =
 example16c = 
 	putStrLn $ printTree $ simplify $ foldTree $ buildFTree (addPropagation (driveMachine prog2)) conf2
 
+-- KMP -- supercompile -- graph
+example16cTex = 
+	putStrLn $ pprintLTree $ simplify $ foldTree $ buildFTree (addPropagation (driveMachine prog2)) conf2
 -- all further stuff is for "benchmarking"
 
 conf1 :: Expr
@@ -193,7 +201,12 @@ peano 0 = Ctr "Z" []
 peano n = Ctr "S" [peano (n - 1)]
 
 
-benchmark0 = map (snd . (run t1)) [1 .. 50]
-benchmark1 = map (snd . (run t1t)) [1 .. 50]
-benchmark2 = map (snd . (run t1d)) [1 .. 50]
-benchmark3 = map (snd . (run t1s)) [1 .. 50]	
+benchmark0 = map (snd . (run t1)) [0 .. 50]
+benchmark1 = map (snd . (run t1t)) [0 .. 50]
+benchmark2 = map (snd . (run t1d)) [0 .. 50]
+benchmark3 = map (snd . (run t1s)) [0 .. 50]
+
+points1 = zipWith3 (\n x1 x2 -> (n, (fromInteger x1) / (fromInteger x2))) [0 .. 50] benchmark0 benchmark1
+points2 = zipWith3 (\n x1 x2 -> (n, (fromInteger x1) / (fromInteger x2))) [0 .. 50] benchmark0 benchmark2
+points3 = zipWith3 (\n x1 x2 -> (n, (fromInteger x1) / (fromInteger x2))) [0 .. 50] benchmark0 benchmark3
+	

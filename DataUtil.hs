@@ -164,6 +164,13 @@ pprintTree indent msg (Node expr next) = make next where
 		(indent ++ msg) :  (indent ++ "|__" ++  show expr) : (concat (map (\(x, t) -> pprintTree (indent ++ " ") ("?" ++ show x) t) cs))
 
 instance Show Expr where
+	show (Ctr "Nil" []) = "``\'\'"
+	show (Ctr "Cons" [Ctr "B" [], Ctr "Nil" []]) = "``B\'\'"
+	show (Ctr "Cons" [Ctr "A" [], (Ctr "Cons" [Ctr "B" [], Ctr "Nil" []])]) = "``AB\'\'"
+	show (Ctr "Cons" [Ctr "A" [], (Ctr "Cons" [Ctr "A" [], (Ctr "Cons" [Ctr "B" [], Ctr "Nil" []])])]) = "``AAB\'\'"
+	show (Ctr "Cons" [x, y]) = (show x) ++ ":" ++ (show y)
+	show (Ctr "A" []) = "\'A\'"
+	show (Ctr "B" []) = "\'B\'"
 	show (Var n) = n
 	show (Ctr n es) = n ++ "(" ++ (intercalate ", " (map show es)) ++ ")"
 	show (FCall n es) = (fn n) ++ "(" ++ (intercalate ", " (map show es)) ++ ")"
@@ -180,6 +187,8 @@ instance Show GDef where
 	show (GDef n p args body) = (fn n) ++ "(" ++ intercalate ", " (show p:args) ++ ") = " ++ (show body) ++ ";"
 
 instance Show Pat where
+	show (Pat "Nil" vs) = "``\'\'"
+	show (Pat "Cons" [v1, v2]) = v1 ++ ":" ++ v2
 	show (Pat cn vs) = cn ++ "(" ++ intercalate "," vs ++ ")"
 	
 instance Show Contract where

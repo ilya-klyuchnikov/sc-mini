@@ -46,6 +46,24 @@ prog2 = read
 	
 prog3 :: Program
 prog3 = read
+	" gAdd(Z(), y) = y;\
+	\ gAdd(S(x), y) = S(gAdd(x, y));\
+	\ gDouble(Z()) = Z(); \
+	\ gDouble(S(x)) = S(S(gDouble(x))); \
+	\ gHalf(Z()) = Z(); \
+	\ gHalf(S(x)) = gHalf1(x); \ 
+	\ gHalf1(Z()) = Z(); \
+	\ gHalf1(S(x)) = S(gHalf(x)); \
+	\ gEq(Z(), y) = gEqZ(y); \
+	\ gEq(S(x), y) = gEqS(y, x); \
+	\ gEqZ(Z()) = True(); \
+	\ gEqZ(S(x)) = False(); \
+	\ gEqS(Z(), x) = False(); \
+	\ gEqS(S(y), x) = gEq(x, y);"
+	
+	
+prog4 :: Program
+prog4 = read
 	" fInf() = S(fInf()); \
 	\ fB(x) = f(S(x));"
 
@@ -73,11 +91,11 @@ demo07 =
 
 -- "interpret" infinite number	
 demo08 =
-	int  prog3 $ read "fInf()"
+	int  prog4 $ read "fInf()"
 
 -- "eval" infinite number	
 demo09 =
-	eval prog3 $ read "fInf()"
+	eval prog4 $ read "fInf()"
 
 -- 	driving (variants)
 demo10 =
@@ -136,44 +154,72 @@ demo20 = do
 	putStrLn (show c2)
 	putStrLn (show p2)
 
+-- KMP -- transform -- graph
+demo21 = 
+	putStrLn $ printTree $ foldTree $ buildFTree (driveMachine prog2) conf2
+
+-- KMP -- deforest -- graph
+demo22 = 
+	putStrLn $ printTree $ simplify $ foldTree $ buildFTree (driveMachine prog2) conf2
+
+-- KMP -- supercompile -- graph
+demo23 = 
+	putStrLn $ printTree $ simplify $ foldTree $ buildFTree (addPropagation (driveMachine prog2)) conf2
+
+-- KMP -- supercompile -- graph
+demo23Tex = 
+	putStrLn $ pprintLTree $ simplify $ foldTree $ buildFTree (addPropagation (driveMachine prog2)) conf2
+
+g = simplify $ foldTree $ buildFTree (addPropagation (driveMachine prog2)) conf2
+
+demo24 = do
+	let (c2, p2) = residuate g
+	putStrLn (show c2)
+	putStrLn (show p2)
+
 -- KMP - transformation
-demo21 = do
+demo25 = do
 	let (c2, p2) = transform (conf2, prog2)
-	putStrLn "\ntransformation:\n"
 	putStrLn (show c2)
 	putStrLn (show p2)
 	
 -- KMP - deforestation
-demo22 = do
+demo26 = do
 	let (c2, p2) = deforest (conf2, prog2)
-	putStrLn "\ndeforest:\n"
 	putStrLn (show c2)
 	putStrLn (show p2)
 
 -- KMP - supercompilation
-demo23 = do
+demo27 = do
 	let (c2, p2) = supercompile (conf2, prog2)
-	putStrLn "\nsupercompile:\n"
 	putStrLn (show c2)
 	putStrLn (show p2)
 
--- KMP -- transform -- graph
-example16a = 
-	putStrLn $ printTree $ foldTree $ buildFTree (driveMachine prog2) conf2
+-- "program analysis"
+demo30 = do
+	let (c2, p2) = supercompile (read "gAdd(gAdd(x, y), z)", prog1)
+	putStrLn (show c2)
+	putStrLn (show p2)
+	
+demo31 = do
+	let (c2, p2) = supercompile (read "gAdd(x, gAdd(y, z))", prog1)
+	putStrLn (show c2)
+	putStrLn (show p2)
 
--- KMP -- deforest -- graph
-example16b = 
-	putStrLn $ printTree $ simplify $ foldTree $ buildFTree (driveMachine prog2) conf2
+-- supercompiled eqpressions are equal => 
+-- original expressions are equivalent	
+demo32 =
+	supercompile (read "gAdd(x, gAdd(y, z))", prog1) == supercompile (read "gAdd(gAdd(x, y), z)", prog1)
 
--- KMP -- supercompile -- graph
-example16c = 
-	putStrLn $ printTree $ simplify $ foldTree $ buildFTree (addPropagation (driveMachine prog2)) conf2
+demo33 = do
+	let (c2, p2) = supercompile ((read "gEq(gHalf(gDouble(n)),n)"), prog3)
+	putStrLn "supercompilation:\n"
+	putStrLn (show c2)
+	putStrLn (show p2)
+	
 
--- KMP -- supercompile -- graph
-example16cTex = 
-	putStrLn $ pprintLTree $ simplify $ foldTree $ buildFTree (addPropagation (driveMachine prog2)) conf2
 -- all further stuff is for "benchmarking"
-
+-- set sizeBound=10 to get the same results as in the paper
 conf1 :: Expr
 conf1 = read "gEven(fSqr(x))"
 conf2 :: Expr

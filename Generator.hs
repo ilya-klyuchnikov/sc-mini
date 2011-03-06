@@ -20,7 +20,7 @@ res ns mp (Node e Stop) = (e, Program [] [], ns)
 res ns mp (Node (Ctr cname _) (Decompose ts)) = (Ctr cname args, p1, ns1) where
 	(args, p1, ns1) = make ns mp ts
 
-res ns mp (Node (Let (v, _) _) (Decompose ts)) = (subst [(v, e1)] e2, p1, ns1) where
+res ns mp (Node (Let (v, _) _) (Decompose ts)) = (e2 // [(v, e1)], p1, ns1) where
 	([e1, e2], p1, ns1) = make ns mp ts
 
 res (n:ns) mp (Node e (Transient t)) = (fcall, Program ((FDef f1 vs body):fs) gs, ns1) where
@@ -40,7 +40,7 @@ res (n:ns) mp (Node e (Variants cs)) = (gcall, Program fs (newGs ++ gs), ns1) wh
 	isUsed vname cs = any (any (== vname) . vnames . nodeLabel . snd) cs
 	
 res ns mp (Node e (Fold (Node base _) ren)) = (call, Program [] [], ns) where
-	call = subst [(x, Var y) | (x, y) <- ren] baseCall
+	call = baseCall // [(x, Var y) | (x, y) <- ren] 
 	Just baseCall = lookup base mp
 
 -- proceeds a list of trees 

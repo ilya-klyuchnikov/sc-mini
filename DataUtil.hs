@@ -1,7 +1,7 @@
 module DataUtil(
 	isValue,isCall,isVar,size,
 	fDef, gDef, gDefs,
-	subst, renaming, vnames,nameSupply,
+	(//), renaming, vnames,nameSupply,
 	nodeLabel,isRepeated,
 	printTree,unused
 	) where
@@ -15,30 +15,9 @@ import List
 import Data.List
 import Text.ParserCombinators.ReadP
 
-readVar1 :: ReadS Name 
-readVar1 i = concat [lex s1 | (",", s1) <- lex i] 
-
-nameSupply :: NameSupply
-nameSupply = ["v" ++ (show i) | i <- [1 ..] ]
-nodeLabel (Node l _) = l
-step (Node _ s) = s
-unused (Contract _ (Pat _ vs)) = (\\ vs)
-
-fDef :: Program -> Name -> FDef
-fDef (Program fs _) fname = head [f | f@(FDef x _ _) <- fs, x == fname]
-
-gDefs :: Program -> Name -> [GDef]
-gDefs (Program _ gs) gname = [g | g@(GDef x _ _ _) <- gs, x == gname]
-
-gDef :: Program -> Name -> Name -> GDef
-gDef p gname cname = head [g | g@(GDef _ (Pat c _) _ _) <- gDefs p gname, c == cname]
-
-subst :: Subst -> Expr -> Expr
-subst sub (Var x)  = maybe (Var x) id (lookup x sub)
-subst sub (Ctr name args)  = Ctr name (map (subst sub) args)
-subst sub (FCall name args)  = FCall name (map (subst sub) args)
-subst sub (GCall name args) = GCall name (map (subst sub) args)
-subst sub (Let (x, e1) e2) = Let (x, (subst sub e1)) (subst sub e2)
+isValue :: Expr -> Bool
+isValue (Ctr _ args) = and $ map isValue args 
+isValue _ = False
 
 isCall :: Expr -> Bool
 isCall (FCall _ _) = True
@@ -49,18 +28,28 @@ isVar :: Expr -> Bool
 isVar (Var _) = True
 isVar _ = False
 
-isValue :: Expr -> Bool
-isValue (Ctr _ args) = and $ map isValue args 
-isValue _ = False
+size :: Expr -> Integer
+size (Var _) = 1
+size (Ctr _ args) = 1 + sum (map size args)
+size (FCall _ args) = 1 + sum (map size args)
+size (GCall _ args) = 1 + sum (map size args)
+size (Let (_, e1) e2) = 1 + (size e1) + (size e2)
 
--- list of local fails and local successes 
-rawRenaming :: (Expr, Expr) -> [Maybe (Name, Name)]
-rawRenaming ((Var x), (Var y)) = [Just (x, y)]
-rawRenaming ((Ctr n1 args1), (Ctr n2 args2)) | n1 == n2 = concat $ map rawRenaming $ zip args1 args2
-rawRenaming ((FCall n1 args1), (FCall n2 args2)) | n1 == n2 = concat $ map rawRenaming $ zip args1 args2
-rawRenaming ((GCall n1 args1), (GCall n2 args2)) | n1 == n2 = concat $ map rawRenaming $ zip args1 args2
-rawRenaming (Let (v, e1) e2, Let (v', e1') e2') = rawRenaming (e1, e1') ++ rawRenaming (e2, subst [(v, Var v')] e2')
-rawRenaming _  = [Nothing]
+fDef :: Program -> Name -> FDef
+fDef (Program fs _) fname = head [f | f@(FDef x _ _) <- fs, x == fname]
+
+gDefs :: Program -> Name -> [GDef]
+gDefs (Program _ gs) gname = [g | g@(GDef x _ _ _) <- gs, x == gname]
+
+gDef :: Program -> Name -> Name -> GDef
+gDef p gname cname = head [g | g@(GDef _ (Pat c _) _ _) <- gDefs p gname, c == cname]
+
+(//) :: Expr -> Subst -> Expr
+(Var x) // sub = maybe (Var x) id (lookup x sub)
+(Ctr name args) // sub = Ctr name (map (// sub) args)
+(FCall name args) // sub = FCall name (map (// sub) args)
+(GCall name args) // sub = GCall name (map (// sub) args)
+(Let (x, e1) e2) // sub  = Let (x, (e1 // sub)) (e2 // sub)
 
 -- global success = no local failures ++ all local successes are the same
 renaming :: Expr -> Expr -> Maybe Renaming
@@ -71,15 +60,22 @@ renaming e1 e2 = f $ partition isNothing $ rawRenaming (e1, e2) where
 			gs1 = groupBy (\(a, b) (c, d) -> a == c) $ sortBy (\(a, b) (c, d) -> compare a c) $ nub $ catMaybes ps
 			gs2 = groupBy (\(a, b) (c, d) -> b == d) $ sortBy (\(a, b) (c, d) -> compare b d) $ nub $ catMaybes ps
 	g xs ys = if all ((== 1) . length) xs && all ((== 1) . length) ys then Just (concat xs) else Nothing
-	
-isRenaming e1 e2 = isJust $ renaming e1 e2
 
-size :: Expr -> Integer
-size (Var _) = 1
-size (Ctr _ args) = 1 + sum (map size args)
-size (FCall _ args) = 1 + sum (map size args)
-size (GCall _ args) = 1 + sum (map size args)
-size (Let (_, e1) e2) = 1 + (size e1) + (size e2)
+rawRenaming :: (Expr, Expr) -> [Maybe (Name, Name)]
+rawRenaming ((Var x), (Var y)) = [Just (x, y)]
+rawRenaming ((Ctr n1 args1), (Ctr n2 args2)) | n1 == n2 = concat $ map rawRenaming $ zip args1 args2
+rawRenaming ((FCall n1 args1), (FCall n2 args2)) | n1 == n2 = concat $ map rawRenaming $ zip args1 args2
+rawRenaming ((GCall n1 args1), (GCall n2 args2)) | n1 == n2 = concat $ map rawRenaming $ zip args1 args2
+rawRenaming (Let (v, e1) e2, Let (v', e1') e2') = rawRenaming (e1, e1') ++ rawRenaming (e2, e2' // [(v, Var v')])
+rawRenaming _  = [Nothing]
+	
+--isRenaming e1 e2 = isJust $ renaming e1 e2
+
+nameSupply :: NameSupply
+nameSupply = ["v" ++ (show i) | i <- [1 ..] ]
+nodeLabel (Node l _) = l
+step (Node _ s) = s
+unused (Contract _ (Pat _ vs)) = (\\ vs)
 
 -- a SET (so, without duplicates) of all variable names encountered in a given expression
 -- variables are in the order they are encountered
@@ -98,6 +94,8 @@ vnames1 (Let (_, e1) e2) = vnames1 e1 ++ vnames1 e2
 isRepeated vn e = (length $ filter (== vn) (vnames1 e)) > 1
 
 -- READ/SHOW
+readVar1 :: ReadS Name 
+readVar1 i = concat [lex s1 | (",", s1) <- lex i]
 	
 instance Read Expr where
 	readsPrec _ s = readsExpr s

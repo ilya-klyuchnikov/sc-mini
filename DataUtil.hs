@@ -23,13 +23,6 @@ isVar :: Expr -> Bool
 isVar (Var _) = True
 isVar _ = False
 
-size :: Expr -> Integer
-size (Var _) = 1
-size (Ctr _ args) = 1 + sum (map size args)
-size (FCall _ args) = 1 + sum (map size args)
-size (GCall _ args) = 1 + sum (map size args)
-size (Let (_, e1) e2) = 1 + (size e1) + (size e2)
-
 fDef :: Program -> Name -> FDef
 fDef (Program fs _) fname = head [f | f@(FDef x _ _) <- fs, x == fname]
 
@@ -45,6 +38,13 @@ gDef p gname cname = head [g | g@(GDef _ (Pat c _) _ _) <- gDefs p gname, c == c
 (FCall name args) // sub = FCall name (map (// sub) args)
 (GCall name args) // sub = GCall name (map (// sub) args)
 (Let (x, e1) e2) // sub  = Let (x, (e1 // sub)) (e2 // sub)
+
+size :: Expr -> Integer
+size (Var _) = 1
+size (Ctr _ args) = 1 + sum (map size args)
+size (FCall _ args) = 1 + sum (map size args)
+size (GCall _ args) = 1 + sum (map size args)
+size (Let (_, e1) e2) = 1 + (size e1) + (size e2)
 
 -- global success = no local failures ++ all local successes are the same
 renaming :: Expr -> Expr -> Maybe Renaming
@@ -72,12 +72,12 @@ nodeLabel (Node l _) = l
 step (Node _ s) = s
 unused (Contract _ (Pat _ vs)) = (\\ vs)
 
--- a SET (so, without duplicates) of all variable names encountered in a given expression
--- variables are in the order they are encountered
+-- a set (so, with no duplicates) of all variable name int the order 
+-- og their first appearence in the expression
 vnames :: Expr -> [Name]
 vnames = nub . vnames1
 
--- a LIST (so, with possible duplicates) of all variable names encounterd in a given expressions
+-- a LIST (so, with possible duplicates) of all variable names encountered in a given expressions
 -- variables are in the order they are encountered
 vnames1 :: Expr -> [Name]
 vnames1 (Var v) = [v]

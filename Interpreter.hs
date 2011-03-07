@@ -6,6 +6,7 @@ import DataUtil
 int :: Program -> Expr -> Value
 int p e = until isValue (intStep p) e
 
+-- step-by-step interpreter
 intStep :: Program -> Expr -> Expr
 intStep p (Ctr name args) = 
 	Ctr name (values ++ (intStep p x : xs)) where 
@@ -25,18 +26,21 @@ intStep p (GCall gname (e:es)) =
 intStep p (Let binding e2) =
 	e2 // [binding] 
 
+-- top-down eval
 eval :: Program -> Expr -> Expr
 eval p (Ctr name args) = 
 	Ctr name [eval p arg | arg <- args]
 
 eval p (FCall name args) = 
-	eval p (body // (zip vs [eval p arg | arg <- args])) where
+	eval p (body // zip vs args) where
 		(FDef _ vs body) = fDef p name
 
-eval p (GCall gname args) = 
-	eval p (body // (zip (cvs ++ vs) (cargs ++ gargs))) where
-		(Ctr cname cargs) : gargs = [eval p arg | arg <- args]
+eval p (GCall gname (Ctr cname cargs : args)) = 
+	eval p (body // (zip (cvs ++ vs) (cargs ++ args))) where 
 		(GDef _ (Pat _ cvs) vs body) = gDef p gname cname
+
+eval p (GCall gname (arg:args)) = 
+	eval p (GCall gname (eval p arg:args))
 
 eval p (Let (x, e1) e2) =
 	eval p (e2 // [(x, e1)])

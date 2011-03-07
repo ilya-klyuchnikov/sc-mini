@@ -2,6 +2,7 @@ module Demonstration where
 
 import Data
 import DataUtil
+import DataIO
 import Driving
 import Interpreter
 import TreeInterpreter
@@ -12,7 +13,6 @@ import Data.Maybe
 import Generator
 import Prototype
 import Deforester
-import Util
 
 prog1 :: Program
 prog1 = read

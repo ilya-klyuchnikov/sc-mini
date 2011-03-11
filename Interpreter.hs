@@ -3,30 +3,28 @@ module Interpreter where
 import Data
 import DataUtil
 
-int :: Program -> Expr -> Value
+int :: Program -> Expr -> Expr
 int p e = until isValue (intStep p) e
 
--- step-by-step interpreter
 intStep :: Program -> Expr -> Expr
 intStep p (Ctr name args) = 
 	Ctr name (values ++ (intStep p x : xs)) where 
 		(values, x : xs) = span isValue args
 
 intStep p (FCall name args) = 
-	e // (zip vs args) where 
-		(FDef _ vs e) = fDef p name
+	body // zip vs args where 
+		(FDef _ vs body) = fDef p name
 
 intStep p (GCall gname (Ctr cname cargs : args)) = 
-	e // (zip (cvs ++ vs) (cargs ++ args)) where 
-		(GDef _ (Pat _ cvs) vs e) = gDef p gname cname
+	body // zip (cvs ++ vs) (cargs ++ args) where 
+		(GDef _ (Pat _ cvs) vs body) = gDef p gname cname
 
 intStep p (GCall gname (e:es)) = 
 	(GCall gname (intStep p e : es))
 	
-intStep p (Let binding e2) =
-	e2 // [binding] 
+intStep p (Let (x, e1) e2) =
+	e2 // [(x, e1)]
 
--- top-down eval
 eval :: Program -> Expr -> Expr
 eval p (Ctr name args) = 
 	Ctr name [eval p arg | arg <- args]
@@ -36,7 +34,7 @@ eval p (FCall name args) =
 		(FDef _ vs body) = fDef p name
 
 eval p (GCall gname (Ctr cname cargs : args)) = 
-	eval p (body // (zip (cvs ++ vs) (cargs ++ args))) where 
+	eval p (body // zip (cvs ++ vs) (cargs ++ args)) where 
 		(GDef _ (Pat _ cvs) vs body) = gDef p gname cname
 
 eval p (GCall gname (arg:args)) = 

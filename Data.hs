@@ -18,7 +18,7 @@ type Env = [(Name, Value)]
 
 data Contract = Contract Name Pat
 -- in the case of graph b is configuration
-data Step a b = Transient a | Variants [(Contract, a)] | Stop | Decompose ([b] -> b) [a] | Fold a Renaming
+data Step a b = Transient a | Variants [(Contract, a)] | Stop a | Decompose ([b] -> b) [a] | Fold a Renaming
 data Edge a = ETransient (Graph a) | EVariants [(Contract, Graph a)] | EStop a | 
 	EDecompose ([a] -> a) [Graph a] | EFold (Graph a) Renaming
 data Graph a = Node a (Step (Graph a) a) | Leaf a

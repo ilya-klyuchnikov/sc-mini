@@ -6,7 +6,7 @@ import DataUtil
 import Maybe
 
 intTree :: Tree Conf -> Env -> Value
-intTree (Node e Stop) env = 
+intTree (Leaf e) env = 
 	e // env
 -- TODO: here is the bottle-neck for let-expressions
 -- what to do with let??

@@ -9,7 +9,7 @@ residuate tree = (expr, program) where
 
 --- generation of residual program
 res :: NameSupply -> [(Conf, Conf)] -> Graph Conf -> (Conf, Program, NameSupply)
-res ns mp (Node e Stop) = (e, Program [] [], ns)
+res ns mp (Leaf e) = (e, Program [] [], ns)
 
 res ns mp (Node _ (Decompose comp ts)) = (comp args, p1, ns1) where
 	(args, p1, ns1) = res' ns mp ts
@@ -45,4 +45,4 @@ isBase e1 (Node _ (Decompose _ ts)) = or $ map (isBase e1) ts
 isBase e1 (Node _ (Variants cs)) = or $ map (isBase e1 . snd) cs 
 isBase e1 (Node _ (Transient t)) = isBase e1 t
 isBase e1 (Node _ (Fold (Node e2 _) _)) = e1 == e2
-isBase e1 (Node e2 Stop) = False
+isBase e1 (Leaf e2) = False

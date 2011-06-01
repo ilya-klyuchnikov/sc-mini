@@ -10,14 +10,14 @@ bt :: Machine Conf -> NameSupply -> Conf -> Tree Conf
 bt m ns c = case m ns c of
 	Decompose comp ds -> Node c $ Decompose comp (map (bt m ns) ds)
 	Transient e -> Node c $ Transient (bt m ns e)
-	Stop -> Node c Stop
+	Stop e -> Leaf e
 	Variants cs -> Node c $ Variants [(c, bt m (unused c ns) e) | (c, e) <- cs]
 
 driveMachine :: Program -> Machine Conf
 driveMachine p = drive where
 	drive :: Machine Conf
-	drive ns (Var _) = Stop
-	drive ns (Ctr _ []) = Stop
+	drive ns e@(Var _) = Stop e
+	drive ns e@(Ctr _ []) = Stop e
 	drive ns (Ctr n args) = Decompose (Ctr n) args
 	drive ns (Let (x, t1) t2) = Decompose (\[e1, e2] -> e2 // [(x, e1)] ) [t1, t2]
 	drive ns (FCall name args) = Transient $ e // (zip vs args) where 

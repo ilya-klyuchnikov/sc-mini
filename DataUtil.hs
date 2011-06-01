@@ -86,6 +86,7 @@ size (Let (_, e1) e2) = 1 + (size e1) + (size e2)
 
 nodeLabel :: Node a -> a
 nodeLabel (Node l _) = l
+nodeLabel (Leaf l) = l
 
 step :: Node a -> Step (Graph a) a
 step (Node _ s) = s

@@ -72,11 +72,12 @@ printTree t = unlines $ take 1000 $ pprintTree "" "" t
 pprintTree :: String -> String -> Graph Conf -> [String]
 pprintTree indent msg (Node expr next) = make next where
 	make (Fold _ ren) = (indent ++ msg) : [indent ++ "|__" ++  (show expr) ++ "__↑" ++ (show ren)]
-	make Stop = (indent ++ msg) : [indent ++ "|__" ++  (show expr)]
 	make (Transient t) = (indent ++ msg) : (indent ++ "|__" ++ show expr) : (pprintTree (indent ++ " ") "|" t)
 	make (Decompose comp ts) = (indent ++ msg) :  (indent ++ "|__" ++ show expr): (concat (map (pprintTree (indent ++ " ") "|") ts))
 	make (Variants cs) = 
 		(indent ++ msg) :  (indent ++ "|__" ++  show expr) : (concat (map (\(x, t) -> pprintTree (indent ++ " ") ("?" ++ show x) t) cs))
+pprintTree indent msg (Leaf expr) = (indent ++ msg) : [indent ++ "|__" ++  (show expr)]
+	
 
 instance Show Expr where
 	show (Ctr "Nil" []) = "``\'\'"
@@ -115,7 +116,7 @@ instance Show Program where
 instance Show a => Show (Step a b) where
 	show (Transient a) = "=> " ++ (show a)
 	show (Variants vs) = intercalate "\n" $ map (\(c, e) -> (show c) ++ " => " ++ (show e)) vs 
-	show Stop = "!"
+	show (Stop _) = "!"
 	show (Decompose _ ds) = show ds
 	show (Fold e _) = "↑" ++ (show e)
 
@@ -123,7 +124,7 @@ instance Show a => Show (Step a b) where
 pprintLTree :: Graph Conf -> String
 pprintLTree (Node expr next) = make next where
 	make (Fold _ _) = "node[conf]{" ++ (show expr) ++ "}"
-	make Stop = "node[conf]{" ++ (show expr) ++ "}"
+	make (Stop _) = "node[conf]{" ++ (show expr) ++ "}"
 	make (Transient t) = "node[conf]{" ++ (show expr) ++ "}\nchild[->]{" ++ (pprintLTree t) ++ "}"
 	make (Decompose _ ts) = "node[conf]{" ++ (show expr) ++ "}" ++ 
 		(concat (map (\t -> "\nchild[->]{" ++ (pprintLTree t) ++ "}") ts))

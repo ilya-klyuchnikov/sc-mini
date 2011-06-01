@@ -12,12 +12,12 @@ deforest (e, p) =
 	residuate $ simplify $ foldTree $ buildFTree (driveMachine p) e
 	
 simplify :: Graph Conf -> Graph Conf
-simplify (Node e (Decompose comp ts)) = 
-	Node e (Decompose comp $ map simplify ts)
-simplify (Node e (Variants cs)) = 
-	Node e (Variants [(c, simplify t) | (c, t) <- cs])
-simplify (Node e (Transient t)) | isBase e t = 
-	Node e $ Transient $ simplify t 
-simplify (Node e (Transient t)) = 
+simplify (Node e (EDecompose comp ts)) = 
+	Node e (EDecompose comp $ map simplify ts)
+simplify (Node e (EVariants cs)) = 
+	Node e (EVariants [(c, simplify t) | (c, t) <- cs])
+simplify (Node e (ETransient t)) | isBase e t = 
+	Node e $ ETransient $ simplify t 
+simplify (Node e (ETransient t)) = 
 	simplify t
 simplify t = t

@@ -8,10 +8,10 @@ buildTree m e = bt m nameSupply e
 
 bt :: Machine Conf -> NameSupply -> Conf -> Tree Conf
 bt m ns c = case m ns c of
-	Decompose comp ds -> Node c $ Decompose comp (map (bt m ns) ds)
-	Transient e -> Node c $ Transient (bt m ns e)
+	Decompose comp ds -> Node c $ EDecompose comp (map (bt m ns) ds)
+	Transient e -> Node c $ ETransient (bt m ns e)
 	Stop e -> Leaf e
-	Variants cs -> Node c $ Variants [(c, bt m (unused c ns) e) | (c, e) <- cs]
+	Variants cs -> Node c $ EVariants [(c, bt m (unused c ns) e) | (c, e) <- cs]
 
 driveMachine :: Program -> Machine Conf
 driveMachine p = drive where

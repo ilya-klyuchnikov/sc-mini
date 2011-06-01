@@ -71,10 +71,10 @@ printTree t = unlines $ take 1000 $ pprintTree "" "" t
 
 pprintTree :: String -> String -> Graph Conf -> [String]
 pprintTree indent msg (Node expr next) = make next where
-	make (Fold _ ren) = (indent ++ msg) : [indent ++ "|__" ++  (show expr) ++ "__↑" ++ (show ren)]
-	make (Transient t) = (indent ++ msg) : (indent ++ "|__" ++ show expr) : (pprintTree (indent ++ " ") "|" t)
-	make (Decompose comp ts) = (indent ++ msg) :  (indent ++ "|__" ++ show expr): (concat (map (pprintTree (indent ++ " ") "|") ts))
-	make (Variants cs) = 
+	make (EFold _ ren) = (indent ++ msg) : [indent ++ "|__" ++  (show expr) ++ "__↑" ++ (show ren)]
+	make (ETransient t) = (indent ++ msg) : (indent ++ "|__" ++ show expr) : (pprintTree (indent ++ " ") "|" t)
+	make (EDecompose comp ts) = (indent ++ msg) :  (indent ++ "|__" ++ show expr): (concat (map (pprintTree (indent ++ " ") "|") ts))
+	make (EVariants cs) = 
 		(indent ++ msg) :  (indent ++ "|__" ++  show expr) : (concat (map (\(x, t) -> pprintTree (indent ++ " ") ("?" ++ show x) t) cs))
 pprintTree indent msg (Leaf expr) = (indent ++ msg) : [indent ++ "|__" ++  (show expr)]
 	
@@ -122,13 +122,13 @@ instance Show a => Show (Step a b) where
 
 -- Latex
 pprintLTree :: Graph Conf -> String
+pprintLTree (Leaf expr) = "node[conf]{" ++ (show expr) ++ "}"
 pprintLTree (Node expr next) = make next where
-	make (Fold _ _) = "node[conf]{" ++ (show expr) ++ "}"
-	make (Stop _) = "node[conf]{" ++ (show expr) ++ "}"
-	make (Transient t) = "node[conf]{" ++ (show expr) ++ "}\nchild[->]{" ++ (pprintLTree t) ++ "}"
-	make (Decompose _ ts) = "node[conf]{" ++ (show expr) ++ "}" ++ 
+	make (EFold _ _) = "node[conf]{" ++ (show expr) ++ "}"
+	make (ETransient t) = "node[conf]{" ++ (show expr) ++ "}\nchild[->]{" ++ (pprintLTree t) ++ "}"
+	make (EDecompose _ ts) = "node[conf]{" ++ (show expr) ++ "}" ++ 
 		(concat (map (\t -> "\nchild[->]{" ++ (pprintLTree t) ++ "}") ts))
-	make (Variants [(x1, t1), (x2, t2)]) = 
+	make (EVariants [(x1, t1), (x2, t2)]) = 
 		"node[conf]{" ++ (show expr) ++ "}" ++ 
 			("\nchild[->]{" ++ (pprintLTree t1) ++ "\nedge from parent node[left,label,xshift=-5mm]{" ++ (show x1) ++ "}}") ++
 			("\nchild[->]{" ++ (pprintLTree t2) ++ "\nedge from parent node[right,label,xshift=5mm]{" ++ (show x2) ++ "}}")

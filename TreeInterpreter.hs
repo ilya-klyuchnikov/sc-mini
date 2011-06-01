@@ -10,15 +10,15 @@ intTree (Leaf e) env =
 	e // env
 -- TODO: here is the bottle-neck for let-expressions
 -- what to do with let??
-intTree (Node (Let (v, e1) e2) (Decompose _ [t1, t2])) env =
+intTree (Node (Let (v, e1) e2) (EDecompose _ [t1, t2])) env =
 	intTree t2 ((v, intTree t1 env) : env)
-intTree (Node (Ctr cname _) (Decompose comp ts)) env =
+intTree (Node (Ctr cname _) (EDecompose comp ts)) env =
 	comp $ map (\t -> intTree t env) ts
-intTree (Node _ (Transient t)) env = 
+intTree (Node _ (ETransient t)) env = 
 	intTree t env
-intTree (Node e (Variants cs)) env = 
+intTree (Node e (EVariants cs)) env = 
 	head $ catMaybes $ map (try env) cs
-intTree (Node _ (Fold t ren)) env = 
+intTree (Node _ (EFold t ren)) env = 
 	intTree t $ map (\(k, v) -> (renKey k, v)) env where
 		renKey k = maybe k fst (find ((k ==) . snd)  ren)
 

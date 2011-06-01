@@ -88,5 +88,5 @@ nodeLabel :: Node a -> a
 nodeLabel (Node l _) = l
 nodeLabel (Leaf l) = l
 
-step :: Node a -> Step (Graph a) a
-step (Node _ s) = s
+--step :: Node a -> Step (Graph a) a
+--step (Node _ s) = s

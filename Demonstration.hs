@@ -260,3 +260,100 @@ points1 = zipWith3 (\n x1 x2 -> (n, (fromInteger x1) / (fromInteger x2))) [0 .. 
 points2 = zipWith3 (\n x1 x2 -> (n, (fromInteger x1) / (fromInteger x2))) [0 .. 50] benchmark0 benchmark2
 points3 = zipWith3 (\n x1 x2 -> (n, (fromInteger x1) / (fromInteger x2))) [0 .. 50] benchmark0 benchmark3
 
+main = do
+	putStrLn "demo01"
+	putStrLn (show demo01)
+	
+	putStrLn "\ndemo02"
+	putStrLn (show demo02)
+	
+	putStrLn "\ndemo03"
+	putStrLn (show demo03)
+	
+	putStrLn "\ndemo04"
+	putStrLn (show demo04)
+	
+	putStrLn "\ndemo05"
+	putStrLn (show demo05)
+	
+	putStrLn "\ndemo06"
+	-- error
+	--putStrLn (show demo06)
+	
+	putStrLn "\ndemo07"
+	-- error
+	--putStrLn (show demo07)
+	
+	putStrLn "\ndemo08"
+	-- bottom
+	--putStrLn (show demo08)
+	
+	putStrLn "\ndemo09"
+	-- infinite
+	--putStrLn (show demo09)
+	
+	putStrLn "\ndemo10"
+	putStrLn (show demo10)
+	
+	putStrLn "\ndemo11"
+	putStrLn (show demo11)
+	
+	putStrLn "\ndemo12"
+	demo12
+	
+	putStrLn "\ndemo13"
+	putStrLn (show demo13)
+	
+	putStrLn "\ndemo14"
+	putStrLn (show demo14)
+	
+	putStrLn "\ndemo15"
+	demo15
+	
+	putStrLn "\ndemo16"
+	demo16
+	
+	putStrLn "\ndemo17"
+	demo17
+	
+	putStrLn "\ndemo18"
+	demo18
+	
+	putStrLn "\ndemo19"
+	demo19
+	
+	putStrLn "\ndemo20"
+	demo20
+	
+	putStrLn "\ndemo21"
+	demo21
+	
+	putStrLn "\ndemo22"
+	demo22
+	
+	putStrLn "\ndemo23"
+	demo23
+	
+	putStrLn "\ndemo24"
+	demo24
+	
+	putStrLn "\ndemo25"
+	demo25
+	
+	putStrLn "\ndemo26"
+	demo26
+	
+	putStrLn "\ndemo27"
+	demo27
+	
+	putStrLn "\ndemo30"
+	demo30
+	
+	putStrLn "\ndemo31"
+	demo31
+	
+	putStrLn "\ndemo32"
+	putStrLn (show demo32)
+	
+	putStrLn "\ndemo33"
+	demo33

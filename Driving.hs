@@ -8,7 +8,7 @@ buildTree m e = bt m nameSupply e
 
 bt :: Machine Conf -> NameSupply -> Conf -> Tree Conf
 bt m ns c = case m ns c of
-	Decompose ds -> Node c $ Decompose (map (bt m ns) ds)
+	Decompose comp ds -> Node c $ Decompose comp (map (bt m ns) ds)
 	Transient e -> Node c $ Transient (bt m ns e)
 	Stop -> Node c Stop
 	Variants cs -> Node c $ Variants [(c, bt m (unused c ns) e) | (c, e) <- cs]
@@ -18,8 +18,8 @@ driveMachine p = drive where
 	drive :: Machine Conf
 	drive ns (Var _) = Stop
 	drive ns (Ctr _ []) = Stop
-	drive ns (Ctr _ args) = Decompose args
-	drive ns (Let (x, t1) t2) = Decompose [t1, t2]
+	drive ns (Ctr n args) = Decompose (Ctr n) args
+	drive ns (Let (x, t1) t2) = Decompose (\[e1, e2] -> e2 // [(x, e1)] ) [t1, t2]
 	drive ns (FCall name args) = Transient $ e // (zip vs args) where 
 		FDef _ vs e = fDef p name
 	drive ns (GCall gn (Ctr cn cargs : args)) = Transient $ e // sub where

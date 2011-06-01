@@ -17,7 +17,7 @@ buildFTree m e = bft m nameSupply e
 bft :: Machine Conf -> NameSupply -> Conf -> Tree Conf
 bft d (n:ns) e | whistle e = bft d ns $ generalize n e
 bft d ns     t | otherwise = case d ns t of
-	Decompose ds -> Node t $ Decompose $ map (bft d ns) ds
+	Decompose comp ds -> Node t $ Decompose comp $ map (bft d ns) ds
 	Transient e -> Node t $ Transient $ bft d ns e
 	Stop -> Node t Stop
 	Variants cs -> Node t $ Variants [(c, bft d (unused c ns) e) | (c, e) <- cs]

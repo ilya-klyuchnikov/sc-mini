@@ -11,11 +11,8 @@ residuate tree = (expr, program) where
 res :: NameSupply -> [(Conf, Conf)] -> Graph Conf -> (Conf, Program, NameSupply)
 res ns mp (Node e Stop) = (e, Program [] [], ns)
 
-res ns mp (Node (Ctr cname _) (Decompose ts)) = (Ctr cname args, p1, ns1) where
+res ns mp (Node _ (Decompose comp ts)) = (comp args, p1, ns1) where
 	(args, p1, ns1) = res' ns mp ts
-
-res ns mp (Node (Let (v, _) _) (Decompose ts)) = (e2 // [(v, e1)], p1, ns1) where
-	([e1, e2], p1, ns1) = res' ns mp ts
 
 res (n:ns) mp (Node e (Transient t)) = (fcall, Program ((FDef f1 vs body):fs) gs, ns1) where
 	vs = vnames e
@@ -44,7 +41,7 @@ res' ns mp ts = foldl f ([], Program [] [], ns) ts where
 	f (cs, Program fs gs, ns1) t = (cs ++ [g], Program (fs ++ fs1) (gs ++ gs1), ns2) where 
 		(g, Program fs1 gs1, ns2) = res ns1 mp t
 
-isBase e1 (Node _ (Decompose ts)) = or $ map (isBase e1) ts
+isBase e1 (Node _ (Decompose _ ts)) = or $ map (isBase e1) ts
 isBase e1 (Node _ (Variants cs)) = or $ map (isBase e1 . snd) cs 
 isBase e1 (Node _ (Transient t)) = isBase e1 t
 isBase e1 (Node _ (Fold (Node e2 _) _)) = e1 == e2

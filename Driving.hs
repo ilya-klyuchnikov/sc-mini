@@ -32,8 +32,8 @@ driveMachine p = drive where
 		inject (Variants cs) = Variants $ map f cs 
 		f (c, t) = (c, GCall gn (t:args))
 
-scrutinize :: NameSupply -> [Expr] -> GDef -> (Contract, Expr)
+scrutinize :: NameSupply -> [Expr] -> GDef -> (Contraction, Expr)
 scrutinize ns (Var v : args) (GDef _ (Pat cn cvs) vs body) = 
-	(Contract v (Pat cn fresh), body // sub) where
+	(Contraction v (Pat cn fresh), body // sub) where
 		fresh = take (length cvs) ns
 		sub = zip (cvs ++ vs) (map Var fresh ++ args)

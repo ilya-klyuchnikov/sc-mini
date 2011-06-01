@@ -13,10 +13,10 @@ supercompile (e, p) =
   residuate $ simplify $ foldTree $ buildFTree (addPropagation $ driveMachine p) e
 
 addPropagation :: Machine Conf -> Machine Conf
-addPropagation m ns e = propagateContract (m ns e)
+addPropagation m ns e = propagateContraction (m ns e)
 
-propagateContract :: Step Conf -> Step Conf
-propagateContract (Variants vs) = 
+propagateContraction :: Step Conf -> Step Conf
+propagateContraction (Variants vs) = 
   Variants [(c, e // [(v, Ctr cn $ map Var vs)]) | 
-            (c@(Contract v (Pat cn vs)), e) <- vs]
-propagateContract step = step
+            (c@(Contraction v (Pat cn vs)), e) <- vs]
+propagateContraction step = step

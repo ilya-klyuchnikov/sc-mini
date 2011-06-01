@@ -107,8 +107,8 @@ instance Show Pat where
 	show (Pat "Cons" [v1, v2]) = v1 ++ ":" ++ v2
 	show (Pat cn vs) = cn ++ "(" ++ intercalate "," vs ++ ")"
 	
-instance Show Contract where
-	show (Contract n p) = n ++ " == " ++ (show p)
+instance Show Contraction where
+	show (Contraction n p) = n ++ " == " ++ (show p)
 	
 instance Show Program where
 	show (Program fs gs) = intercalate "\n" $ (map show fs) ++ (map show gs)

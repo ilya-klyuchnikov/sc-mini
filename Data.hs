@@ -16,10 +16,10 @@ type Value = Expr
 type Task = (Conf, Program)
 type Env = [(Name, Value)]
 
-data Contract = Contract Name Pat
+data Contraction = Contraction Name Pat
 -- in the case of graph b is configuration
-data Step a = Transient a | Variants [(Contract, a)] | Stop a | Decompose ([a] -> a) [a]
-data Edge a = ETransient (Graph a) | EVariants [(Contract, Graph a)] | EDecompose ([a] -> a) [Graph a] | EFold (Graph a) Renaming
+data Step a = Transient a | Variants [(Contraction, a)] | Stop a | Decompose ([a] -> a) [a]
+data Edge a = ETransient (Graph a) | EVariants [(Contraction, Graph a)] | EDecompose ([a] -> a) [Graph a] | EFold (Graph a) Renaming
 data Graph a = Node a (Edge a) | Leaf a
 type Tree a = Graph a
 type Node a = Tree a

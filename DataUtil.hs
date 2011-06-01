@@ -42,8 +42,8 @@ gDef p gname cname = head [g | g@(GDef _ (Pat c _) _ _) <- gDefs p gname, c == c
 nameSupply :: NameSupply
 nameSupply = ["v" ++ (show i) | i <- [1 ..] ]
 
-unused :: Contract -> NameSupply -> NameSupply
-unused (Contract _ (Pat _ vs)) = (\\ vs)
+unused :: Contraction -> NameSupply -> NameSupply
+unused (Contraction _ (Pat _ vs)) = (\\ vs)
 
 vnames :: Expr -> [Name]
 vnames = nub . vnames'

@@ -26,7 +26,7 @@ res (n:ns) mp (Node e (EVariants cs)) = (gcall, Program fs (newGs ++ gs), ns1) w
 	g1 = "gg" ++ (tail n)
 	gcall = GCall g1 $ map Var vs_
 	(bodies, Program fs gs, ns1) = res' ns ((e, gcall) : mp) $ map snd cs
-	pats = [pat | (Contract v pat, _) <- cs]
+	pats = [pat | (Contraction v pat, _) <- cs]
 	newGs = [GDef g1 p vs'_ b | (p, b) <-  (zip pats bodies)]
 	isUsed vname cs = any (any (== vname) . vnames . nodeLabel . snd) cs
 	

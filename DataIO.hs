@@ -113,12 +113,11 @@ instance Show Contract where
 instance Show Program where
 	show (Program fs gs) = intercalate "\n" $ (map show fs) ++ (map show gs)
 	
-instance Show a => Show (Step a b) where
+instance Show a => Show (Step a) where
 	show (Transient a) = "=> " ++ (show a)
 	show (Variants vs) = intercalate "\n" $ map (\(c, e) -> (show c) ++ " => " ++ (show e)) vs 
 	show (Stop _) = "!"
 	show (Decompose _ ds) = show ds
-	show (Fold e _) = "↑" ++ (show e)
 
 -- Latex
 pprintLTree :: Graph Conf -> String

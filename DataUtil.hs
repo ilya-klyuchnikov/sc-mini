@@ -1,8 +1,9 @@
 module DataUtil(
 	isValue,isCall,isVar,size,
 	fDef, gDef, gDefs,
-	(//), renaming, vnames,nameSupply,
-	nodeLabel,isRepeated,unused
+	(//), renaming, vnames,nameSupply,freshVars,
+	nodeLabel,isRepeated,unused,
+	pat2Ctr
 	) where
 	
 import Data
@@ -41,6 +42,9 @@ gDef p gname cname = head [g | g@(GDef _ (Pat c _) _ _) <- gDefs p gname, c == c
 
 nameSupply :: NameSupply
 nameSupply = ["v" ++ (show i) | i <- [1 ..] ]
+
+freshVars :: [Expr]
+freshVars = [Var ("c." ++ (show i)) | i <- [1 ..] ]
 
 unused :: Contraction -> NameSupply -> NameSupply
 unused (Contraction _ (Pat _ vs)) = (\\ vs)
@@ -88,5 +92,5 @@ nodeLabel :: Node a -> a
 nodeLabel (Node l _) = l
 nodeLabel (Leaf l) = l
 
---step :: Node a -> Step (Graph a) a
---step (Node _ s) = s
+pat2Ctr :: Pat -> Expr
+pat2Ctr (Pat cn vs) = Ctr cn (map Var vs)

@@ -25,9 +25,9 @@ evalStep p (GCall gname ((Ctr cname cargs) : args)) =
 		(GDef _ pat@(Pat _ cvs) vs body) = gDef p gname cname
 		sub = zip (cvs ++ vs) (cargs ++ args)
 
-evalStep p (GCall gname (arg:args)) =
-	Transient contr (GCall gname (arg':args)) where
-		Transient contr arg' = evalStep p arg
+evalStep p (GCall gname (arg:args)) = 
+	case evalStep p arg of 
+		Transient contr arg' -> Transient contr (GCall gname (arg':args)) where
 
 -- OLD STUFF FURTHER --
 

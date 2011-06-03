@@ -27,7 +27,18 @@ prog1 = read
 	\ gOdd(Z()) = False();\
 	\ gOdd(S(x)) = gEven(x);\
 	\ gAdd1(Z(), y) = y; \
-	\ gAdd1(S(x), y) = gAdd1(x, S(y));"
+	\ gAdd1(S(x), y) = gAdd1(x, S(y)); \
+	
+	\ gLt(Z(), y)  = gLt1(y);\
+	\ gLt(S(x), y) = gLt2(y, x);\
+	
+	\ gLt1(Z()) = False();\
+	\ gLt1(S(x)) = True();\
+	
+	\ gLt2(Z(), x) = False();\
+	\ gLt2(S(y), x) = gLt(x, y);\
+	
+	\ fTest(x, y, z) = P(gLt(x, z), gLt(y, z));"
 
 prog2 :: Program
 prog2 = read
@@ -279,6 +290,17 @@ data2S :: Conf
 data2S = (read "gEqSymb(y, x)")
 
 testNan2 = nan (addPropagation $ driveMachine prog2) data2 data2S
+
+data3 :: Conf
+data3 = (read "fTest(Z(), S(Z()), S(S(Z())))")
+
+-- x < z
+-- y < z
+data3S :: Conf
+data3S = (read "fTest(x, y, z)")
+testNan3 = nan (addPropagation $ driveMachine prog1) data3 data3S
+
+-------------
 
 main = do
 	putStrLn "demo01"

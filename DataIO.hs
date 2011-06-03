@@ -72,7 +72,7 @@ printTree t = unlines $ take 1000 $ pprintTree "" "" t
 pprintTree :: String -> String -> Graph Conf -> [String]
 pprintTree indent msg (Node expr next) = make next where
 	make (EFold _ ren) = (indent ++ msg) : [indent ++ "|__" ++  (show expr) ++ "__↑" ++ (show ren)]
-	make (ETransient t) = (indent ++ msg) : (indent ++ "|__" ++ show expr) : (pprintTree (indent ++ " ") "|" t)
+	make (ETransient _ t) = (indent ++ msg) : (indent ++ "|__" ++ show expr) : (pprintTree (indent ++ " ") "|" t)
 	make (EDecompose comp ts) = (indent ++ msg) :  (indent ++ "|__" ++ show expr): (concat (map (pprintTree (indent ++ " ") "|") ts))
 	make (EVariants cs) = 
 		(indent ++ msg) :  (indent ++ "|__" ++  show expr) : (concat (map (\(x, t) -> pprintTree (indent ++ " ") ("?" ++ show x) t) cs))
@@ -126,7 +126,7 @@ pprintLTree :: Graph Conf -> String
 pprintLTree (Leaf expr) = "node[conf]{" ++ (show expr) ++ "}"
 pprintLTree (Node expr next) = make next where
 	make (EFold _ _) = "node[conf]{" ++ (show expr) ++ "}"
-	make (ETransient t) = "node[conf]{" ++ (show expr) ++ "}\nchild[->]{" ++ (pprintLTree t) ++ "}"
+	make (ETransient _ t) = "node[conf]{" ++ (show expr) ++ "}\nchild[->]{" ++ (pprintLTree t) ++ "}"
 	make (EDecompose _ ts) = "node[conf]{" ++ (show expr) ++ "}" ++ 
 		(concat (map (\t -> "\nchild[->]{" ++ (pprintLTree t) ++ "}") ts))
 	make (EVariants [(x1, t1), (x2, t2)]) = 

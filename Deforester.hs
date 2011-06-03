@@ -16,8 +16,8 @@ simplify (Node e (EDecompose comp ts)) =
 	Node e (EDecompose comp $ map simplify ts)
 simplify (Node e (EVariants cs)) = 
 	Node e (EVariants [(c, simplify t) | (c, t) <- cs])
-simplify (Node e (ETransient t)) | isBase e t = 
-	Node e $ ETransient $ simplify t 
-simplify (Node e (ETransient t)) = 
+simplify (Node e (ETransient tr t)) | isBase e t = 
+	Node e $ ETransient tr $ simplify t 
+simplify (Node e (ETransient _ t)) = 
 	simplify t
 simplify t = t

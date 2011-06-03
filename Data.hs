@@ -18,10 +18,11 @@ type Task = (Conf, Program)
 type Env = [(Name, Value)]
 
 data Contraction = Contraction Name Pat
--- in the case of graph b is configuration
-data Step a = Transient (Maybe Pat) a | Variants [(Contraction, a)] | Stop a | Decompose ([a] -> a) [a]
--- TODO: pattern in ETransient
-data Edge a = ETransient (Graph a) | EVariants [(Contraction, Graph a)] | EDecompose ([a] -> a) [Graph a] | EFold (Graph a) Renaming
+data TestResult = Match Pat | EqTest Bool
+data Step a = Transient (Maybe TestResult) a | Variants [(Contraction, a)]
+			| Stop a | Decompose ([a] -> a) [a]
+data Edge a = ETransient (Maybe TestResult) (Graph a) | EVariants [(Contraction, Graph a)] 
+			| EDecompose ([a] -> a) [Graph a] | EFold (Graph a) Renaming
 data Graph a = Node a (Edge a) | Leaf a
 type Tree a = Graph a
 type Node a = Tree a

@@ -14,7 +14,7 @@ intTree (Node (Let (v, e1) e2) (EDecompose _ [t1, t2])) env =
 	intTree t2 ((v, intTree t1 env) : env)
 intTree (Node (Ctr cname _) (EDecompose comp ts)) env =
 	comp $ map (\t -> intTree t env) ts
-intTree (Node _ (ETransient t)) env = 
+intTree (Node _ (ETransient _ t)) env = 
 	intTree t env
 intTree (Node e (EVariants cs)) env = 
 	head $ catMaybes $ map (try env) cs

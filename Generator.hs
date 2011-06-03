@@ -14,7 +14,7 @@ res ns mp (Leaf e) = (e, Program [] [], ns)
 res ns mp (Node _ (EDecompose comp ts)) = (comp args, p1, ns1) where
 	(args, p1, ns1) = res' ns mp ts
 
-res (n:ns) mp (Node e (ETransient t)) = (fcall, Program ((FDef f1 vs body):fs) gs, ns1) where
+res (n:ns) mp (Node e (ETransient _ t)) = (fcall, Program ((FDef f1 vs body):fs) gs, ns1) where
 	vs = vnames e
 	f1 = "ff" ++ (tail n)
 	fcall = FCall f1 $ map Var vs
@@ -43,6 +43,6 @@ res' ns mp ts = foldl f ([], Program [] [], ns) ts where
 
 isBase e1 (Node _ (EDecompose _ ts)) = or $ map (isBase e1) ts
 isBase e1 (Node _ (EVariants cs)) = or $ map (isBase e1 . snd) cs 
-isBase e1 (Node _ (ETransient t)) = isBase e1 t
+isBase e1 (Node _ (ETransient _ t)) = isBase e1 t
 isBase e1 (Node _ (EFold (Node e2 _) _)) = e1 == e2
 isBase e1 (Leaf e2) = False

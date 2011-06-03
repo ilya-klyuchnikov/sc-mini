@@ -21,7 +21,7 @@ evalStep p (FCall name args) =
 		(FDef _ vs body) = fDef p name
 
 evalStep p (GCall gname ((Ctr cname cargs) : args)) = 
-	Transient (Just pat) (body // sub) where 
+	Transient (Just (Match pat)) (body // sub) where 
 		(GDef _ pat@(Pat _ cvs) vs body) = gDef p gname cname
 		sub = zip (cvs ++ vs) (cargs ++ args)
 

@@ -3,6 +3,34 @@ module Interpreter where
 import Data
 import DataUtil
 
+eval :: Program -> Expr -> Expr
+eval p e = case evalStep p e of
+	Stop e' -> e'
+	Transient _ e' -> eval p e'
+	Decompose comp es' -> comp (map (eval p) es')
+
+evalStep :: Program -> Expr -> Step Expr
+evalStep p (Ctr name []) =
+	Stop (Ctr name [])
+
+evalStep p (Ctr name args) = 
+	Decompose (Ctr name) args
+
+evalStep p (FCall name args) = 
+	Transient Nothing (body // zip vs args) where
+		(FDef _ vs body) = fDef p name
+
+evalStep p (GCall gname ((Ctr cname cargs) : args)) = 
+	Transient (Just pat) (body // sub) where 
+		(GDef _ pat@(Pat _ cvs) vs body) = gDef p gname cname
+		sub = zip (cvs ++ vs) (cargs ++ args)
+
+evalStep p (GCall gname (arg:args)) =
+	Transient contr (GCall gname (arg':args)) where
+		Transient contr arg' = evalStep p arg
+
+-- OLD STUFF FURTHER --
+
 int :: Program -> Expr -> Expr
 int p e = until isValue (intStep p) e
 
@@ -24,24 +52,6 @@ intStep p (GCall gname (e:es)) =
 	
 intStep p (Let (x, e1) e2) =
 	e2 // [(x, e1)]
-
-eval :: Program -> Expr -> Expr
-eval p (Ctr name args) = 
-	Ctr name [eval p arg | arg <- args]
-
-eval p (FCall name args) = 
-	eval p (body // zip vs args) where
-		(FDef _ vs body) = fDef p name
-
-eval p (GCall gname (Ctr cname cargs : args)) = 
-	eval p (body // zip (cvs ++ vs) (cargs ++ args)) where 
-		(GDef _ (Pat _ cvs) vs body) = gDef p gname cname
-
-eval p (GCall gname (arg:args)) = 
-	eval p (GCall gname (eval p arg:args))
-
-eval p (Let (x, e1) e2) =
-	eval p (e2 // [(x, e1)])
 
 sll_run :: Task -> Env -> Value
 sll_run (e, program) env = int program (e // env)

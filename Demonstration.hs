@@ -13,6 +13,7 @@ import Data.Maybe
 import Generator
 import Prototype
 import Deforester
+import NeighborhoodAnalysis
 
 prog1 :: Program
 prog1 = read
@@ -259,6 +260,25 @@ benchmark3 = map (snd . (run t1s)) [0 .. 50]
 points1 = zipWith3 (\n x1 x2 -> (n, (fromInteger x1) / (fromInteger x2))) [0 .. 50] benchmark0 benchmark1
 points2 = zipWith3 (\n x1 x2 -> (n, (fromInteger x1) / (fromInteger x2))) [0 .. 50] benchmark0 benchmark2
 points3 = zipWith3 (\n x1 x2 -> (n, (fromInteger x1) / (fromInteger x2))) [0 .. 50] benchmark0 benchmark3
+
+testTree1 =
+	putStrLn $ printTree $ buildTree (driveMachine prog2) (read "fMatch(Cons(A(), Nil()), Cons(A(), Nil()))")
+
+--- NeighborhoodAnalysis
+data1 :: Conf
+data1 = (read "fMatch(Cons(A(), Nil()), Cons(A(), Cons(A(), Nil())))")
+data1S :: Conf
+data1S = (read "fMatch(x, y)")
+
+testNan1 = nan (addPropagation $ driveMachine prog2) data1 data1S
+
+data2 :: Conf
+data2 = (read "gEqSymb(A(), A())")
+
+data2S :: Conf
+data2S = (read "gEqSymb(y, x)")
+
+testNan2 = nan (addPropagation $ driveMachine prog2) data2 data2S
 
 main = do
 	putStrLn "demo01"

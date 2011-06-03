@@ -80,6 +80,7 @@ pprintTree indent msg (Leaf expr) = (indent ++ msg) : [indent ++ "|__" ++  (show
 	
 
 instance Show Expr where
+	{-
 	show (Ctr "Nil" []) = "``\'\'"
 	show (Ctr "Cons" [Ctr "B" [], Ctr "Nil" []]) = "``B\'\'"
 	show (Ctr "Cons" [Ctr "A" [], (Ctr "Cons" [Ctr "B" [], Ctr "Nil" []])]) = "``AB\'\'"
@@ -87,6 +88,7 @@ instance Show Expr where
 	show (Ctr "Cons" [x, y]) = (show x) ++ ":" ++ (show y)
 	show (Ctr "A" []) = "\'A\'"
 	show (Ctr "B" []) = "\'B\'"
+	-}
 	show (Var n) = n
 	show (Ctr n es) = n ++ "(" ++ (intercalate ", " (map show es)) ++ ")"
 	show (FCall n es) = (fn n) ++ "(" ++ (intercalate ", " (map show es)) ++ ")"
@@ -114,7 +116,7 @@ instance Show Program where
 	show (Program fs gs) = intercalate "\n" $ (map show fs) ++ (map show gs)
 	
 instance Show a => Show (Step a) where
-	show (Transient a) = "=> " ++ (show a)
+	show (Transient _ a) = "=> " ++ (show a)
 	show (Variants vs) = intercalate "\n" $ map (\(c, e) -> (show c) ++ " => " ++ (show e)) vs 
 	show (Stop _) = "!"
 	show (Decompose _ ds) = show ds

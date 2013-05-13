@@ -259,4 +259,3 @@ benchmark3 = map (snd . (run t1s)) [0 .. 50]
 points1 = zipWith3 (\n x1 x2 -> (n, (fromInteger x1) / (fromInteger x2))) [0 .. 50] benchmark0 benchmark1
 points2 = zipWith3 (\n x1 x2 -> (n, (fromInteger x1) / (fromInteger x2))) [0 .. 50] benchmark0 benchmark2
 points3 = zipWith3 (\n x1 x2 -> (n, (fromInteger x1) / (fromInteger x2))) [0 .. 50] benchmark0 benchmark3
-

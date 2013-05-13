@@ -6,9 +6,9 @@ module DataUtil(
 	) where
 	
 import Data
-import Maybe
-import Char
-import List
+import Data.Maybe
+import Data.Char
+import Data.List
 
 isValue :: Expr -> Bool
 isValue (Ctr _ args) = and $ map isValue args 

@@ -2,11 +2,9 @@ module DataIO where
 
 import Data
 import DataUtil
-import Maybe
-import Char
-import List
+import Data.Maybe
+import Data.Char
 
--- TODO: get rid of this imports
 import Data.List
 import Text.ParserCombinators.ReadP
 

@@ -5,7 +5,7 @@ import DataUtil
 import Driving
 import Folding
 import Generator
-import List
+import Data.List
 
 transform :: Task -> Task
 transform (e, p) =

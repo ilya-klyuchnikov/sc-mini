@@ -1,9 +1,9 @@
 module TreeInterpreter where
 
 import Data
-import List
+import Data.List
 import DataUtil
-import Maybe
+import Data.Maybe
 
 intTree :: Tree Conf -> Env -> Value
 intTree (Leaf e) env = 

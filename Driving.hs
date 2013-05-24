@@ -9,8 +9,8 @@ buildTree m e = bt m nameSupply e
 
 bt :: Machine Conf -> NameSupply -> Conf -> Tree Conf
 bt m ns c = case m ns c of
-	Decompose comp ds -> Node c $ EDecompose comp (map (bt m ns) ds)
-	Transient test e -> Node c $ ETransient test (bt m ns e)
+	Decompose comp ds -> Node c $ EDecompose comp $ map (bt m ns) ds
+	Transient tr e -> Node c $ ETransient tr $ bt m ns e
 	Stop e -> Leaf e
 	Variants cs -> Node c $ EVariants [(c, bt m (unused c ns) e) | (c, e) <- cs]
 

@@ -5,11 +5,10 @@ import DataUtil
 import Driving
 import Folding
 import Generator
-import Prototype
 
 deforest :: Task -> Task
 deforest (e, p) =
-	residuate $ simplify $ foldTree $ buildFTree (driveMachine p) e
+	residuate $ simplify $ foldTree $ buildTree (driveMachine p) e
 	
 simplify :: Graph Conf -> Graph Conf
 simplify (Node e (EDecompose comp ts)) = 

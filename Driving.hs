@@ -5,33 +5,32 @@ import DataUtil
 import Interpreter
 
 buildTree :: Machine Conf -> Conf -> Tree Conf
-buildTree m e = bt m nameSupply e
+buildTree m e = bt m e
 
-bt :: Machine Conf -> NameSupply -> Conf -> Tree Conf
-bt m ns c = case m ns c of
-	Decompose comp ds -> Node c $ EDecompose comp $ map (bt m ns) ds
-	Transient tr e -> Node c $ ETransient tr $ bt m ns e
+bt :: Machine Conf -> Conf -> Tree Conf
+bt m c = case m c of
+	Decompose comp ds -> Node c $ EDecompose comp $ map (bt m) ds
+	Transient tr e -> Node c $ ETransient tr $ bt m e
 	Stop e -> Leaf e
-	Variants cs -> Node c $ EVariants [(c, bt m (unused c ns) e) | (c, e) <- cs]
+	Variants cs -> Node c $ EVariants [(c, bt m e) | (c, e) <- cs]
 
 driveMachine :: Program -> Machine Conf
 driveMachine p = driveStep where
 	driveStep :: Machine Conf
-	driveStep ns e@(Var _) = 
+	driveStep e@(Var _) = 
 		Stop e
-	driveStep ns (GCall gn args) | isVar (head args) = 
-		Variants (map (scrutinize ns args) (gDefs p gn)) 
-	driveStep ns (GCall gn (arg:args)) | isCall arg = 
-		case (driveStep ns arg) of
+	driveStep (GCall gn args) | isVar (head args) = 
+		Variants (map (scrutinize args) (gDefs p gn)) 
+	driveStep (GCall gn (arg:args)) | isCall arg = 
+		case (driveStep arg) of
 			Transient pat t -> Transient pat (GCall gn (t:args))
 			Variants cs -> Variants (map (\(c, t) -> (c, GCall gn (t:args))) cs)
-	driveStep ns (Let (x, t1) t2) = 
-		Decompose (\[e1, e2] -> e2 // [(x, e1)]) [t1, t2]
-	driveStep ns e =
+	driveStep e =
 		evalStep p e
 
-scrutinize :: NameSupply -> [Expr] -> GDef -> (Contraction, Expr)
-scrutinize ns (Var v : args) (GDef _ (Pat cn cvs) vs body) = 
+scrutinize :: [Expr] -> GDef -> (Contraction, Expr)
+scrutinize (Var v : args) (GDef _ (Pat cn cvs) vs body) = 
 	(Contraction v (Pat cn fresh), body // sub) where
-		fresh = take (length cvs) ns
+		ids = take (length cvs) $ iterate (+1) 1
+		fresh = map (\x -> SVar (cn ++ "_" ++ (show x)) v) ids
 		sub = zip (cvs ++ vs) (map Var fresh ++ args)

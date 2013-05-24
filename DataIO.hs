@@ -9,9 +9,12 @@ import Data.List
 import Text.ParserCombinators.ReadP
 
 -- READ/SHOW
-readVar1 :: ReadS Name 
-readVar1 i = concat [lex s1 | (",", s1) <- lex i]
-	
+readName1 :: ReadS Name 
+readName1 i = concat [lex s1 | (",", s1) <- lex i]
+
+readVar1 :: ReadS Variable
+readVar1 i = [(NVar n, s) | (n, s) <- readName1 i]
+
 instance Read Expr where
 	readsPrec _ s = readsExpr s
 
@@ -26,14 +29,17 @@ readsExpr i = catMaybes [merge n (readArgs s)  s | (n, s) <- lex i] where
 	merge n@('g':_) [(args, s1)] _ = Just (GCall n args, s1)
 	merge n@('f':_) [(args, s1)] _ = Just (FCall n args, s1)
 	merge n@(x:_) [(args, s1)] _ | isUpper x = Just (Ctr n args, s1)
-	merge n@(x:_) [] s | isLower x = Just (Var n, s)
+	merge n@(x:_) [] s | isLower x = Just (Var $ NVar n, s)
 	merge _ _ _ = Nothing
 
 readArgs :: ReadS [Expr]
 readArgs = readP_to_S $ between (char '(') (char ')') (sepBy readExpr (char ','))
 
-readVars :: ReadS [Name]
-readVars = readP_to_S $ between (char '(') (char ')') (sepBy (readS_to_P lex) (char ','))
+readNames :: ReadS [Name]
+readNames = readP_to_S $ between (char '(') (char ')') (sepBy (readS_to_P lex) (char ','))
+
+readVars :: ReadS [Variable]
+readVars i = [ (map NVar ns, s) | (ns, s) <- readNames i]
 
 readFDef :: ReadS FDef
 readFDef i = [ (FDef n vars body, s4) | 
@@ -78,37 +84,29 @@ pprintTree indent msg (Leaf expr) = (indent ++ msg) : [indent ++ "|__" ++  (show
 	
 
 instance Show Expr where
-	{-
-	show (Ctr "Nil" []) = "``\'\'"
-	show (Ctr "Cons" [Ctr "B" [], Ctr "Nil" []]) = "``B\'\'"
-	show (Ctr "Cons" [Ctr "A" [], (Ctr "Cons" [Ctr "B" [], Ctr "Nil" []])]) = "``AB\'\'"
-	show (Ctr "Cons" [Ctr "A" [], (Ctr "Cons" [Ctr "A" [], (Ctr "Cons" [Ctr "B" [], Ctr "Nil" []])])]) = "``AAB\'\'"
-	show (Ctr "Cons" [x, y]) = (show x) ++ ":" ++ (show y)
-	show (Ctr "A" []) = "\'A\'"
-	show (Ctr "B" []) = "\'B\'"
-	-}
-	show (Var n) = n
+	show (Var v) = show v
 	show (Ctr n es) = n ++ "(" ++ (intercalate ", " (map show es)) ++ ")"
 	show (FCall n es) = (fn n) ++ "(" ++ (intercalate ", " (map show es)) ++ ")"
 	show (GCall n es) = (fn n) ++ "(" ++ (intercalate ", " (map show es)) ++ ")"
-	show (Let (v, e1) e2) = "let " ++ v ++ " = " ++ (show e1) ++ " in " ++ (show e2)
+
+instance Show Variable where
+	show (NVar n) = n
+	show (SVar sel v) = (show v) ++ "." ++ sel
 
 fn :: String -> String	
 fn (_:s:ss) = (toLower s) : ss
 
 instance Show FDef where
-	show (FDef n args body) = (fn n) ++ "(" ++ intercalate ", " args ++ ") = " ++ (show body) ++ ";"
+	show (FDef n args body) = (fn n) ++ "(" ++ intercalate ", " (map show args) ++ ") = " ++ (show body) ++ ";"
 
 instance Show GDef where
-	show (GDef n p args body) = (fn n) ++ "(" ++ intercalate ", " (show p:args) ++ ") = " ++ (show body) ++ ";"
+	show (GDef n p args body) = (fn n) ++ "(" ++ intercalate ", " (show p:(map show args)) ++ ") = " ++ (show body) ++ ";"
 
 instance Show Pat where
-	show (Pat "Nil" vs) = "``\'\'"
-	show (Pat "Cons" [v1, v2]) = v1 ++ ":" ++ v2
-	show (Pat cn vs) = cn ++ "(" ++ intercalate "," vs ++ ")"
+	show (Pat cn vs) = cn ++ "(" ++ intercalate "," (map show vs) ++ ")"
 	
 instance Show Contraction where
-	show (Contraction n p) = n ++ " == " ++ (show p)
+	show (Contraction v p) = (show v) ++ " == " ++ (show p)
 	
 instance Show Program where
 	show (Program fs gs) = intercalate "\n" $ (map show fs) ++ (map show gs)

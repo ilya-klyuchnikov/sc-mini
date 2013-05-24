@@ -49,12 +49,7 @@ intStep p (GCall gname (Ctr cname cargs : args)) =
 
 intStep p (GCall gname (e:es)) = 
 	(GCall gname (intStep p e : es))
-	
-intStep p (Let (x, e1) e2) =
-	e2 // [(x, e1)]
 
-sll_run :: Task -> Env -> Value
-sll_run (e, program) env = int program (e // env)
 		
 sll_trace :: Task -> Subst -> (Value, Integer)
 sll_trace (e, prog) s = intC prog (e // s)

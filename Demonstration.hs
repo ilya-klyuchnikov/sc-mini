@@ -6,7 +6,6 @@ import DataIO
 import Driving
 import Interpreter
 import TreeInterpreter
-import Supercompiler
 import Folding
 import Data.List
 import Data.Maybe
@@ -163,13 +162,6 @@ demo19 = do
 	putStrLn (show c2)
 	putStrLn (show p2)
 
--- even/sqr - supercompilation
-demo20 = do
-	let (c2, p2) = supercompile ((read "gEven(fSqr(x))"), prog1)
-	putStrLn "supercompilation:\n"
-	putStrLn (show c2)
-	putStrLn (show p2)
-
 -- KMP -- transform -- graph
 demo21 = 
 	putStrLn $ printTree $ foldTree $ buildFTree (driveMachine prog2) conf2
@@ -177,21 +169,6 @@ demo21 =
 -- KMP -- deforest -- graph
 demo22 = 
 	putStrLn $ printTree $ simplify $ foldTree $ buildFTree (driveMachine prog2) conf2
-
--- KMP -- supercompile -- graph
-demo23 = 
-	putStrLn $ printTree $ simplify $ foldTree $ buildFTree (addPropagation (driveMachine prog2)) conf2
-
--- KMP -- supercompile -- graph
-demo23Tex = 
-	putStrLn $ pprintLTree $ simplify $ foldTree $ buildFTree (addPropagation (driveMachine prog2)) conf2
-
-g = simplify $ foldTree $ buildFTree (addPropagation (driveMachine prog2)) conf2
-
-demo24 = do
-	let (c2, p2) = residuate g
-	putStrLn (show c2)
-	putStrLn (show p2)
 
 -- KMP - transformation
 demo25 = do
@@ -204,36 +181,7 @@ demo26 = do
 	let (c2, p2) = deforest (conf2, prog2)
 	putStrLn (show c2)
 	putStrLn (show p2)
-
--- KMP - supercompilation
-demo27 = do
-	let (c2, p2) = supercompile (conf2, prog2)
-	putStrLn (show c2)
-	putStrLn (show p2)
-
--- "program analysis"
-demo30 = do
-	let (c2, p2) = supercompile (read "gAdd(gAdd(x, y), z)", prog1)
-	putStrLn (show c2)
-	putStrLn (show p2)
 	
-demo31 = do
-	let (c2, p2) = supercompile (read "gAdd(x, gAdd(y, z))", prog1)
-	putStrLn (show c2)
-	putStrLn (show p2)
-
--- supercompiled eqpressions are equal => 
--- original expressions are equivalent	
-demo32 =
-	supercompile (read "gAdd(x, gAdd(y, z))", prog1) == supercompile (read "gAdd(gAdd(x, y), z)", prog1)
-
-demo33 = do
-	let (c2, p2) = supercompile ((read "gEq(gHalf(gDouble(n)),n)"), prog3)
-	putStrLn "supercompilation:\n"
-	putStrLn (show c2)
-	putStrLn (show p2)
-	
-
 -- all further stuff is for "benchmarking"
 -- set sizeBound=10 to get the same results as in the paper
 conf1 :: Expr
@@ -247,9 +195,6 @@ t1 = (conf1, prog1)
 t1t = transform t1
 -- deforested task
 t1d = deforest t1
--- supercompiled task
-t1s = supercompile t1
-
 
 run st n = sll_trace st [("x", peano n)]
 
@@ -266,11 +211,9 @@ peano n = Ctr "S" [peano (n - 1)]
 benchmark0 = map (snd . (run t1)) [0 .. 50]
 benchmark1 = map (snd . (run t1t)) [0 .. 50]
 benchmark2 = map (snd . (run t1d)) [0 .. 50]
-benchmark3 = map (snd . (run t1s)) [0 .. 50]
 
 points1 = zipWith3 (\n x1 x2 -> (n, (fromInteger x1) / (fromInteger x2))) [0 .. 50] benchmark0 benchmark1
 points2 = zipWith3 (\n x1 x2 -> (n, (fromInteger x1) / (fromInteger x2))) [0 .. 50] benchmark0 benchmark2
-points3 = zipWith3 (\n x1 x2 -> (n, (fromInteger x1) / (fromInteger x2))) [0 .. 50] benchmark0 benchmark3
 
 testTree1 =
 	putStrLn $ printTree $ buildTree (driveMachine prog2) (read "fMatch(Cons(A(), Nil()), Cons(A(), Nil()))")
@@ -281,15 +224,11 @@ data1 = (read "fMatch(Cons(A(), Nil()), Cons(A(), Cons(A(), Nil())))")
 data1S :: Conf
 data1S = (read "fMatch(x, y)")
 
-testNan1 = nan (addPropagation $ driveMachine prog2) data1 data1S
-
 data2 :: Conf
 data2 = (read "gEqSymb(A(), A())")
 
 data2S :: Conf
 data2S = (read "gEqSymb(y, x)")
-
-testNan2 = nan (addPropagation $ driveMachine prog2) data2 data2S
 
 data3 :: Conf
 data3 = (read "fTest(Z(), S(Z()), S(S(Z())))")
@@ -298,8 +237,6 @@ data3 = (read "fTest(Z(), S(Z()), S(S(Z())))")
 -- y < z
 data3S :: Conf
 data3S = (read "fTest(x, y, z)")
-testNan3 = nan (addPropagation $ driveMachine prog1) data3 data3S
-
 -------------
 
 main = do
@@ -364,38 +301,11 @@ main = do
 	putStrLn "\ndemo19"
 	demo19
 	
-	putStrLn "\ndemo20"
-	demo20
-	
 	putStrLn "\ndemo21"
 	demo21
 	
 	putStrLn "\ndemo22"
 	demo22
-	
-	putStrLn "\ndemo23"
-	demo23
-	
-	putStrLn "\ndemo24"
-	demo24
-	
-	putStrLn "\ndemo25"
-	demo25
-	
+		
 	putStrLn "\ndemo26"
 	demo26
-	
-	putStrLn "\ndemo27"
-	demo27
-	
-	putStrLn "\ndemo30"
-	demo30
-	
-	putStrLn "\ndemo31"
-	demo31
-	
-	putStrLn "\ndemo32"
-	putStrLn (show demo32)
-	
-	putStrLn "\ndemo33"
-	demo33

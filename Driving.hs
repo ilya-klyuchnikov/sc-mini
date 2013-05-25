@@ -6,7 +6,7 @@ import Interpreter
 
 buildTree :: Machine Expr -> Expr -> Tree Expr
 buildTree m c = case m c of
-	Decompose comp ds -> Node c $ EDecompose comp $ map (buildTree m) ds
+	Decompose ds -> Node c $ EDecompose $ map (buildTree m) ds
 	Transient e -> Node c $ ETransient $ buildTree m e
 	Stop e -> Leaf e
 	Variants cs -> Node c $ EVariants [(c, buildTree m e) | (c, e) <- cs]

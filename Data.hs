@@ -13,14 +13,12 @@ type Renaming = [(Variable, Variable)]
 type Subst = [(Variable, Expr)]
 
 type Task = (Expr, Program)
---type Env = [(Name, Expr)]
 
 data Contraction = Contraction Variable Pat
-data TestResult = Match Pat | EqTest Bool
 data Step a = Transient a | Variants [(Contraction, a)]
-			| Stop a | Decompose ([a] -> a) [a]
+			| Stop a | Decompose [a]
 data Edge a = ETransient (Graph a) | EVariants [(Contraction, Graph a)] 
-			| EDecompose ([a] -> a) [Graph a] | EFold (Graph a) Renaming
+			| EDecompose [Graph a] | EFold (Graph a) Renaming
 data Graph a = Node a (Edge a) | Leaf a
 type Tree a = Graph a
 type Node a = Tree a

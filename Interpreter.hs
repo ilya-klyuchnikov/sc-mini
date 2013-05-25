@@ -3,18 +3,12 @@ module Interpreter where
 import Data
 import DataUtil
 
-eval :: Program -> Expr -> Expr
-eval p e = case evalStep p e of
-	Stop e' -> e'
-	Transient e' -> eval p e'
-	Decompose comp es' -> comp (map (eval p) es')
-
 evalStep :: Program -> Expr -> Step Expr
 evalStep p (Ctr name []) =
 	Stop (Ctr name [])
 
 evalStep p (Ctr name args) = 
-	Decompose (Ctr name) args
+	Decompose args
 
 evalStep p (FCall name args) = 
 	Transient (body // zip vs args) where

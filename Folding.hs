@@ -14,8 +14,8 @@ tieKnot ns n t@(Node e _) =
 tieKnot ns n (Leaf e) = (Leaf e)
 
 fixTree :: (Node t -> Tree t -> Graph t) -> Tree t -> Graph t
-fixTree f (Node e (ETransient tr c)) = t where
-	t = Node e $ ETransient tr $ f t c
+fixTree f (Node e (ETransient c)) = t where
+	t = Node e $ ETransient $ f t c
 fixTree f (Node e (EDecompose comp cs)) = t where 
 	t = Node e $ EDecompose comp [f t c | c <- cs]
 fixTree f (Node e (EVariants cs)) = t where

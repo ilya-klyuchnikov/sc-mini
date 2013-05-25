@@ -19,9 +19,9 @@ type Env = [(Name, Value)]
 
 data Contraction = Contraction Variable Pat
 data TestResult = Match Pat | EqTest Bool
-data Step a = Transient (Maybe TestResult) a | Variants [(Contraction, a)]
+data Step a = Transient a | Variants [(Contraction, a)]
 			| Stop a | Decompose ([a] -> a) [a]
-data Edge a = ETransient (Maybe TestResult) (Graph a) | EVariants [(Contraction, Graph a)] 
+data Edge a = ETransient (Graph a) | EVariants [(Contraction, Graph a)] 
 			| EDecompose ([a] -> a) [Graph a] | EFold (Graph a) Renaming
 data Graph a = Node a (Edge a) | Leaf a
 type Tree a = Graph a

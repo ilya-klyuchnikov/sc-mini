@@ -6,7 +6,7 @@ import DataUtil
 eval :: Program -> Expr -> Expr
 eval p e = case evalStep p e of
 	Stop e' -> e'
-	Transient _ e' -> eval p e'
+	Transient e' -> eval p e'
 	Decompose comp es' -> comp (map (eval p) es')
 
 evalStep :: Program -> Expr -> Step Expr
@@ -17,17 +17,17 @@ evalStep p (Ctr name args) =
 	Decompose (Ctr name) args
 
 evalStep p (FCall name args) = 
-	Transient Nothing (body // zip vs args) where
+	Transient (body // zip vs args) where
 		(FDef _ vs body) = fDef p name
 
 evalStep p (GCall gname ((Ctr cname cargs) : args)) = 
-	Transient (Just (Match pat)) (body // sub) where 
+	Transient (body // sub) where 
 		(GDef _ pat@(Pat _ cvs) vs body) = gDef p gname cname
 		sub = zip (cvs ++ vs) (cargs ++ args)
 
 evalStep p (GCall gname (arg:args)) = 
 	case evalStep p arg of 
-		Transient contr arg' -> Transient contr (GCall gname (arg':args)) where
+		Transient arg' -> Transient (GCall gname (arg':args)) where
 
 -- OLD STUFF FURTHER --
 

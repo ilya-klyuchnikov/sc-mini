@@ -12,21 +12,24 @@ buildTree m c = case m c of
 	Variants cs -> Node c $ Variants [(c, buildTree m e) | (c, e) <- cs]
 
 drive :: Program -> Driving
-drive p e@(Var _) = 
+-- treeless
+drive p (Var _) = 
 	Stop
+-- treeless
+drive p (Ctr name []) =
+	Stop
+-- treeless
+drive p (Ctr name args) = 
+	Decompose name args
+drive p (FCall name args) = 
+	Transient (body // zip vs args) where
+		(FDef _ vs body) = fDef p name
 drive p (GCall gn args@(Var _ : _)) = 
 	Variants (map (scrutinize args) (gDefs p gn)) 
 drive p (GCall gn (arg:args)) | isCall arg = 
 	case (drive p arg) of
 		Transient t -> Transient (GCall gn (t:args))
 		Variants cs -> Variants (map (\(c, t) -> (c, GCall gn (t:args))) cs)
-drive p (Ctr name []) =
-	Stop
-drive p (Ctr name args) = 
-	Decompose name args
-drive p (FCall name args) = 
-	Transient (body // zip vs args) where
-		(FDef _ vs body) = fDef p name
 drive p (GCall gname ((Ctr cname cargs) : args)) = 
 	Transient (body // sub) where 
 		(GDef _ pat@(Pat _ cvs) vs body) = gDef p gname cname

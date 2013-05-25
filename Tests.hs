@@ -29,13 +29,21 @@ prog = read
 
 subst :: Subst
 subst = [
-	(NVar "x", read "Cons(A(), Cons(B(), Nil()))"), 
-	(NVar "y", read "Cons(C(), Cons(D(), Nil()))"),
-	(NVar "z", read "Cons(E(), Cons(F(), Nil()))")
+	(NVar "x",  read "A()"),
+	(NVar "xs", read "Cons(A(), Cons(B(), Nil()))"), 
+	(NVar "ys", read "Cons(C(), Cons(D(), Nil()))"),
+	(NVar "zs", read "Cons(E(), Cons(F(), Nil()))")
 	]
 
 inputs :: [Expr]
-inputs = map read ["gApp(x, y)", "gApp(gApp(x, y), z)", "gApp1(x, y)", "gApp1(gApp1(x, y), z)"]
+inputs = map read 
+	[
+	"gApp(xs, ys)",
+	"Cons(x, gApp(xs, ys))", 
+	"gApp(gApp(xs, ys), zs)", 
+	"gApp1(xs, ys)", 
+	"gApp1(gApp1(xs, ys), zs)"
+	]
 
 expInputs :: [Expr]
 expInputs = map read ["fZeros()", "gApp(fZeros(), fZeros())"]

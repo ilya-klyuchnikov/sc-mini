@@ -1,8 +1,7 @@
 module DataUtil(
 	isValue,isCall,isVar,size,
 	fDef, gDef, gDefs,
-	(//), renaming,
-	nodeLabel
+	(//), renaming
 	) where
 	
 import Data
@@ -64,6 +63,3 @@ size (Var _) = 1
 size (Ctr _ args) = 1 + sum (map size args)
 size (FCall _ args) = 1 + sum (map size args)
 size (GCall _ args) = 1 + sum (map size args)
-
-nodeLabel :: Node a -> a
-nodeLabel (Node l _) = l

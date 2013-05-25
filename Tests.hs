@@ -17,16 +17,16 @@ prog = read
 	\ gApp(Nil(), ys) = ys; \
 	\ gApp1(Cons(x, xs), ys) = Cons(x, gApp2(xs, ys));\
 	\ gApp1(Nil(), ys) = ys;\
-    \ gApp2(Cons(x, xs), ys) = Cons(x, gApp1(xs, ys));\
+ 	\ gApp2(Cons(x, xs), ys) = Cons(x, gApp1(xs, ys));\
 	\ gApp2(Nil(), ys) = ys;"
 
 
 subst :: Subst
 subst = [
-		(NVar "x", read "Cons(A(), Cons(B(), Nil()))"), 
-		(NVar "y", read "Cons(C(), Cons(D(), Nil()))"),
-		(NVar "z", read "Cons(E(), Cons(F(), Nil()))")
-		]
+	(NVar "x", read "Cons(A(), Cons(B(), Nil()))"), 
+	(NVar "y", read "Cons(C(), Cons(D(), Nil()))"),
+	(NVar "z", read "Cons(E(), Cons(F(), Nil()))")
+	]
 
 inputs :: [Expr]
 inputs = map read ["gApp(x, y)", "gApp(gApp(x, y), z)", "gApp1(x, y)", "gApp1(gApp1(x, y), z)"]
@@ -42,5 +42,6 @@ demo = putStrLn . printTree
 demos  = map demo graphs
 demos' = map demo graphs'
 
-tests = test (["test" ~: "transform" ~: int prog (i // subst) ~=? intTree (graph i) subst | i <- inputs] ++
-			["test" ~: "deforest" ~: int prog (i // subst) ~=? intTree (graph' i) subst | i <- inputs])
+tests = test (
+	["test" ~: "transform" ~: int prog (i // subst) ~=? intTree (graph i) subst | i <- inputs] ++
+	["test" ~: "deforest" ~: int prog (i // subst) ~=? intTree (graph' i) subst | i <- inputs])

@@ -3,10 +3,10 @@ module Folding(foldTree) where
 import Data
 import DataUtil
 
-foldTree :: Tree Conf -> Graph Conf
+foldTree :: Tree Expr -> Graph Expr
 foldTree t = fixTree (tieKnot []) t
 
-tieKnot :: [Node Conf] -> Node Conf -> Tree Conf -> Graph Conf
+tieKnot :: [Node Expr] -> Node Expr -> Tree Expr -> Graph Expr
 tieKnot ns n t@(Node e _) =
 	case [(k, r) | k <- n:ns, isCall e, Just r <- [renaming (nodeLabel k) e]] of
 		[] -> fixTree (tieKnot (n:ns)) t

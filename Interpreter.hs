@@ -51,7 +51,7 @@ intStep p (GCall gname (e:es)) =
 	(GCall gname (intStep p e : es))
 
 		
-sll_trace :: Task -> Subst -> (Value, Integer)
+sll_trace :: Task -> Subst -> (Expr, Integer)
 sll_trace (e, prog) s = intC prog (e // s)
 
 intC :: Program -> Expr -> (Expr, Integer) 

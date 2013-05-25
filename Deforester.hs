@@ -9,7 +9,7 @@ import Folding
 --deforest (e, p) =
 --	residuate $ simplify $ foldTree $ buildTree (driveMachine p) e
 	
-simplify :: Graph Conf -> Graph Conf
+simplify :: Graph Expr -> Graph Expr
 simplify (Node e (EDecompose comp ts)) = 
 	Node e (EDecompose comp $ map simplify ts)
 simplify (Node e (EVariants cs)) = 

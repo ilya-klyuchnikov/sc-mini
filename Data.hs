@@ -12,10 +12,8 @@ data Program = Program [FDef] [GDef] deriving (Eq)
 type Renaming = [(Variable, Variable)]
 type Subst = [(Variable, Expr)]
 
-type Conf = Expr
-type Value = Expr
-type Task = (Conf, Program)
-type Env = [(Name, Value)]
+type Task = (Expr, Program)
+--type Env = [(Name, Expr)]
 
 data Contraction = Contraction Variable Pat
 data TestResult = Match Pat | EqTest Bool

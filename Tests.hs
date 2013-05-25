@@ -8,6 +8,7 @@ import Interpreter
 import TreeInterpreter
 import Folding
 import Deforester
+import Stack
 
 import Test.HUnit
 
@@ -48,16 +49,20 @@ inputs = map read
 expInputs :: [Expr]
 expInputs = map read ["fZeros()", "gApp(fZeros(), fZeros())"]
 
-graph  = foldTree . buildTree (drive prog)
+graph  = foldTreeExpr . buildTree (driveExpr prog)
 graph' = simplify . graph
+sgraph = foldTreeStack . buildTree (driveStack prog) . mkStack
 
-graphs  = map graph  (inputs)
-graphs' = map graph' (inputs)
+graphs  = map graph  inputs
+graphs' = map graph' inputs
+sgraphs = map sgraph inputs
 
+demo :: Show a => Graph a -> IO ()
 demo = putStrLn . printTree
 
 demos  = map demo graphs
 demos' = map demo graphs'
+sdemos = map demo sgraphs
 
 expDemos  = map (demo . graph ) expInputs 
 expDemos' = map (demo . graph') expInputs

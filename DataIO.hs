@@ -72,7 +72,7 @@ readP1 p@(Program fs gs) s = next (readFDef s) (readGDef s) where
 	
 printTree t = unlines $ take 1000 $ pprintTree "" "" t
 
-pprintTree :: String -> String -> Graph Expr -> [String]
+pprintTree :: (Show a) => String -> String -> Graph a -> [String]
 pprintTree indent msg (Node expr next) = make next where
 	make (Fold _ ren) = (indent ++ msg) : [indent ++ "|__" ++  (show expr) ++ "__↑" ++ (show ren)]
 	make (Transient t) = (indent ++ msg) : (indent ++ "|__" ++ show expr) : (pprintTree (indent ++ " ") "|" t)

@@ -20,4 +20,7 @@ data Graph a = Node a (Step (Graph a))
 type Tree a = Graph a
 type Node a = Graph a
 
-type Driving = Expr -> Step Expr
+type Driving a = a -> Step a
+
+-- selector var
+sv = Var (NVar "_")

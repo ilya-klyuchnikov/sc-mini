@@ -33,16 +33,3 @@ demo03 =
 demo04 =
 	putStrLn $ printTree $ foldTree $ buildTree (driveMachine appProg) (read "gApp1(gApp1(x, y), z)")
 
-{-
-demo1 = do
-	let (c2, p2) = deforest ((read "gApp(x, y)"), appProg)
-	putStrLn "\ndeforestation:\n"
-	putStrLn (show c2)
-	putStrLn (show p2)
-
-demo2 = do
-	let (c2, p2) = deforest ((read "gApp(gApp(x, y), z)"), appProg)
-	putStrLn "\ndeforestation:\n"
-	putStrLn (show c2)
-	putStrLn (show p2)
--}

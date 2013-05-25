@@ -8,7 +8,6 @@ import Data.Char
 import Data.List
 import Text.ParserCombinators.ReadP
 
--- READ/SHOW
 readName1 :: ReadS Name 
 readName1 i = concat [lex s1 | (",", s1) <- lex i]
 
@@ -116,16 +115,3 @@ instance Show a => Show (Step a) where
 	show (Variants vs) = intercalate "\n" $ map (\(c, e) -> (show c) ++ " => " ++ (show e)) vs 
 	show (Stop _) = "!"
 	show (Decompose _ ds) = show ds
-
--- Latex
-pprintLTree :: Graph Conf -> String
-pprintLTree (Leaf expr) = "node[conf]{" ++ (show expr) ++ "}"
-pprintLTree (Node expr next) = make next where
-	make (EFold _ _) = "node[conf]{" ++ (show expr) ++ "}"
-	make (ETransient _ t) = "node[conf]{" ++ (show expr) ++ "}\nchild[->]{" ++ (pprintLTree t) ++ "}"
-	make (EDecompose _ ts) = "node[conf]{" ++ (show expr) ++ "}" ++ 
-		(concat (map (\t -> "\nchild[->]{" ++ (pprintLTree t) ++ "}") ts))
-	make (EVariants [(x1, t1), (x2, t2)]) = 
-		"node[conf]{" ++ (show expr) ++ "}" ++ 
-			("\nchild[->]{" ++ (pprintLTree t1) ++ "\nedge from parent node[left,label,xshift=-5mm]{" ++ (show x1) ++ "}}") ++
-			("\nchild[->]{" ++ (pprintLTree t2) ++ "\nedge from parent node[right,label,xshift=5mm]{" ++ (show x2) ++ "}}")

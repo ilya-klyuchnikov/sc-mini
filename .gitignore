@@ -1,3 +1,5 @@
 /.project
+.idea/
+.idea_modules/
 tmp.hs
 Tests.hs

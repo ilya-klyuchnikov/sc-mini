@@ -5,14 +5,11 @@ import DataUtil
 import Interpreter
 
 buildTree :: Machine Conf -> Conf -> Tree Conf
-buildTree m e = bt m e
-
-bt :: Machine Conf -> Conf -> Tree Conf
-bt m c = case m c of
-	Decompose comp ds -> Node c $ EDecompose comp $ map (bt m) ds
-	Transient tr e -> Node c $ ETransient tr $ bt m e
+buildTree m c = case m c of
+	Decompose comp ds -> Node c $ EDecompose comp $ map (buildTree m) ds
+	Transient tr e -> Node c $ ETransient tr $ buildTree m e
 	Stop e -> Leaf e
-	Variants cs -> Node c $ EVariants [(c, bt m e) | (c, e) <- cs]
+	Variants cs -> Node c $ EVariants [(c, buildTree m e) | (c, e) <- cs]
 
 driveMachine :: Program -> Machine Conf
 driveMachine p = driveStep where

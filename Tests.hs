@@ -7,12 +7,12 @@ import Driving
 import Interpreter
 import TreeInterpreter
 import Folding
-import Data.List
-import Data.Maybe
 import Deforester
 
-appProg :: Program
-appProg = read
+import Test.HUnit
+
+prog :: Program
+prog = read
 	" gApp(Cons(x, xs), ys) = Cons(x, gApp(xs, ys));\
 	\ gApp(Nil(), ys) = ys; \
 	\ gApp1(Cons(x, xs), ys) = Cons(x, gApp2(xs, ys));\
@@ -21,15 +21,26 @@ appProg = read
 	\ gApp2(Nil(), ys) = ys;"
 
 
-demo01 =
-	putStrLn $ printTree $ foldTree $ buildTree (driveMachine appProg) (read "gApp(x, y)")
+subst :: Subst
+subst = [
+		(NVar "x", read "Cons(A(), Cons(B(), Nil()))"), 
+		(NVar "y", read "Cons(C(), Cons(D(), Nil()))"),
+		(NVar "z", read "Cons(E(), Cons(F(), Nil()))")
+		]
 
-demo02 =
-	putStrLn $ printTree $ foldTree $ buildTree (driveMachine appProg) (read "gApp(gApp(x, y), z)")
+inputs :: [Expr]
+inputs = map read ["gApp(x, y)", "gApp(gApp(x, y), z)", "gApp1(x, y)", "gApp1(gApp1(x, y), z)"]
 
-demo03 =
-	putStrLn $ printTree $ foldTree $ buildTree (driveMachine appProg) (read "gApp1(x, y)")
+graph  = foldTree . buildTree (driveMachine prog)
+graph' = simplify . graph
 
-demo04 =
-	putStrLn $ printTree $ foldTree $ buildTree (driveMachine appProg) (read "gApp1(gApp1(x, y), z)")
+graphs  = map graph  inputs
+graphs' = map graph' inputs
 
+demo = putStrLn . printTree
+
+demos  = map demo graphs
+demos' = map demo graphs'
+
+tests = test (["test" ~: "transform" ~: int prog (i // subst) ~=? intTree (graph i) subst | i <- inputs] ++
+			["test" ~: "deforest" ~: int prog (i // subst) ~=? intTree (graph' i) subst | i <- inputs])

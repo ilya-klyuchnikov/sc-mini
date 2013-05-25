@@ -67,4 +67,3 @@ size (GCall _ args) = 1 + sum (map size args)
 
 nodeLabel :: Node a -> a
 nodeLabel (Node l _) = l
-nodeLabel (Leaf l) = l

@@ -5,10 +5,10 @@ import DataUtil
 
 evalStep :: Program -> Expr -> Step Expr
 evalStep p (Ctr name []) =
-	Stop (Ctr name [])
+	Stop
 
 evalStep p (Ctr name args) = 
-	Decompose args
+	Decompose name args
 
 evalStep p (FCall name args) = 
 	Transient (body // zip vs args) where

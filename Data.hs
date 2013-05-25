@@ -15,12 +15,9 @@ type Subst = [(Variable, Expr)]
 type Task = (Expr, Program)
 
 data Contraction = Contraction Variable Pat
-data Step a = Transient a | Variants [(Contraction, a)]
-			| Stop a | Decompose [a]
-data Edge a = ETransient (Graph a) | EVariants [(Contraction, Graph a)] 
-			| EDecompose [Graph a] | EFold (Graph a) Renaming
-data Graph a = Node a (Edge a) | Leaf a
+data Step a = Transient a | Variants [(Contraction, a)] | Stop | Decompose Name [a] | Fold a Renaming
+data Graph a = Node a (Step (Graph a))
 type Tree a = Graph a
-type Node a = Tree a
+type Node a = Graph a
 
 type Machine a = a -> Step a

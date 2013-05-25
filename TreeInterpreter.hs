@@ -6,15 +6,15 @@ import DataUtil
 import Data.Maybe
 
 intTree :: Tree Expr -> Subst -> Expr
-intTree (Leaf e) env = 
+intTree (Node e Stop) env = 
 	e // env
-intTree (Node (Ctr cname _) (EDecompose comp ts)) env =
-	comp $ map (\t -> intTree t env) ts
-intTree (Node _ (ETransient t)) env = 
+intTree (Node (Ctr cname _) (Decompose n ts)) env =
+	Ctr n $ map (\t -> intTree t env) ts
+intTree (Node _ (Transient t)) env = 
 	intTree t env
-intTree (Node e (EVariants cs)) env = 
+intTree (Node e (Variants cs)) env = 
 	head $ catMaybes $ map (try env) cs
-intTree (Node _ (EFold t ren)) env = 
+intTree (Node _ (Fold t ren)) env = 
 	intTree t $ map (\(k, v) -> (renKey k, v)) env where
 		renKey k = maybe k fst (find ((k ==) . snd)  ren)
 

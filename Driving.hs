@@ -6,14 +6,14 @@ import Interpreter
 
 buildTree :: Machine Expr -> Expr -> Tree Expr
 buildTree m c = case m c of
-	Decompose ds -> Node c $ EDecompose $ map (buildTree m) ds
-	Transient e -> Node c $ ETransient $ buildTree m e
-	Stop e -> Leaf e
-	Variants cs -> Node c $ EVariants [(c, buildTree m e) | (c, e) <- cs]
+	Decompose n ds -> Node c $ Decompose n $ map (buildTree m) ds
+	Transient e -> Node c $ Transient $ buildTree m e
+	Stop -> Node c Stop
+	Variants cs -> Node c $ Variants [(c, buildTree m e) | (c, e) <- cs]
 
 driveMachine :: Program -> Machine Expr
 driveMachine p e@(Var _) = 
-	Stop e
+	Stop
 driveMachine p (GCall gn args@(Var _ : _)) = 
 	Variants (map (scrutinize args) (gDefs p gn)) 
 driveMachine p (GCall gn (arg:args)) | isCall arg = 

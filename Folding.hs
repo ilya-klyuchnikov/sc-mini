@@ -8,7 +8,7 @@ foldTree t = fixTree (tieKnot []) t
 
 tieKnot :: [Node Expr] -> Node Expr -> Tree Expr -> Graph Expr
 tieKnot ns n t@(Node e _) =
-	case [(k, r) | k <- n:ns, isCall e, Just r <- [renaming (nodeLabel k) e]] of
+	case [(k, r) | k@(Node e' _) <- n:ns, Just r <- [renaming e' e]] of
 		[] -> fixTree (tieKnot (n:ns)) t
 		(k, r):_ -> Node e (Fold k r)
 

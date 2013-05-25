@@ -40,7 +40,7 @@ inputs = map read ["gApp(x, y)", "gApp(gApp(x, y), z)", "gApp1(x, y)", "gApp1(gA
 expInputs :: [Expr]
 expInputs = map read ["fZeros()", "gApp(fZeros(), fZeros())"]
 
-graph  = foldTree . buildTree (driveMachine prog)
+graph  = foldTree . buildTree (drive prog)
 graph' = simplify . graph
 
 graphs  = map graph  (inputs)

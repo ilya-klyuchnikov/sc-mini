@@ -7,7 +7,7 @@ import Folding
 
 --deforest :: Task -> Task
 --deforest (e, p) =
---	residuate $ simplify $ foldTree $ buildTree (driveMachine p) e
+--	residuate $ simplify $ foldTree $ buildTree (drive p) e
 	
 simplify :: Graph Expr -> Graph Expr
 simplify (Node e (Decompose n ts)) = 

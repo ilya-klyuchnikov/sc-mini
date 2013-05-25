@@ -20,4 +20,4 @@ data Graph a = Node a (Step (Graph a))
 type Tree a = Graph a
 type Node a = Graph a
 
-type Machine a = a -> Step a
+type Driving = Expr -> Step Expr

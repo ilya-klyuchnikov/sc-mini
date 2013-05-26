@@ -18,7 +18,7 @@ tieKnotExpr ns n t@(Node e _) =
 
 tieKnotStack :: [Node Stack] -> Node Stack -> Tree Stack -> Graph Stack
 tieKnotStack ns n t@(Node e _) =
-    case [(k, r) | k@(Node e' _) <- n:ns, Just r <- [renaming (mkExpr e') (mkExpr e)]] of
+    case [(k, r) | k@(Node e' _) <- n:ns, Just r <- [renamingStack e' e]] of
         [] -> fixTree (tieKnotStack (n:ns)) t
         (k, r):_ -> Node e (Fold k r)
 

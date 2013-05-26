@@ -11,7 +11,11 @@ mkStack e = [e]
 
 mkExpr :: Stack -> Expr
 mkExpr [e]            = e
-mkExpr (sel : g : s1) = g // [(NVar "_", sel)] 
+mkExpr (sel : g : s1) = g // [(NVar "_", sel)]
+
+renamingStack :: Stack -> Stack -> Maybe Renaming
+renamingStack s1 s2 | length s1 /= length s2 = Nothing
+renamingStack s1 s2 | otherwise = mergeRenaming $ concat $ zipWith renaming' s1 s2 
 
 driveStack :: Program -> Driving Stack
 driveStack p (Var _ : []) = 
@@ -20,14 +24,14 @@ driveStack p (Ctr name [] : []) =
     Stop
 driveStack p (Ctr name args : []) = 
     Decompose name $ map mkStack args
-driveStack p (FCall name args : s1) = 
+driveStack p (FCall name args : s1) =
     Transient (mkStack e1 ++ s1) where
         e1 = body // zip vs args
         (FDef _ vs body) = fDef p name
-driveStack p (Var v : GCall gn (_ : args) : s1) = 
+driveStack p (Var v : GCall gn (_ : args) : s1) =
     Variants ss where
         ss = [(contr, mkStack e ++ s1) | (contr, e) <- (map (scrutinize v args) (gDefs p gn))]
-driveStack p (Ctr cn cargs : GCall gn (_ : args) : s1) = 
+driveStack p (Ctr cn cargs : GCall gn (_ : args) : s1) =
     Transient (mkStack e1 ++ s1) where
         e1 =  body // sub
         (GDef _ pat@(Pat _ cvs) vs body) = gDef p gn cn

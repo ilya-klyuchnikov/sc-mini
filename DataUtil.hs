@@ -1,26 +1,9 @@
-module DataUtil(
-	isValue,isCall,isVar,size,
-	fDef, gDef, gDefs,
-	(//), renaming
-	) where
+module DataUtil where
 	
 import Data
 import Data.Maybe
 import Data.Char
 import Data.List
-
-isValue :: Expr -> Bool
-isValue (Ctr _ args) = and $ map isValue args 
-isValue _ = False
-
-isCall :: Expr -> Bool
-isCall (FCall _ _) = True
-isCall (GCall _ _) = True
-isCall _ = False
-
-isVar :: Expr -> Bool
-isVar (Var _) = True
-isVar _ = False
 
 fDef :: Program -> Name -> FDef
 fDef (Program fs _) fname = head [f | f@(FDef x _ _) <- fs, x == fname]
@@ -38,7 +21,10 @@ gDef p gname cname = head [g | g@(GDef _ (Pat c _) _ _) <- gDefs p gname, c == c
 (GCall name args) // sub = GCall name (map (// sub) args)
 
 renaming :: Expr -> Expr -> Maybe Renaming
-renaming e1 e2 = f $ partition isNothing $ renaming' (e1, e2) where
+renaming e1 e2 = mergeRenaming $ renaming' e1 e2
+
+mergeRenaming :: [Maybe (Variable, Variable)] -> Maybe Renaming
+mergeRenaming rens = f $ partition isNothing rens where
 	f (x:_, _) = Nothing
 	f (_, ps) = g gs1 gs2
 		where 
@@ -48,18 +34,20 @@ renaming e1 e2 = f $ partition isNothing $ renaming' (e1, e2) where
 	g xs ys = if all ((== 1) . length) xs && all ((== 1) . length) ys 
 		then Just (concat xs) else Nothing
 
-
-
 -- List of pairs of varialbe for corresponding places
-renaming' :: (Expr, Expr) -> [Maybe (Variable, Variable)]
-renaming' ((Var x), (Var y)) = [Just (x, y)]
-renaming' ((Ctr n1 args1), (Ctr n2 args2)) | n1 == n2 = concat $ map renaming' $ zip args1 args2
-renaming' ((FCall n1 args1), (FCall n2 args2)) | n1 == n2 = concat $ map renaming' $ zip args1 args2
-renaming' ((GCall n1 args1), (GCall n2 args2)) | n1 == n2 = concat $ map renaming' $ zip args1 args2
-renaming' _  = [Nothing]
+renaming' :: Expr -> Expr -> [Maybe (Variable, Variable)]
+renaming' (Var x) (Var y) = [Just (x, y)]
+renaming' (Ctr n1 args1) (Ctr n2 args2) | n1 == n2 = concat $ zipWith renaming' args1 args2
+renaming' (FCall n1 args1) (FCall n2 args2) | n1 == n2 = concat $ zipWith renaming' args1 args2
+renaming' (GCall n1 args1) (GCall n2 args2) | n1 == n2 = concat $ zipWith renaming' args1 args2
+renaming' _ _ = [Nothing]
 
-size :: Expr -> Integer
-size (Var _) = 1
-size (Ctr _ args) = 1 + sum (map size args)
-size (FCall _ args) = 1 + sum (map size args)
-size (GCall _ args) = 1 + sum (map size args)
+isVar :: Expr -> Bool
+isVar (Var _) = True
+isVar _ = False
+
+isTreeless :: Expr -> Bool
+isTreeless (Var _) = True
+isTreeless (Ctr _ args) = all isTreeless args
+isTreeless (FCall _ args) = all isVar args
+isTreeless (GCall _ args) = all isVar args

@@ -51,3 +51,16 @@ isTreeless (Var _) = True
 isTreeless (Ctr _ args) = all isTreeless args
 isTreeless (FCall _ args) = all isVar args
 isTreeless (GCall _ args) = all isVar args
+
+isTreelessP :: Program -> Bool
+isTreelessP (Program fs gs) = 
+	all (\(FDef _ _ b) -> isTreeless b && isLinear b) fs && all (\(GDef _ _ _ b) -> isTreeless b && isLinear b) gs
+
+vars :: Expr -> [Variable]
+vars (Var v) = [v]
+vars (Ctr _ args)   = concat $ map vars args
+vars (GCall _ args) = concat $ map vars args
+vars (FCall _ args) = concat $ map vars args
+
+isLinear :: Expr -> Bool
+isLinear exp = nub (vars exp) == vars exp

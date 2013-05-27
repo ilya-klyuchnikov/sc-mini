@@ -68,5 +68,6 @@ expDemos  = map (demo . graph ) expInputs
 expDemos' = map (demo . graph') expInputs
 
 tests = test (
+	["test" ~: "treelsess" ~: isTreelessP prog ~=? True] ++
 	["test" ~: "transform" ~: eval prog (i // subst) ~=? intTree (graph i) subst | i <- inputs] ++
 	["test" ~: "deforest" ~: eval prog (i // subst) ~=? intTree (graph' i) subst | i <- inputs])

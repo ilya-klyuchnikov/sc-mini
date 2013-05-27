@@ -33,32 +33,37 @@ dprog = read
 	\ gFDef3TAppend(TAppend(), args, body, fs) = FDef(TAppend(), args, body); \
 	\ gFDef3TAppend(DAppend(), args, body, fs) = gFDef1TAppend(fs); "
 
+prog :: Program
+prog = read
+    " gApp(Cons(l1, l2), l3) = Cons(l1, gApp(l2, l3)); \
+    \ gApp(Nil(), l1) = l1; \
+    \ fDapp(l1, l2, l3) = gApp(gApp(l1, l2), l3); \
+    \ fTapp(l1, l2, l3) = gApp(gApp(l1, l2), gApp(l3, l4)); "
+
 -- serialize program into sll
 quoteP :: Program -> Expr
-quoteP (Program fs gs) = undefined
-	Ctr "Program" [list $ map quoteF fs]
+quoteP (Program fs gs) = 
+	Ctr "Program" [list $ map quoteF fs, list $ map quoteF fs]
 
-quoteF (FDef (_:n) vs b) = Ctr "FDef" [Ctr n [], list $ map quoteV vs, quoteE b]
+quoteF (FDef (_:n) vs b) = 
+    Ctr "FDef" [Ctr n [], list $ map quoteV vs, quoteE b]
+quoteG (GDef (_:n) (Pat pn pvs) vs b) =
+    Ctr "GDef" [Ctr n [], Ctr "Pat" [Ctr pn [], list $ map quoteV pvs], list $ map quoteV vs, quoteE b]
 
 list :: [Expr] -> Expr
 list []     = Ctr "Nil"  []
 list (x:xs) = Ctr "Cons" [x, list xs]
 
 quoteV :: Variable -> Expr
-quoteV (NVar "l1") = read "LVar(L1())"
-quoteV (NVar "l2") = read "LVar(L2())"
-quoteV (NVar "l3") = read "LVar(L3())"
-quoteV (NVar "l4") = read "LVar(L4())"
+quoteV (NVar n) = Ctr "LVar" [Ctr n []]
 -- one level of quoting
 quoteE :: Expr -> Expr
-quoteE (Var (NVar "l1"))   = read "Var(LVar(L1()))"
-quoteE (Var (NVar "l2"))   = read "Var(LVar(L2()))"
-quoteE (Var (NVar "l3"))   = read "Var(LVar(L3()))"
-quoteE (Var (NVar "l4"))   = read "Var(LVar(L4()))"
-quoteE (Ctr n args)        = Ctr "Ctr" [Ctr (n ++ "1") [], quoteA args]
+quoteE (Var (NVar n))      = Ctr "Var" [Ctr "LVar" [Ctr n []]] -- "Var(LVar(L1()))"
+quoteE (Ctr n args)        = Ctr "Ctr" [Ctr n [], quoteA args]
 quoteE (FCall (_:n) args)  = Ctr "FCall" [Ctr n [], quoteA args]
 quoteE (GCall (_:n) args)  = Ctr "GCall" [Ctr n [], quoteA args]
 
 quoteA args = list $ map quoteE args
 
-x = quoteE $ read "gAppend(l1, l2)"
+x = quoteE $ read "l1"
+y = quoteP prog

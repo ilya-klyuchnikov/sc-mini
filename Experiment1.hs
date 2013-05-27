@@ -1,17 +1,17 @@
 module Experiment1 where
 
 -- hand coded deforester for a simple program
--- app(Cons(l1, l2), l3) = Cons(l1, app(l2, l3));
--- app(Nil(), l1) = l1;
--- dapp(l1, l2, l3) = app(app(l1, l2), l3);
--- tapp(l1, l2, l3) = app(app(l1, l2), app(l3, l4));
+-- gApp(Cons(l1, l2), l3) = Cons(l1, gApp(l2, l3));
+-- gApp(Nil(), l1) = l1;
+-- fDapp(l1, l2, l3) = gApp(gApp(l1, l2), l3);
+-- fTapp(l1, l2, l3) = gApp(gApp(l1, l2), gApp(l3, l4));
 
 
 -- global vars - free variables
 data GVName = G1 | G2 | G3
 -- local vars - vars in function
 data LVName = L1 | L2 | L3 | L4
-data CName = CONS | NIL
+data CName = Cons1 | Nil1
 data GName = Append
 -- Double append
 data FName = DAppend | TAppend

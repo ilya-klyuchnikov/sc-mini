@@ -9,9 +9,9 @@ import Data.List
 import Text.ParserCombinators.ReadP
 
 -- READ/SHOW
-readVar1 :: ReadS Name 
+readVar1 :: ReadS Name
 readVar1 i = concat [lex s1 | (",", s1) <- lex i]
-	
+
 instance Read Expr where
 	readsPrec _ s = readsExpr s
 
@@ -36,13 +36,13 @@ readVars :: ReadS [Name]
 readVars = readP_to_S $ between (char '(') (char ')') (sepBy (readS_to_P lex) (char ','))
 
 readFDef :: ReadS FDef
-readFDef i = [ (FDef n vars body, s4) | 
-	(n@('f':_), s) <- lex i, 
-	(vars, s1) <- readVars s, 
+readFDef i = [ (FDef n vars body, s4) |
+	(n@('f':_), s) <- lex i,
+	(vars, s1) <- readVars s,
 	("=", s2) <- lex s1,
 	(body, s3) <- readsExpr s2,
 	(";", s4) <- lex s3]
-	
+
 readSPat :: ReadS Pat
 readSPat i = [(Pat n vars, s2)|
 	(n, s) <- lex i,
@@ -64,7 +64,7 @@ readP1 p@(Program fs gs) s = next (readFDef s) (readGDef s) where
 	next [(f, s1)] _ = readP1 (Program (fs++[f]) gs) s1
 	next _ [(g, s1)] = readP1 (Program fs (gs++[g])) s1
 	next _ _ = (p, s)
-	
+
 printTree t = unlines $ take 1000 $ pprintTree "" "" t
 
 pprintTree :: String -> String -> Graph Conf -> [String]
@@ -73,7 +73,7 @@ pprintTree indent msg (Node expr next) = make next where
 	make Stop = (indent ++ msg) : [indent ++ "|__" ++  (show expr)]
 	make (Transient t) = (indent ++ msg) : (indent ++ "|__" ++ show expr) : (pprintTree (indent ++ " ") "|" t)
 	make (Decompose ts) = (indent ++ msg) :  (indent ++ "|__" ++ show expr): (concat (map (pprintTree (indent ++ " ") "|") ts))
-	make (Variants cs) = 
+	make (Variants cs) =
 		(indent ++ msg) :  (indent ++ "|__" ++  show expr) : (concat (map (\(x, t) -> pprintTree (indent ++ " ") ("?" ++ show x) t) cs))
 
 instance Show Expr where
@@ -90,7 +90,7 @@ instance Show Expr where
 	show (GCall n es) = (fn n) ++ "(" ++ (intercalate ", " (map show es)) ++ ")"
 	show (Let (v, e1) e2) = "let " ++ v ++ " = " ++ (show e1) ++ " in " ++ (show e2)
 
-fn :: String -> String	
+fn :: String -> String
 fn (_:s:ss) = (toLower s) : ss
 
 instance Show FDef where
@@ -103,16 +103,16 @@ instance Show Pat where
 	show (Pat "Nil" vs) = "``\'\'"
 	show (Pat "Cons" [v1, v2]) = v1 ++ ":" ++ v2
 	show (Pat cn vs) = cn ++ "(" ++ intercalate "," vs ++ ")"
-	
+
 instance Show Contract where
 	show (Contract n p) = n ++ " == " ++ (show p)
-	
+
 instance Show Program where
 	show (Program fs gs) = intercalate "\n" $ (map show fs) ++ (map show gs)
-	
+
 instance Show a => Show (Step a) where
 	show (Transient a) = "=> " ++ (show a)
-	show (Variants vs) = intercalate "\n" $ map (\(c, e) -> (show c) ++ " => " ++ (show e)) vs 
+	show (Variants vs) = intercalate "\n" $ map (\(c, e) -> (show c) ++ " => " ++ (show e)) vs
 	show Stop = "!"
 	show (Decompose ds) = show ds
 	show (Fold e _) = "↑" ++ (show e)
@@ -123,9 +123,9 @@ pprintLTree (Node expr next) = make next where
 	make (Fold _ _) = "node[conf]{" ++ (show expr) ++ "}"
 	make Stop = "node[conf]{" ++ (show expr) ++ "}"
 	make (Transient t) = "node[conf]{" ++ (show expr) ++ "}\nchild[->]{" ++ (pprintLTree t) ++ "}"
-	make (Decompose ts) = "node[conf]{" ++ (show expr) ++ "}" ++ 
+	make (Decompose ts) = "node[conf]{" ++ (show expr) ++ "}" ++
 		(concat (map (\t -> "\nchild[->]{" ++ (pprintLTree t) ++ "}") ts))
-	make (Variants [(x1, t1), (x2, t2)]) = 
-		"node[conf]{" ++ (show expr) ++ "}" ++ 
+	make (Variants [(x1, t1), (x2, t2)]) =
+		"node[conf]{" ++ (show expr) ++ "}" ++
 			("\nchild[->]{" ++ (pprintLTree t1) ++ "\nedge from parent node[left,label,xshift=-5mm]{" ++ (show x1) ++ "}}") ++
 			("\nchild[->]{" ++ (pprintLTree t2) ++ "\nedge from parent node[right,label,xshift=5mm]{" ++ (show x2) ++ "}}")

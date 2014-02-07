@@ -1,5 +1,5 @@
 module Generator where
-	
+
 import Data
 import DataUtil
 
@@ -22,7 +22,7 @@ res (n:ns) mp (Node e (Transient t)) = (fcall, Program ((FDef f1 vs body):fs) gs
 	f1 = "ff" ++ (tail n)
 	fcall = FCall f1 $ map Var vs
 	(body, Program fs gs, ns1) = res ns ((e, fcall) : mp) t
-	
+
 res (n:ns) mp (Node e (Variants cs)) = (gcall, Program fs (newGs ++ gs), ns1) where
 	vs@(pv:vs') = vnames e
 	(vs_, vs'_) = if (isRepeated pv e) && (isUsed pv cs) then (pv:vs, vs) else (vs, vs')
@@ -32,20 +32,20 @@ res (n:ns) mp (Node e (Variants cs)) = (gcall, Program fs (newGs ++ gs), ns1) wh
 	pats = [pat | (Contract v pat, _) <- cs]
 	newGs = [GDef g1 p vs'_ b | (p, b) <-  (zip pats bodies)]
 	isUsed vname cs = any (any (== vname) . vnames . nodeLabel . snd) cs
-	
+
 res ns mp (Node e (Fold (Node base _) ren)) = (call, Program [] [], ns) where
-	call = baseCall // [(x, Var y) | (x, y) <- ren] 
+	call = baseCall // [(x, Var y) | (x, y) <- ren]
 	Just baseCall = lookup base mp
 
--- proceeds a list of trees 
+-- proceeds a list of trees
 -- the main goal is to handle name supply
 res' :: NameSupply -> [(Conf, Conf)] -> [Graph Conf] -> ([Conf], Program, NameSupply)
-res' ns mp ts = foldl f ([], Program [] [], ns) ts where 
-	f (cs, Program fs gs, ns1) t = (cs ++ [g], Program (fs ++ fs1) (gs ++ gs1), ns2) where 
+res' ns mp ts = foldl f ([], Program [] [], ns) ts where
+	f (cs, Program fs gs, ns1) t = (cs ++ [g], Program (fs ++ fs1) (gs ++ gs1), ns2) where
 		(g, Program fs1 gs1, ns2) = res ns1 mp t
 
 isBase e1 (Node _ (Decompose ts)) = or $ map (isBase e1) ts
-isBase e1 (Node _ (Variants cs)) = or $ map (isBase e1 . snd) cs 
+isBase e1 (Node _ (Variants cs)) = or $ map (isBase e1 . snd) cs
 isBase e1 (Node _ (Transient t)) = isBase e1 t
 isBase e1 (Node _ (Fold (Node e2 _) _)) = e1 == e2
 isBase e1 (Node e2 Stop) = False

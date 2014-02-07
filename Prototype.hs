@@ -1,5 +1,5 @@
 module Prototype where
-	
+
 import Data
 import DataUtil
 import Driving
@@ -29,12 +29,12 @@ whistle e@(GCall _ args) = not (all isVar args) && size e > sizeBound
 whistle _ = False
 
 generalize :: Name -> Expr -> Expr
-generalize n (FCall f es) = 
+generalize n (FCall f es) =
 	Let (n, e) (FCall f es') where (e, es') = extractArg n es
-generalize n (GCall g es) = 
+generalize n (GCall g es) =
 	Let (n, e) (GCall g es') where (e, es') = extractArg n es
 
-extractArg :: Name -> [Expr] -> (Expr, [Expr])	
+extractArg :: Name -> [Expr] -> (Expr, [Expr])
 extractArg n es = (maxE, vs ++ Var n : ws) where
 	maxE = maximumBy ecompare es
 	ecompare x y = compare (eType x * size x) (eType y * size y)

@@ -19,7 +19,7 @@ prog1 = read
 	" gAdd(Z(), y) = y;\
 	\ gAdd(S(x), y) = S(gAdd(x, y));\
 	\ gMult(Z(), y) = Z();\
-	\ gMult(S(x), y) = gAdd(y, gMult(x, y));\ 
+	\ gMult(S(x), y) = gAdd(y, gMult(x, y));\
 	\ fSqr(x) = gMult(x, x); \
 	\ gEven(Z()) = True();\
 	\ gEven(S(x)) = gOdd(x);\
@@ -43,7 +43,25 @@ prog2 = read
 	\ gX(Cons(s, ss), p, pp,  op, os) = gIf(gEqSymb(p, s), gM(pp, ss, op, os), gN(os, op));\
 	\ gN(Nil(), op) = False(); \
 	\ gN(Cons(s, ss), op) = gM(op, ss, op, ss);"
-	
+
+-- more clear KMP test
+prog2a :: Program
+prog2a = read
+	" gEqSymb(A(), y) = gEqA(y);\
+	\ gEqSymb(B(), y) = gEqB(y);\
+	\ gEqA(A()) = True();  gEqA(B()) = False();\
+	\ gEqB(A()) = False(); gEqB(B()) = True();\
+	\ gIf(True(), x, y) = x;\
+	\ gIf(False(), x, y) = y;\
+	\ fMatch(p, s) = gM(p, s, p, s);\
+	\ gM(Nil(), ss, op, os) = True();\
+	\ gM(Cons(p, pp), ss, op, os) = gX(ss, p, pp, op, os);\
+	\ gX(Nil(), p, pp,  op, os) = False();\
+	\ gX(Cons(s, ss), p, pp,  op, os) = gIf(gEqSymb(p, s), gM(pp, ss, op, os), gN(os, op));\
+	\ gN(Nil(), op) = False(); \
+	\ gN(Cons(s, ss), op) = gM(op, ss, op, ss);"
+
+
 prog3 :: Program
 prog3 = read
 	" gAdd(Z(), y) = y;\
@@ -51,7 +69,7 @@ prog3 = read
 	\ gDouble(Z()) = Z(); \
 	\ gDouble(S(x)) = S(S(gDouble(x))); \
 	\ gHalf(Z()) = Z(); \
-	\ gHalf(S(x)) = gHalf1(x); \ 
+	\ gHalf(S(x)) = gHalf1(x); \
 	\ gHalf1(Z()) = Z(); \
 	\ gHalf1(S(x)) = S(gHalf(x)); \
 	\ gEq(Z(), y) = gEqZ(y); \
@@ -60,15 +78,15 @@ prog3 = read
 	\ gEqZ(S(x)) = False(); \
 	\ gEqS(Z(), x) = False(); \
 	\ gEqS(S(y), x) = gEq(x, y);"
-	
-	
+
+
 prog4 :: Program
 prog4 = read
 	" fInf() = S(fInf()); \
 	\ fB(x) = fB(S(x));"
 
 -- counting steps of interpreter
-demo01 = 
+demo01 =
 	intC prog1 $ read "gEven(fSqr(S(S(Z()))))"
 
 -- int and eval produce the same values
@@ -81,7 +99,7 @@ demo04 =
 demo05 =
 	eval prog1 $ read "fSqr(S(S(Z())))"
 
--- trying interpret undefined expression	
+-- trying interpret undefined expression
 demo06 =
 	int  prog1 $ read "fSqr(S(S(x)))"
 
@@ -89,11 +107,11 @@ demo06 =
 demo07 =
 	eval prog1 $ read "fSqr(S(S(x)))"
 
--- "interpret" infinite number	
+-- "interpret" infinite number
 demo08 =
 	int  prog4 $ read "fInf()"
 
--- "eval" infinite number	
+-- "eval" infinite number
 demo09 =
 	eval prog4 $ read "fInf()"
 
@@ -101,20 +119,20 @@ demo09 =
 demo10 =
 	(driveMachine prog1) nameSupply (read "gOdd(gAdd(x, gMult(x, S(x))))")
 
--- driving (transient step)	
-demo11 = 
+-- driving (transient step)
+demo11 =
 	(driveMachine prog1) nameSupply (read "gOdd(S(gAdd(v1, gMult(x, S(x)))))")
-	
+
 -- building infinite tree
 demo12 =
 	putStrLn $ printTree $ buildTree (driveMachine prog1) (read "gEven(fSqr(x))")
 
--- using intTree (infinite tree) to run task 
+-- using intTree (infinite tree) to run task
 demo13 =
 	intTree (buildTree (driveMachine prog1) (read "gEven(fSqr(x))")) [("x", read "S(S(Z()))")]
-	
+
 -- using intTree (folded finite graph) to run task
-demo13a = 
+demo13a =
 	intTree (foldTree $ buildTree (driveMachine prog1) (read "gEven(fSqr(x))")) [("x", read "S(S(Z()))")]
 
 -- using intTree (infinite tree) to run task
@@ -124,7 +142,7 @@ demo14 =
 -- successful folding
 demo15 =
 	putStrLn $ printTree $ foldTree $ buildTree (driveMachine prog1) (read "gEven(fSqr(x))")
-	
+
 -- successful folding (tex)
 demo15a =
 	putStrLn $ pprintLTree $ foldTree $ buildTree (driveMachine prog1) (read "gEven(fSqr(x))")
@@ -136,14 +154,14 @@ demo16 =
 -- an example of generalization, set sizeBound = 5 to get the same result as in the paper
 demo17 =
 	putStrLn $ printTree $ foldTree $ buildFTree (driveMachine prog1) (read "gAdd1(x, y)")
-	
+
 -- even/sqr - just transformation
 demo18 = do
 	let (c2, p2) = transform ((read "gEven(fSqr(x))"), prog1)
 	putStrLn "\ntransformation:\n"
 	putStrLn (show c2)
 	putStrLn (show p2)
-	
+
 -- even/sqr - deforestation
 demo19 = do
 	let (c2, p2) = deforest ((read "gEven(fSqr(x))"), prog1)
@@ -159,19 +177,19 @@ demo20 = do
 	putStrLn (show p2)
 
 -- KMP -- transform -- graph
-demo21 = 
+demo21 =
 	putStrLn $ printTree $ foldTree $ buildFTree (driveMachine prog2) conf2
 
 -- KMP -- deforest -- graph
-demo22 = 
+demo22 =
 	putStrLn $ printTree $ simplify $ foldTree $ buildFTree (driveMachine prog2) conf2
 
 -- KMP -- supercompile -- graph
-demo23 = 
-	putStrLn $ printTree $ simplify $ foldTree $ buildFTree (addPropagation (driveMachine prog2)) conf2
+demo23 =
+	putStrLn $ printTree $ foldTree $ buildFTree (addPropagation (driveMachine prog2)) conf2
 
 -- KMP -- supercompile -- graph
-demo23Tex = 
+demo23Tex =
 	putStrLn $ pprintLTree $ simplify $ foldTree $ buildFTree (addPropagation (driveMachine prog2)) conf2
 
 g = simplify $ foldTree $ buildFTree (addPropagation (driveMachine prog2)) conf2
@@ -186,7 +204,7 @@ demo25 = do
 	let (c2, p2) = transform (conf2, prog2)
 	putStrLn (show c2)
 	putStrLn (show p2)
-	
+
 -- KMP - deforestation
 demo26 = do
 	let (c2, p2) = deforest (conf2, prog2)
@@ -204,14 +222,14 @@ demo30 = do
 	let (c2, p2) = supercompile (read "gAdd(gAdd(x, y), z)", prog1)
 	putStrLn (show c2)
 	putStrLn (show p2)
-	
+
 demo31 = do
 	let (c2, p2) = supercompile (read "gAdd(x, gAdd(y, z))", prog1)
 	putStrLn (show c2)
 	putStrLn (show p2)
 
--- supercompiled eqpressions are equal => 
--- original expressions are equivalent	
+-- supercompiled eqpressions are equal =>
+-- original expressions are equivalent
 demo32 =
 	supercompile (read "gAdd(x, gAdd(y, z))", prog1) == supercompile (read "gAdd(gAdd(x, y), z)", prog1)
 
@@ -220,14 +238,17 @@ demo33 = do
 	putStrLn "supercompilation:\n"
 	putStrLn (show c2)
 	putStrLn (show p2)
-	
+
 
 -- all further stuff is for "benchmarking"
 -- set sizeBound=10 to get the same results as in the paper
 conf1 :: Expr
 conf1 = read "gEven(fSqr(x))"
 conf2 :: Expr
-conf2 = read "fMatch(Cons(A(), Cons(A(), Cons(B(), Nil()))), s)"
+conf2 = read "fMatch(Cons(A(), Cons(A(), Nil())), s)"
+
+conf3 :: Expr
+conf3 = read "fMatch(Cons(A(), Nil()), s)"
 
 -- input task
 t1 = (conf1, prog1)

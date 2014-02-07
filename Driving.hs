@@ -20,7 +20,7 @@ driveMachine p = drive where
 	drive ns (Ctr _ []) = Stop
 	drive ns (Ctr _ args) = Decompose args
 	drive ns (Let (x, t1) t2) = Decompose [t1, t2]
-	drive ns (FCall name args) = Transient $ e // (zip vs args) where 
+	drive ns (FCall name args) = Transient $ e // (zip vs args) where
 		FDef _ vs e = fDef p name
 	drive ns (GCall gn (Ctr cn cargs : args)) = Transient $ e // sub where
 		(GDef _ (Pat _ cvs) vs e) = gDef p gn cn
@@ -29,11 +29,11 @@ driveMachine p = drive where
 		variants gn args = map (scrutinize ns args) (gDefs p gn)
 	drive ns (GCall gn (inner:args)) = inject (drive ns inner) where
 		inject (Transient t) = Transient (GCall gn (t:args))
-		inject (Variants cs) = Variants $ map f cs 
+		inject (Variants cs) = Variants $ map f cs
 		f (c, t) = (c, GCall gn (t:args))
 
 scrutinize :: NameSupply -> [Expr] -> GDef -> (Contract, Expr)
-scrutinize ns (Var v : args) (GDef _ (Pat cn cvs) vs body) = 
+scrutinize ns (Var v : args) (GDef _ (Pat cn cvs) vs body) =
 	(Contract v (Pat cn fresh), body // sub) where
 		fresh = take (length cvs) ns
 		sub = zip (cvs ++ vs) (map Var fresh ++ args)

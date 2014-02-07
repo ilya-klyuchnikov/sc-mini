@@ -16,7 +16,7 @@ addPropagation :: Machine Conf -> Machine Conf
 addPropagation m ns e = propagateContract (m ns e)
 
 propagateContract :: Step Conf -> Step Conf
-propagateContract (Variants vs) = 
-  Variants [(c, e // [(v, Ctr cn $ map Var vs)]) | 
+propagateContract (Variants vs) =
+  Variants [(c, e // [(v, Ctr cn $ map Var vs)]) |
             (c@(Contract v (Pat cn vs)), e) <- vs]
 propagateContract step = step

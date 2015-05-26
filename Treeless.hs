@@ -20,7 +20,7 @@ eval p e fenv genv =
         FVar i -> eval p (fenv !! i) fenv genv -- (fenv !! i)
         GVar i -> eval p (genv !! i) fenv genv -- (genv !! i)
         Ctr c -> Ctr (evalCtr p c fenv genv)
-        FCall n args -> evalFCall p p n args
+        FCall n args -> evalFCall p p n args fenv genv
         GCall gname (arg0 : args) -> evalGCall p gname arg0 args fenv genv)
  
 evalCtr p c fenv genv =
@@ -31,7 +31,7 @@ evalCtr p c fenv genv =
 
 -- here is the trick - note that no additional data is produced at all!! 
 -- here is the problem!!
-evalFCall :: Program -> Program -> String -> [Exp] -> Exp
+evalFCall :: Program -> Program -> String -> [Exp] -> [Exp] -> [Exp] -> Exp
 evalFCall p p1 fname fargs = 
     case p1 of
         (FFun _ n' e) : p' -> 

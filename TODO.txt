@@ -1,0 +1,9 @@
+Questions
+
+Is it possible to write such interpreters?
+
+1. Cons-free interpreter for cons-free language?
+    Just no intermediate storage. Can use call stack for lookup/constructing intermediate values.
+2. Treeless interpreter for treeless language?
+    No intermediate storage, no nested calls.
+3. First order tail-recursive interpreter for first order tail-recursive language?

@@ -2,85 +2,41 @@ module Treeless where
 
 import Debug.Trace
  
+-- IN PROGRESS - not working for now 
 -- syntax for treeless programs
-data Ptr = Ptr0 String | Ptr1 String | Ptr2 String deriving (Show)
-data Exp = GVar Int | FVar Int | FCall String [Exp] | GCall String [Exp] | Ctr Ctr deriving (Show)
+data Exp = GVar Int | FVar Int | FCall1 String Exp | Ctr Ctr deriving (Show)
 data Ctr = Ctr0 String | Ctr1 String [Exp] | Ctr2 String [Exp] deriving (Show)
 
-data Fun = FFun Int String Exp | GFun Int String Ptr Exp deriving (Show)
+data Fun = FFun1 String Exp
 type Program = [Fun]
+
+eval :: Program -> Exp -> Exp
+eval = undefined
  
 -- interpreter for deforestable programs (and expressions!)
--- cons-free, almost tail-recursive program (only evalCtr is not tail-recursive)
-eval :: Program -> Exp -> [Exp] -> [Exp] -> Exp
-eval p e fenv genv = 
-    trace ("\n<<" ++ show e ++ "/" ++ (show fenv) ++ (show genv) ++ ">>\n")
-    (case e of 
-        -- TODO - possibly, we should suppose that this is a value!
-        FVar i -> eval p (fenv !! i) fenv genv -- (fenv !! i)
-        GVar i -> eval p (genv !! i) fenv genv -- (genv !! i)
-        Ctr c -> Ctr (evalCtr p c fenv genv)
-        FCall n args -> evalFCall p p n args fenv genv
-        GCall gname (arg0 : args) -> evalGCall p gname arg0 args fenv genv)
+-- eval for combination [binding] []
+eval10 :: Program -> Exp -> Exp -> Exp
+eval10 p e v1 =
+    case e of
+        FVar 0 -> eval p v1
+        Ctr c -> Ctr (evalCtr10 p c v1)
+        FCall1 n (FVar _) -> evalFCall1 p p n v1
+        FCall1 n ctr      -> evalFCall1 p p n ctr
  
-evalCtr p c fenv genv =
+evalCtr10 p c v1 =
     case c of 
         Ctr0 s   -> Ctr0 s
-        Ctr1 s [e] -> Ctr1 s [eval p e fenv genv]
+        Ctr1 s [e] -> Ctr1 s [eval10 p e fenv genv]
         Ctr2 s [e1, e2] -> Ctr2 s [(eval p e1 fenv genv), (eval p e2 fenv genv)]
 
 -- here is the trick - note that no additional data is produced at all!! 
 -- here is the problem!!
-evalFCall :: Program -> Program -> String -> [Exp] -> [Exp] -> [Exp] -> Exp
-evalFCall p p1 fname fargs = 
+evalFCall1 :: Program -> Program -> String -> Exp -> Exp
+evalFCall1 p p1 fname arg1 = 
     case p1 of
-        (FFun _ n' e) : p' -> 
+        (FFun1 n' e) : p' -> 
             if (n'==fname) 
-                then (eval p e fargs []) 
-                else (evalFCall p p' fname fargs)
+                then (eval p e [arg1] []) 
+                else (evalFCall1 p p' fname arg1)
         _ : p' -> 
-            (evalFCall p p' fname fargs)
-
-evalGCall p gname arg0 args fenv genv =
-    trace ("\n<<!" ++ show (GCall gname (arg0:args)) ++ "/" ++ (show fenv) ++ (show genv) ++ "!>>\n")
-    (case arg0 of
-        FVar i -> evalGCall p gname (fenv !! i) args fenv genv
-        GVar i -> evalGCall p gname (genv !! i) args fenv genv
-        Ctr c ->  evalGCall' p gname c args)
-
-evalGCall' p gname arg0 fargs =
-    case arg0 of
-        Ctr0 ctrname -> evalGCall0 p p gname ctrname fargs
-        Ctr1 ctrname gargs -> evalGCall1 p p gname ctrname fargs gargs
-        Ctr2 ctrname gargs -> evalGCall2 p p gname ctrname fargs gargs 
-
-evalGCall0 :: Program -> Program -> String -> String -> [Exp] -> Exp
-evalGCall0 p0 p gname ctrname fargs = 
-    trace ("\n<<000" ++ show (GCall gname ((Ctr (Ctr0 ctrname)) : fargs)) ++ "???" ++ (show p) ++ "!>>\n")
-    (case p of
-        (GFun _ n' (Ptr0 s) e) : p' -> 
-            if (n'==gname && s == ctrname) 
-                then (eval p0 e fargs []) 
-                else (evalGCall0 p0 p' gname ctrname fargs)
-        _ : p' -> 
-            (evalGCall0 p0 p' gname ctrname fargs))
-
-evalGCall1 :: Program -> Program -> String -> String -> [Exp] -> [Exp] -> Exp
-evalGCall1 p0 p gname ctrname fargs gargs = 
-    case p of
-        (GFun _ n' (Ptr1 s) e) : p' -> 
-            if (n'==gname && s == ctrname) 
-                then (eval p0 e fargs gargs) 
-                else (evalGCall1 p0 p' gname ctrname fargs gargs)
-        _ : p' -> 
-            (evalGCall1 p0 p' gname ctrname fargs gargs)
-
-evalGCall2 :: Program -> Program -> String -> String -> [Exp] -> [Exp] -> Exp
-evalGCall2 p0 p gname ctrname fargs gargs = 
-    case p of
-        (GFun _ n' (Ptr2 s) e) : p' -> 
-            if (n'==gname && s == ctrname) 
-                then (eval p0 e fargs gargs) 
-                else (evalGCall2 p0 p' gname ctrname fargs gargs)
-        _ : p' -> 
-            (evalGCall2 p0 p' gname ctrname fargs gargs)
+            (evalFCall1 p p' fname arg1)

@@ -3,17 +3,17 @@ module Treeless1 where
 import Debug.Trace
  
 -- syntax for treeless programs
-data Exp = FVar Int | FCall1 String Exp | Ctr Ctr deriving (Show)
+data Exp = FVar Int | FCall1 String Exp | GCall1 String Exp | Ctr Ctr deriving (Show)
 data Ctr = Ctr0 String | Ctr1 String [Exp] | Ctr2 String [Exp] deriving (Show)
 
-data Fun = FFun1 String Exp
+data Fun = FFun1 String Exp | GFun1 String String Exp
 type Program = [Fun]
 
 eval :: Program -> Exp -> Exp
 eval p e = 
     case e of        
         Ctr c -> Ctr (evalCtr p c)
-        FCall1 n arg -> evalFCall10 p p n arg
+        FCall1 n arg -> evalFCall1 p p n arg
 
 evalCtr :: Program -> Ctr -> Ctr
 evalCtr p ctr =
@@ -24,12 +24,11 @@ evalCtr p ctr =
 
 eval10 :: Program -> Exp -> Exp -> Exp
 eval10 p e fv1 =
-    trace ("\n<<" ++ show e ++ ">>\n")
-    (case e of
+    case e of
         FVar 1 -> fv1 -- or: just v1
         Ctr c -> Ctr (evalCtr10 p c fv1)
-        FCall1 n (FVar 1) -> evalFCall10 p p n fv1
-        FCall1 n ctr      -> evalFCall10 p p n ctr)
+        FCall1 n (FVar 1) -> evalFCall1 p p n fv1
+        FCall1 n ctr      -> evalFCall1 p p n ctr
 
 evalCtr10 :: Program -> Ctr -> Exp -> Ctr
 evalCtr10 p c fv1 =
@@ -38,15 +37,17 @@ evalCtr10 p c fv1 =
         Ctr1 s [e] -> Ctr1 s [eval10 p e fv1]
         Ctr2 s [e1, e2] -> Ctr2 s [(eval10 p e1 fv1), (eval10 p e2 fv1)]
 
-evalFCall10 :: Program -> Program -> String -> Exp -> Exp
-evalFCall10 p p1 fname arg1 = 
+evalFCall1 :: Program -> Program -> String -> Exp -> Exp
+evalFCall1 p p1 fname arg1 = 
     case p1 of
         (FFun1 n' e) : p' -> 
             if (n'==fname) 
                 then (eval10 p e arg1) 
-                else (evalFCall10 p p' fname arg1)
+                else (evalFCall1 p p' fname arg1)
         _ : p' -> 
-            (evalFCall10 p p' fname arg1)
+            (evalFCall1 p p' fname arg1)
+
+-------- examples ---------
 
 id1 v1 = id2 v1
 id2 v1 = id3 v1

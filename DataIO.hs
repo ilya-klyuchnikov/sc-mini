@@ -48,6 +48,7 @@ readSPat i = [(Pat n vars, s2)|
 	(n, s) <- lex i,
 	(vars, s2) <- readVars s]
 -- read g-function
+readGDef :: ReadS GDef
 readGDef i = [ (GDef n p vs body, s6) |
 	(n@('g':_), s) <- lex i,
 	("(", s1) <- lex s,

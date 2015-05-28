@@ -3,15 +3,14 @@ module Treeless10 where
 import Debug.Trace
  
 -- syntax for treeless programs
-data Exp = {-FVar1 |-} GVar1 | {-FCall1 String Exp |-} GCall1 String Exp | Ctr Ctr deriving (Show, Eq)
+data Exp = GVar1 | GCall1 String Exp | Ctr Ctr deriving (Show, Eq)
 data Ctr = Ctr0 String | Ctr1 String Exp | Ctr2 String Exp Exp deriving (Show, Eq)
 
-data Fun = {-FFun1 String Exp |-} GFun1 String String Exp
+data Fun = GFun1 String String Exp
 type Program = [Fun]
 
 eval :: Exp -> Program -> Exp        
 eval (Ctr c) p         = Ctr (evalCtr c p)
---eval (FCall1 n ctr) p  = evalFCall1 p p n ctr
 eval (GCall1 gn ctr) p = evalGCall1 ctr p gn 
 
 evalCtr :: Ctr -> Program -> Ctr
@@ -23,6 +22,7 @@ evalCtr (Ctr2 s e1 e2) p = Ctr2 s (eval e1 p) (eval e2 p)
 eval01 :: Exp -> Program -> Exp -> Exp
 eval01 GVar1 p gv1 = gv1
 eval01 (Ctr c) p gv1 = Ctr (evalCtr01 c p gv1)
+-- TODO - test that it is GVar1
 eval01 (GCall1 n GVar1) p gv1 = evalGCall1 gv1 p n
 eval01 (GCall1 n ctr) p gv1 = evalGCall1 ctr p n 
 
@@ -32,15 +32,19 @@ evalCtr01 (Ctr1 s e) p fv1 = Ctr1 s (eval01 e p fv1)
 evalCtr01 (Ctr2 s e1 e2) p fv1 = Ctr2 s (eval01 e1 p fv1) (eval01 e2 p fv1)
 
 evalGCall1 :: Exp -> Program -> String -> Exp
-evalGCall1 (Ctr (Ctr1 cn arg1)) p gn = evalGCall1' p p gn cn arg1
+evalGCall1 (Ctr (Ctr1 cn arg1)) p gn = evalGCall1a p p gn cn arg1
 
-evalGCall1' :: Program -> Program -> String -> String -> Exp -> Exp
-evalGCall1' p1 p gn cn arg1 =
-    case p1 of
-        (GFun1 gn' cn' e) : p' -> 
+evalGCall1a :: Program -> Program -> String -> String -> Exp -> Exp
+evalGCall1a (fun:p1) p gn cn arg1 = if (isGFun fun) then (evalGCall1b fun p1 p gn cn arg1) else (evalGCall1a p1 p gn cn arg1) 
+
+isGFun :: Fun -> Bool
+isGFun (GFun1 _ _ _) = True
+
+evalGCall1b :: Fun -> Program -> Program -> String -> String -> Exp -> Exp
+evalGCall1b (GFun1 gn' cn' e) p1 p gn cn arg1 =
             if (gn'==gn && cn'==cn) 
                 then (eval01 e p arg1) 
-                else (evalGCall1' p' p gn cn arg1)
+                else (evalGCall1a p1 p gn cn arg1)
 
 
 -------- examples ---------

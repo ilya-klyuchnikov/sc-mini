@@ -9,6 +9,18 @@ data Ctr = Ctr0 String | Ctr1 String Exp | Ctr2 String Exp Exp deriving (Show, E
 data Fun = GFun1 String String Exp
 type Program = [Fun]
 
+isGVar1 GVar1   = True
+isGVar1 (Ctr c) = False
+
+isGFun :: Fun -> Bool 
+isGFun (GFun1 _ _ _) = True
+
+and1 False _ = False
+and1 True x = x
+
+cnEq cn1 cn2 = cn1 == cn2
+gnEq gn1 gn2 = gn1 == gn2
+
 eval :: Exp -> Program -> Exp        
 eval (Ctr c) p         = Ctr (evalCtr c p)
 eval (GCall1 gn ctr) p = evalGCall1 ctr p gn 
@@ -18,13 +30,13 @@ evalCtr (Ctr0 s) p       = Ctr0 s
 evalCtr (Ctr1 s e) p     = Ctr1 s (eval e p)
 evalCtr (Ctr2 s e1 e2) p = Ctr2 s (eval e1 p) (eval e2 p)
 
-
 eval01 :: Exp -> Program -> Exp -> Exp
 eval01 GVar1 p gv1 = gv1
 eval01 (Ctr c) p gv1 = Ctr (evalCtr01 c p gv1)
--- TODO - test that it is GVar1
-eval01 (GCall1 n GVar1) p gv1 = evalGCall1 gv1 p n
-eval01 (GCall1 n ctr) p gv1 = evalGCall1 ctr p n 
+eval01 (GCall1 n arg) p gv1 = eval01GCall1 (isGVar1 arg) n arg p gv1
+
+eval01GCall1 True  n arg p gv1 = evalGCall1 gv1 p n
+eval01GCall1 False n arg p gv1 = evalGCall1 arg p n
 
 evalCtr01 :: Ctr -> Program -> Exp -> Ctr
 evalCtr01 (Ctr0 s) p fv1 = Ctr0 s
@@ -32,19 +44,22 @@ evalCtr01 (Ctr1 s e) p fv1 = Ctr1 s (eval01 e p fv1)
 evalCtr01 (Ctr2 s e1 e2) p fv1 = Ctr2 s (eval01 e1 p fv1) (eval01 e2 p fv1)
 
 evalGCall1 :: Exp -> Program -> String -> Exp
-evalGCall1 (Ctr (Ctr1 cn arg1)) p gn = evalGCall1a p p gn cn arg1
+evalGCall1 (Ctr ctr) p gn = evalGCall1Ctr ctr p gn
+
+evalGCall1Ctr :: Ctr -> Program -> String -> Exp
+evalGCall1Ctr (Ctr1 cn arg1) p gn = evalGCall1a p p gn cn arg1
 
 evalGCall1a :: Program -> Program -> String -> String -> Exp -> Exp
-evalGCall1a (fun:p1) p gn cn arg1 = if (isGFun fun) then (evalGCall1b fun p1 p gn cn arg1) else (evalGCall1a p1 p gn cn arg1) 
+evalGCall1a (fun:p1) p gn cn arg1 = evalGCall1b (isGFun fun) fun p1 p gn cn arg1 -- TODO
 
-isGFun :: Fun -> Bool
-isGFun (GFun1 _ _ _) = True
+evalGCall1b :: Bool -> Fun -> Program -> Program -> String -> String -> Exp -> Exp
+evalGCall1b True  fun p1 p gn cn arg1 = evalGCall1с fun p1 p gn cn arg1
+evalGCall1b False fun p1 p gn cn arg1 = evalGCall1a p1 p gn cn arg1
 
-evalGCall1b :: Fun -> Program -> Program -> String -> String -> Exp -> Exp
-evalGCall1b (GFun1 gn' cn' e) p1 p gn cn arg1 =
-            if (gn'==gn && cn'==cn) 
-                then (eval01 e p arg1) 
-                else (evalGCall1a p1 p gn cn arg1)
+evalGCall1с :: Fun -> Program -> Program -> String -> String -> Exp -> Exp
+evalGCall1с (GFun1 gn' cn' e) p1 p gn cn arg1 = evalGCall1d (and1 (gnEq gn' gn) (cnEq cn' cn)) p1 p gn cn arg1 e
+evalGCall1d False p1 p gn cn arg1 e = evalGCall1a p1 p gn cn arg1
+evalGCall1d True  p1 p gn cn arg1 e = eval01 e p arg1
 
 
 -------- examples ---------

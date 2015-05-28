@@ -31,8 +31,10 @@ eval10 (GCall1 n ctr) p fv1 = evalGCall1 ctr p n
 eval01 :: Exp -> Program -> Exp -> Exp
 eval01 GVar1 p gv1 = gv1
 eval01 (Ctr c) p gv1 = Ctr (evalCtr01 c p gv1)
+-- TODO - check via (isVar) -- should work!!
 eval01 (FCall1 n GVar1) p gv1 = evalFCall1 p p n gv1
 eval01 (FCall1 n ctr) p gv1  = evalFCall1 p p n ctr
+-- TODO - check via (isVar) -- should work!!
 eval01 (GCall1 n GVar1) p gv1 = evalGCall1 gv1 p n
 eval01 (GCall1 n ctr) p gv1 = evalGCall1 ctr p n 
 
@@ -47,27 +49,27 @@ evalCtr01 (Ctr1 s e) p fv1 = Ctr1 s (eval01 e p fv1)
 evalCtr01 (Ctr2 s e1 e2) p fv1 = Ctr2 s (eval01 e1 p fv1) (eval01 e2 p fv1)
 
 evalFCall1 :: Program -> Program -> String -> Exp -> Exp
-evalFCall1 p p1 fname arg1 = 
+evalFCall1 p1 p fname arg1 = 
     case p1 of
         (FFun1 n' e) : p' -> 
             if (n'==fname) 
                 then (eval10 e p arg1) 
-                else (evalFCall1 p p' fname arg1)
+                else (evalFCall1 p' p fname arg1)
         (GFun1 _ _ _) : p' -> 
-            (evalFCall1 p p' fname arg1)
+            (evalFCall1 p' p fname arg1)
 
 evalGCall1 :: Exp -> Program -> String -> Exp
 evalGCall1 (Ctr (Ctr1 cn arg1)) p gn = evalGCall1' p p gn cn arg1
 
 evalGCall1' :: Program -> Program -> String -> String -> Exp -> Exp
-evalGCall1' p p1 gn cn arg1 =
+evalGCall1' p1 p gn cn arg1 =
     case p1 of
         (GFun1 gn' cn' e) : p' -> 
             if (gn'==gn && cn'==cn) 
                 then (eval01 e p arg1) 
-                else (evalGCall1' p p' gn cn arg1)
+                else (evalGCall1' p' p gn cn arg1)
         (FFun1 _ _) : p' -> 
-            (evalGCall1' p p' gn cn arg1)
+            (evalGCall1' p' p gn cn arg1)
 
 
 -------- examples ---------

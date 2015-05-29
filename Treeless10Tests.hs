@@ -21,9 +21,6 @@ data Ctr = Ctr0 CName0 | Ctr1 CName1 Exp | Ctr2 CName2 Exp Exp deriving (Show, E
 data Fun = GFun1 GName CName1 Exp deriving (Show)
 type Program = [Fun]
 
-gIsGVar1 GVar1   = True
-gIsGVar1 (Ctr c) = False
-
 gIsGFun :: Fun -> Bool 
 gIsGFun (GFun1 _ _ _) = True
 
@@ -59,7 +56,7 @@ gEvalCtr (Ctr2 s e1 e2) p = Ctr2 s (gEval e1 p) (gEval e2 p)
 gEval01 :: Exp -> Program -> Exp -> Exp
 gEval01 GVar1 p gv1 = gv1
 gEval01 (Ctr c) p gv1 = Ctr (gEvalCtr01 c p gv1)
-gEval01 (GCall1 n arg) p gv1 = gEval01GCall1 (gIsGVar1 arg) n arg p gv1
+gEval01 (GCall1 n arg) p gv1 = gEval01GCall1 True n arg p gv1
 
 gEval01GCall1 True  n arg p gv1 = gEvalGCall1 gv1 p n
 gEval01GCall1 False n arg p gv1 = gEvalGCall1 arg p n
@@ -184,3 +181,6 @@ demo13 =
 
 demo15 =
     putStrLn $ printTree $ simplify $ foldTree $ buildTree (addPropagation $ driveMachine sintProg) zeroEval
+
+-- TODO: it is OK to test with a == x - for primitive data
+-- possible solution: just to encode it via extra-parameter!

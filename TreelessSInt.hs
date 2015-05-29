@@ -1,10 +1,7 @@
 module TreelessSInt where
 
 sint = 
-    " gIsGVar1(GVar1())   = True();\
-    \ gIsGVar1(Ctr(c)) = False();\
-
-    \ gIsGFun(GFun1(x, y, z)) = True();\
+    " gIsGFun(GFun1(x, y, z)) = True();\
 
     \ gAnd(False(), x) = False();\
     \ gAnd(True(), x) = x;\
@@ -33,7 +30,7 @@ sint =
 
     \ gEval01(GVar1(), p, gv1) = gv1;\
     \ gEval01(Ctr(c), p, gv1) = Ctr(gEvalCtr01(c, p, gv1));\
-    \ gEval01(GCall1(n, arg), p, gv1) = gEval01GCall1(gIsGVar1(arg), n, arg, p, gv1);\
+    \ gEval01(GCall1(n, arg), p, gv1) = gEval01GCall1(True(), n, arg, p, gv1);\
 
     \ gEval01GCall1(True(),  n, arg, p, gv1) = gEvalGCall1(gv1, p, n);\
     \ gEval01GCall1(False(), n, arg, p, gv1) = gEvalGCall1(arg, p, n);\

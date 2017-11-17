@@ -2,28 +2,38 @@ module Treeless10 where
 
 import Debug.Trace
  
--- syntax for treeless programs
+-- syntax for simple programs - only one variable
 data Exp = GVar1 | GCall1 String Exp | Ctr Ctr deriving (Show, Eq)
+-- Very limited number of constructor
 data Ctr = Ctr0 String | Ctr1 String Exp | Ctr2 String Exp Exp deriving (Show, Eq)
 
 data Fun = GFun1 String String Exp
 type Program = [Fun]
 
+-- whether an expression is a var
+isGVar1 :: Exp -> Bool
 isGVar1 GVar1   = True
 isGVar1 (Ctr c) = False
 
+-- whether an expresson GFun 
 isGFun :: Fun -> Bool 
 isGFun (GFun1 _ _ _) = True
 
+-- and
 and1 False _ = False
 and1 True x = x
 
-cnEq cn1 cn2 = cn1 == cn2
-gnEq gn1 gn2 = gn1 == gn2
+-- two constructors are equal
+cnEq cn1 cn2 = (==) cn1 cn2
+gnEq gn1 gn2 = (==) gn1 gn2
 
-eval :: Exp -> Program -> Exp        
+
+eval :: Exp -> Program -> Exp
 eval (Ctr c) p         = Ctr (evalCtr c p)
 eval (GCall1 gn ctr) p = evalGCall1 ctr p gn 
+-- only ground expressions
+eval GVar1 p           = undefined        
+
 
 evalCtr :: Ctr -> Program -> Ctr
 evalCtr (Ctr0 s) p       = Ctr0 s
@@ -33,6 +43,7 @@ evalCtr (Ctr2 s e1 e2) p = Ctr2 s (eval e1 p) (eval e2 p)
 eval01 :: Exp -> Program -> Exp -> Exp
 eval01 GVar1 p gv1 = gv1
 eval01 (Ctr c) p gv1 = Ctr (evalCtr01 c p gv1)
+-- treeless - NO
 eval01 (GCall1 n arg) p gv1 = eval01GCall1 (isGVar1 arg) n arg p gv1
 
 eval01GCall1 True  n arg p gv1 = evalGCall1 gv1 p n
@@ -49,6 +60,7 @@ evalGCall1 (Ctr ctr) p gn = evalGCall1Ctr ctr p gn
 evalGCall1Ctr :: Ctr -> Program -> String -> Exp
 evalGCall1Ctr (Ctr1 cn arg1) p gn = evalGCall1a p p gn cn arg1
 
+-- treeless - NO
 evalGCall1a :: Program -> Program -> String -> String -> Exp -> Exp
 evalGCall1a (fun:p1) p gn cn arg1 = evalGCall1b (isGFun fun) fun p1 p gn cn arg1 -- TODO
 
@@ -57,6 +69,7 @@ evalGCall1b True  fun p1 p gn cn arg1 = evalGCall1с fun p1 p gn cn arg1
 evalGCall1b False fun p1 p gn cn arg1 = evalGCall1a p1 p gn cn arg1
 
 evalGCall1с :: Fun -> Program -> Program -> String -> String -> Exp -> Exp
+-- treeless - NO
 evalGCall1с (GFun1 gn' cn' e) p1 p gn cn arg1 = evalGCall1d (and1 (gnEq gn' gn) (cnEq cn' cn)) p1 p gn cn arg1 e
 evalGCall1d False p1 p gn cn arg1 e = evalGCall1a p1 p gn cn arg1
 evalGCall1d True  p1 p gn cn arg1 e = eval01 e p arg1

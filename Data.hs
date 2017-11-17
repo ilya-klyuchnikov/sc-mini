@@ -2,7 +2,7 @@ module Data where
 
 type Name = String
 data Expr = Var Name | Ctr Name [Expr] | FCall Name [Expr] | GCall Name [Expr] | 
-	Let (Name, Expr) Expr deriving (Eq)
+    Let (Name, Expr) Expr deriving (Eq)
 data Pat = Pat Name [Name] deriving (Eq)
 data GDef = GDef Name Pat [Name] Expr deriving (Eq)
 data FDef = FDef Name [Name] Expr deriving (Eq)

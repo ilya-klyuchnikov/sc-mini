@@ -1,6 +1,6 @@
 module TreelessSInt where
 
-sint = 
+sint =
     " gIsGFun(GFun1(x, y, z)) = True();\
 
     \ gAnd(False(), x) = False();\
@@ -22,7 +22,7 @@ sint =
     \ gGnEqPred(Zero()) = False();\
 
     \ gEval(Ctr(c), p)          = Ctr(gEvalCtr(c, p));\
-    \ gEval(GCall1(gn, ctr), p) = gEvalGCall1(ctr, p, gn);\ 
+    \ gEval(GCall1(gn, ctr), p) = gEvalGCall1(ctr, p, gn);\
 
     \ gEvalCtr(Ctr0(s), p)         = Ctr0(s);\
     \ gEvalCtr(Ctr1(s, e), p)      = Ctr1(s, gEval(e, p));\
@@ -43,8 +43,7 @@ sint =
 
     \ gEvalGCall1Ctr(Ctr1(cn, arg1), p, gn) = gEvalGCall1a(p, p, gn, cn, arg1);\
 
-    \ gEvalGCall1a(Cons(fun,p1), p, gn, cn, arg1) = gEvalGCall1b(gIsGFun(fun), fun, p1, p, gn, cn, arg1);\
-
+    \ gEvalGCall1a(Cons(fun,p1), p, gn, cn, arg1) = gEvalGCall1b(gIsGFun(fun), fun, p1, p, gn, cn, arg1); \
     \ gEvalGCall1b(True(),  fun, p1, p, gn, cn, arg1) = gEvalGCall1с(fun, p1, p, gn, cn, arg1);\
     \ gEvalGCall1b(False(), fun, p1, p, gn, cn, arg1) = gEvalGCall1a(p1, p, gn, cn, arg1);\
 

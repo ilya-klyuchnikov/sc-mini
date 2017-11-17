@@ -1,0 +1,45 @@
+HOW
+
+Как передавать аргументы без создания промежуточных структур данных?
+
+1. Если создавать очень специализированный интерпретатор - фактически, для интерпретации функции с n аргументами, 
+в интерпретаторе появляется функция с n + c аргументами, где c - некоторая константа, обусловленная тем, как 
+написан интерпретатор. Таким образом, для любой программы можно изготовить такой интерпретатор и даже проспециализировать
+его! Плохие новости - этот интерпретатор не может быть применим к самому себе (требуется большая arity).
+
+2. Интересный вопрос - можно ли куда-нибудь вынести эту константу?
+   В первом приближении кажется, что можно. Наблюдение: аргументы вызовов внутри тел методов всегда (!) являются переменными.
+   Можно закодировать такой набор аргументов (переменных). Например - 
+    f fv1 - 1
+    f fv2 - 2 и тд, если мы заранее знаем ограничение на arity функций + конструкторов.
+
+    Еще интересный момент, что f vs - можно дальше передавать vs - эти данные уже есть (при первом вызове).
+    During evaluation using interpreter(1) данные будут браться из
+    (1) - исходные данные, что были in input args - seems easy to pass via (arg number)
+    (2) - deconstructed data - not so easy to pass.
+
+    Can we limit the number of deconstructed data operated somehow?
+    Such that in interpreter in each invocation call be
+
+3. Suppose that we have no pattern matching. Is it possible to write an interpreter?
+   1. It needs to destruct: program + current expression, but, anyway:
+
+
+big-step evaluator
+
+eval Ctr args = Ctr (map eval args) - if we fix arity, the expression is treeless
+eval call x args = 
+
+-- the body of function is function call, then
+
+f val1 val2 = f1 val2 val1
+
+f[val1, val2] -> f1(v2, v1) ->
+
+---
+
+it is possible to enumerate all variations of input ? yes - 
+
+in^maxArg - but it seems to be quite strange
+
+

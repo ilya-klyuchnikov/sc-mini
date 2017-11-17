@@ -27,13 +27,11 @@ and1 True x = x
 cnEq cn1 cn2 = (==) cn1 cn2
 gnEq gn1 gn2 = (==) gn1 gn2
 
-
 eval :: Exp -> Program -> Exp
 eval (Ctr c) p         = Ctr (evalCtr c p)
 eval (GCall1 gn ctr) p = evalGCall1 ctr p gn 
 -- only ground expressions
 eval GVar1 p           = undefined        
-
 
 evalCtr :: Ctr -> Program -> Ctr
 evalCtr (Ctr0 s) p       = Ctr0 s

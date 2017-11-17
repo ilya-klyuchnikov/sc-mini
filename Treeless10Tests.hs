@@ -21,7 +21,7 @@ data Ctr = Ctr0 CName0 | Ctr1 CName1 Exp | Ctr2 CName2 Exp Exp deriving (Show, E
 data Fun = GFun1 GName CName1 Exp deriving (Show)
 type Program = [Fun]
 
-gIsGFun :: Fun -> Bool 
+gIsGFun :: Fun -> Bool
 gIsGFun (GFun1 _ _ _) = True
 
 gAnd False _ = False
@@ -44,9 +44,9 @@ gGnEqZero Zero = True
 gGnEqPred Pred = True
 gGnEqPred Zero = False
 
-gEval :: Exp -> Program -> Exp        
+gEval :: Exp -> Program -> Exp
 gEval (Ctr c) p         = Ctr (gEvalCtr c p)
-gEval (GCall1 gn ctr) p = gEvalGCall1 ctr p gn 
+gEval (GCall1 gn ctr) p = gEvalGCall1 ctr p gn
 
 gEvalCtr :: Ctr -> Program -> Ctr
 gEvalCtr (Ctr0 s) p       = Ctr0 s
@@ -79,8 +79,9 @@ gEvalGCall1b :: Bool -> Fun -> Program -> Program -> GName -> CName1 -> Exp -> E
 gEvalGCall1b True  fun p1 p gn cn arg1 = gEvalGCall1с fun p1 p gn cn arg1
 gEvalGCall1b False fun p1 p gn cn arg1 = gEvalGCall1a p1 p gn cn arg1
 
+-- updating this place - will not work - function will produce intermediate data
 gEvalGCall1с :: Fun -> Program -> Program -> GName -> CName1 -> Exp -> Exp
-gEvalGCall1с (GFun1 gn' cn' e) p1 p gn cn arg1 = gEvalGCall1d (gAnd (gGnEq gn' gn) (gCn1Eq cn' cn)) p1 p gn cn arg1 e
+gEvalGCall1с (GFun1 gn1 cn1 e) p1 p gn cn arg1 = gEvalGCall1d (gAnd (gGnEq gn1 gn) (gCn1Eq cn1 cn)) p1 p gn cn arg1 e
 gEvalGCall1d False p1 p gn cn arg1 e = gEvalGCall1a p1 p gn cn arg1
 gEvalGCall1d True  p1 p gn cn arg1 e = gEval01 e p arg1
 
@@ -109,7 +110,7 @@ predProg = [
 
 -- note - an arg of function may be --ONLY variable-- and this variable may resolve into constructor ONLY
 predProgEnc :: Data.Expr
-predProgEnc = read 
+predProgEnc = read
     " Cons(GFun1(Pred(), S(), GVar1()), \
     \ Cons(GFun1(Pred(), Z(), Ctr(Ctr1(Z(), GVar1()))), \
     \ Cons(GFun1(Zero(), S(), GCall1(Zero(), GVar1())),\
@@ -142,7 +143,6 @@ task4Enc = Data.GCall "gEval" [in4Enc, predProgEnc]
 tests = [test2, test3, test4]
 
 --- running self-interpreter ---
-
 sintProg :: Data.Program
 sintProg = read sint
 
@@ -177,7 +177,7 @@ demo12 =
     putStrLn $ printTree $ buildTree (addPropagation $ driveMachine sintProg) predEval
 
 demo13 =
-    putStrLn $ printTree $ simplify $ foldTree $ buildTree (addPropagation $ driveMachine sintProg) predEval
+    putStrLn $ printTree $ foldTree $ buildTree (addPropagation $ driveMachine sintProg) predEval
 
 demo15 =
     putStrLn $ printTree $ simplify $ foldTree $ buildTree (addPropagation $ driveMachine sintProg) zeroEval

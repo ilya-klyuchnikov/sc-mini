@@ -1,9 +1,9 @@
 module DataUtil(
-	isValue,isCall,isVar,size,
-	fDef, gDef, gDefs,
-	(//), renaming, vnames,nameSupply,
-	nodeLabel,isRepeated,unused
-	) where
+  isValue,isCall,isVar,size,
+  fDef, gDef, gDefs,
+  (//), renaming, vnames,nameSupply,
+  nodeLabel,isRepeated,unused
+  ) where
 
 import Data
 import Data.Maybe
@@ -60,14 +60,14 @@ isRepeated vn e = (length $ filter (== vn) (vnames' e)) > 1
 
 renaming :: Expr -> Expr -> Maybe Renaming
 renaming e1 e2 = f $ partition isNothing $ renaming' (e1, e2) where
-	f (x:_, _) = Nothing
-	f (_, ps) = g gs1 gs2
-		where
-			gs1 = groupBy (\(a, b) (c, d) -> a == c) $ sortBy h $ nub $ catMaybes ps
-			gs2 = groupBy (\(a, b) (c, d) -> b == d) $ sortBy h $ nub $ catMaybes ps
-			h (a, b) (c, d) = compare a c
-	g xs ys = if all ((== 1) . length) xs && all ((== 1) . length) ys
-		then Just (concat xs) else Nothing
+  f (x:_, _) = Nothing
+  f (_, ps) = g gs1 gs2
+    where
+      gs1 = groupBy (\(a, b) (c, d) -> a == c) $ sortBy h $ nub $ catMaybes ps
+      gs2 = groupBy (\(a, b) (c, d) -> b == d) $ sortBy h $ nub $ catMaybes ps
+      h (a, b) (c, d) = compare a c
+  g xs ys = if all ((== 1) . length) xs && all ((== 1) . length) ys
+    then Just (concat xs) else Nothing
 
 renaming' :: (Expr, Expr) -> [Maybe (Name, Name)]
 renaming' ((Var x), (Var y)) = [Just (x, y)]

@@ -64,8 +64,9 @@ renaming e1 e2 = f $ partition isNothing $ renaming' (e1, e2) where
   f (_, ps) = g gs1 gs2
     where
       gs1 = groupBy (\(a, b) (c, d) -> a == c) $ sortBy h $ nub $ catMaybes ps
-      gs2 = groupBy (\(a, b) (c, d) -> b == d) $ sortBy h $ nub $ catMaybes ps
+      gs2 = groupBy (\(a, b) (c, d) -> b == d) $ sortBy j $ nub $ catMaybes ps
       h (a, b) (c, d) = compare a c
+      j (a, b) (c, d) = compare b d
   g xs ys = if all ((== 1) . length) xs && all ((== 1) . length) ys
     then Just (concat xs) else Nothing
 

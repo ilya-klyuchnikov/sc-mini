@@ -1,11 +1,15 @@
+{-# LANGUAGE DeriveDataTypeable #-}
+
 module Data where
 
+import Data.Data
+
 type Name = String
-data Expr = Var Name | Ctr Name [Expr] | FCall Name [Expr] | GCall Name [Expr] | Let (Name, Expr) Expr deriving (Eq)
-data Pat = Pat Name [Name] deriving (Eq)
-data GDef = GDef Name Pat [Name] Expr deriving (Eq)
-data FDef = FDef Name [Name] Expr deriving (Eq)
-data Program = Program [FDef] [GDef] deriving (Eq)
+data Expr = Var Name | Ctr Name [Expr] | FCall Name [Expr] | GCall Name [Expr] | Let (Name, Expr) Expr deriving (Eq, Data)
+data Pat = Pat Name [Name] deriving (Eq, Data)
+data GDef = GDef Name Pat [Name] Expr deriving (Eq, Data)
+data FDef = FDef Name [Name] Expr deriving (Eq, Data)
+data Program = Program [FDef] [GDef] deriving (Eq, Data)
 
 type Renaming = [(Name, Name)]
 type Subst = [(Name, Expr)]

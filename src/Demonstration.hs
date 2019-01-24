@@ -1,3 +1,5 @@
+{-# LANGUAGE QuasiQuotes #-}
+
 module Demonstration where
 
 import Data
@@ -15,163 +17,166 @@ import Prototype
 import Deforester
 
 prog1 :: Program
-prog1 = read
-  " gAdd(Z(), y) = y;\
-  \ gAdd(S(x), y) = S(gAdd(x, y));\
-  \ gMult(Z(), y) = Z();\
-  \ gMult(S(x), y) = gAdd(y, gMult(x, y));\
-  \ fSqr(x) = gMult(x, x); \
-  \ gEven(Z()) = True();\
-  \ gEven(S(x)) = gOdd(x);\
-  \ gOdd(Z()) = False();\
-  \ gOdd(S(x)) = gEven(x);\
-  \ gAdd1(Z(), y) = y; \
-  \ gAdd1(S(x), y) = gAdd1(x, S(y));"
+prog1 = [prog|
+  gAdd(Z(), y) = y;
+  gAdd(S(x), y) = S(gAdd(x, y));
+  gMult(Z(), y) = Z();
+  gMult(S(x), y) = gAdd(y, gMult(x, y));
+  fSqr(x) = gMult(x, x);
+  gEven(Z()) = True();
+  gEven(S(x)) = gOdd(x);
+  gOdd(Z()) = False();
+  gOdd(S(x)) = gEven(x);
+  gAdd1(Z(), y) = y;
+  gAdd1(S(x), y) = gAdd1(x, S(y));
+|]
 
 prog2 :: Program
-prog2 = read
-  " gEqSymb(A(), y) = gEqA(y);\
-  \ gEqSymb(B(), y) = gEqB(y);\
-  \ gEqA(A()) = True();  gEqA(B()) = False();\
-  \ gEqB(A()) = False(); gEqB(B()) = True();\
-  \ gIf(True(), x, y) = x;\
-  \ gIf(False(), x, y) = y;\
-  \ fMatch(p, s) = gM(p, s, p, s);\
-  \ gM(Nil(), ss, op, os) = True();\
-  \ gM(Cons(p, pp), ss, op, os) = gX(ss, p, pp, op, os);\
-  \ gX(Nil(), p, pp,  op, os) = False();\
-  \ gX(Cons(s, ss), p, pp,  op, os) = gIf(gEqSymb(p, s), gM(pp, ss, op, os), gN(os, op));\
-  \ gN(Nil(), op) = False(); \
-  \ gN(Cons(s, ss), op) = gM(op, ss, op, ss);"
+prog2 = [prog|
+  gEqSymb(A(), y) = gEqA(y);
+  gEqSymb(B(), y) = gEqB(y);
+  gEqA(A()) = True();  gEqA(B()) = False();
+  gEqB(A()) = False(); gEqB(B()) = True();
+  gIf(True(), x, y) = x;
+  gIf(False(), x, y) = y;
+  fMatch(p, s) = gM(p, s, p, s);
+  gM(Nil(), ss, op, os) = True();
+  gM(Cons(p, pp), ss, op, os) = gX(ss, p, pp, op, os);
+  gX(Nil(), p, pp,  op, os) = False();
+  gX(Cons(s, ss), p, pp,  op, os) = gIf(gEqSymb(p, s), gM(pp, ss, op, os), gN(os, op));
+  gN(Nil(), op) = False();
+  gN(Cons(s, ss), op) = gM(op, ss, op, ss);
+|]
 
 -- more clear KMP test
 prog2a :: Program
-prog2a = read
-  " gEqSymb(A(), y) = gEqA(y);\
-  \ gEqSymb(B(), y) = gEqB(y);\
-  \ gEqA(A()) = True();  gEqA(B()) = False();\
-  \ gEqB(A()) = False(); gEqB(B()) = True();\
-  \ gIf(True(), x, y) = x;\
-  \ gIf(False(), x, y) = y;\
-  \ fMatch(p, s) = gM(p, s, p, s);\
-  \ gM(Nil(), ss, op, os) = True();\
-  \ gM(Cons(p, pp), ss, op, os) = gX(ss, p, pp, op, os);\
-  \ gX(Nil(), p, pp,  op, os) = False();\
-  \ gX(Cons(s, ss), p, pp,  op, os) = gIf(gEqSymb(p, s), gM(pp, ss, op, os), gN(os, op));\
-  \ gN(Nil(), op) = False(); \
-  \ gN(Cons(s, ss), op) = gM(op, ss, op, ss);"
-
+prog2a = [prog|
+  gEqSymb(A(), y) = gEqA(y);
+  gEqSymb(B(), y) = gEqB(y);
+  gEqA(A()) = True();  gEqA(B()) = False();
+  gEqB(A()) = False(); gEqB(B()) = True();
+  gIf(True(), x, y) = x;
+  gIf(False(), x, y) = y;
+  fMatch(p, s) = gM(p, s, p, s);
+  gM(Nil(), ss, op, os) = True();
+  gM(Cons(p, pp), ss, op, os) = gX(ss, p, pp, op, os);
+  gX(Nil(), p, pp,  op, os) = False();
+  gX(Cons(s, ss), p, pp,  op, os) = gIf(gEqSymb(p, s), gM(pp, ss, op, os), gN(os, op));
+  gN(Nil(), op) = False();
+  gN(Cons(s, ss), op) = gM(op, ss, op, ss);
+|]
 
 prog3 :: Program
-prog3 = read
-  " gAdd(Z(), y) = y;\
-  \ gAdd(S(x), y) = S(gAdd(x, y));\
-  \ gDouble(Z()) = Z(); \
-  \ gDouble(S(x)) = S(S(gDouble(x))); \
-  \ gHalf(Z()) = Z(); \
-  \ gHalf(S(x)) = gHalf1(x); \
-  \ gHalf1(Z()) = Z(); \
-  \ gHalf1(S(x)) = S(gHalf(x)); \
-  \ gEq(Z(), y) = gEqZ(y); \
-  \ gEq(S(x), y) = gEqS(y, x); \
-  \ gEqZ(Z()) = True(); \
-  \ gEqZ(S(x)) = False(); \
-  \ gEqS(Z(), x) = False(); \
-  \ gEqS(S(y), x) = gEq(x, y);"
-
+prog3 = [prog|
+  gAdd(Z(), y) = y;
+  gAdd(S(x), y) = S(gAdd(x, y));
+  gDouble(Z()) = Z();
+  gDouble(S(x)) = S(S(gDouble(x)));
+  gHalf(Z()) = Z();
+  gHalf(S(x)) = gHalf1(x);
+  gHalf1(Z()) = Z();
+  gHalf1(S(x)) = S(gHalf(x));
+  gEq(Z(), y) = gEqZ(y);
+  gEq(S(x), y) = gEqS(y, x);
+  gEqZ(Z()) = True();
+  gEqZ(S(x)) = False();
+  gEqS(Z(), x) = False();
+  gEqS(S(y), x) = gEq(x, y);
+|]
 
 prog4 :: Program
-prog4 = read
-  " fInf() = S(fInf()); \
-  \ fB(x) = fB(S(x));"
+prog4 = [prog|
+  fInf() = S(fInf());
+  fB(x) = fB(S(x));
+|]
 
 -- counting steps of interpreter
 demo01 =
-  intC prog1 $ read "gEven(fSqr(S(S(Z()))))"
+  intC prog1 [expr|gEven(fSqr(S(S(Z()))))|]
 
 -- int and eval produce the same values
 demo02 =
-  int prog1 $ read "gEven(fSqr(S(S(Z()))))"
+  int prog1 [expr|gEven(fSqr(S(S(Z()))))|]
 demo03 =
-  eval prog1 $ read "gEven(fSqr(S(S(Z()))))"
+  eval prog1 [expr|gEven(fSqr(S(S(Z()))))|]
 demo04 =
-  int prog1 $ read "fSqr(S(S(Z())))"
+  int prog1 [expr|fSqr(S(S(Z())))|]
 demo05 =
-  eval prog1 $ read "fSqr(S(S(Z())))"
+  eval prog1 [expr|fSqr(S(S(Z())))|]
 
 -- trying interpret undefined expression
 demo06 =
-  int  prog1 $ read "fSqr(S(S(x)))"
+  int  prog1 [expr|fSqr(S(S(x)))|]
 
 -- trying eval undefined expression
 demo07 =
-  eval prog1 $ read "fSqr(S(S(x)))"
+  eval prog1 [expr|fSqr(S(S(x)))|]
 
 -- "interpret" infinite number
 demo08 =
-  int  prog4 $ read "fInf()"
+  int  prog4 [expr|fInf()|]
 
 -- "eval" infinite number
 demo09 =
-  eval prog4 $ read "fInf()"
+  eval prog4 [expr|fInf()|]
 
 --   driving (variants)
 demo10 =
-  (driveMachine prog1) nameSupply (read "gOdd(gAdd(x, gMult(x, S(x))))")
+  (driveMachine prog1) nameSupply [expr|gOdd(gAdd(x, gMult(x, S(x))))|]
 
 -- driving (transient step)
 demo11 =
-  (driveMachine prog1) nameSupply (read "gOdd(S(gAdd(v1, gMult(x, S(x)))))")
+  (driveMachine prog1) nameSupply [expr|gOdd(S(gAdd(v1, gMult(x, S(x)))))|]
 
 -- building infinite tree
 demo12 =
-  putStrLn $ printTree $ buildTree (driveMachine prog1) (read "gEven(fSqr(x))")
+  putStrLn $ printTree $ buildTree (driveMachine prog1) [expr|gEven(fSqr(x))|]
 
 -- using intTree (infinite tree) to run task
 demo13 =
-  intTree (buildTree (driveMachine prog1) (read "gEven(fSqr(x))")) [("x", read "S(S(Z()))")]
+  intTree (buildTree (driveMachine prog1) [expr|gEven(fSqr(x))|]) [("x", [expr|S(S(Z()))|])]
 
 -- using intTree (folded finite graph) to run task
 demo13a =
-  intTree (foldTree $ buildTree (driveMachine prog1) (read "gEven(fSqr(x))")) [("x", read "S(S(Z()))")]
+  intTree (foldTree $ buildTree (driveMachine prog1) [expr|gEven(fSqr(x))|]) [("x", [expr|S(S(Z()))|])]
 
 -- using intTree (infinite tree) to run task
 demo14 =
-  intTree (buildTree (driveMachine prog1) (read "gEven(fSqr(x))")) [("x", read "S(S(S(Z())))")]
+  intTree (buildTree (driveMachine prog1) [expr|gEven(fSqr(x))|]) [("x", [expr|S(S(S(Z())))|])]
 
 -- successful folding
 demo15 =
-  putStrLn $ printTree $ foldTree $ buildTree (driveMachine prog1) (read "gEven(fSqr(x))")
+  putStrLn $ printTree $ foldTree $ buildTree (driveMachine prog1) [expr|gEven(fSqr(x))|]
 
 -- successful folding (tex)
 demo15a =
-  putStrLn $ pprintLTree $ foldTree $ buildTree (driveMachine prog1) (read "gEven(fSqr(x))")
+  putStrLn $ pprintLTree $ foldTree $ buildTree (driveMachine prog1) [expr|gEven(fSqr(x))|]
 
 -- an example of "not foldable" tree
 demo16 =
-  putStrLn $ printTree $ foldTree $ buildTree (driveMachine prog1) (read "gAdd1(x, y)")
+  putStrLn $ printTree $ foldTree $ buildTree (driveMachine prog1) [expr|gAdd1(x, y)|]
 
 -- an example of generalization, set sizeBound = 5 to get the same result as in the paper
 demo17 =
-  putStrLn $ printTree $ foldTree $ buildFTree (driveMachine prog1) (read "gAdd1(x, y)")
+  putStrLn $ printTree $ foldTree $ buildFTree (driveMachine prog1) [expr|gAdd1(x, y)|]
 
 -- even/sqr - just transformation
 demo18 = do
-  let (c2, p2) = transform ((read "gEven(fSqr(x))"), prog1)
+  let (c2, p2) = transform ([expr|gEven(fSqr(x))|], prog1)
   putStrLn "\ntransformation:\n"
   putStrLn (show c2)
   putStrLn (show p2)
 
 -- even/sqr - deforestation
 demo19 = do
-  let (c2, p2) = deforest ((read "gEven(fSqr(x))"), prog1)
+  let (c2, p2) = deforest ([expr|gEven(fSqr(x))|], prog1)
   putStrLn "\ndeforestation:\n"
   putStrLn (show c2)
   putStrLn (show p2)
 
 -- even/sqr - supercompilation
 demo20 = do
-  let (c2, p2) = supercompile ((read "gEven(fSqr(x))"), prog1)
+  let (c2, p2) = supercompile ([expr|gEven(fSqr(x))|], prog1)
   putStrLn "supercompilation:\n"
   putStrLn (show c2)
   putStrLn (show p2)
@@ -219,22 +224,22 @@ demo27 = do
 
 -- "program analysis"
 demo30 = do
-  let (c2, p2) = supercompile (read "gAdd(gAdd(x, y), z)", prog1)
+  let (c2, p2) = supercompile ([expr|gAdd(gAdd(x, y), z)|], prog1)
   putStrLn (show c2)
   putStrLn (show p2)
 
 demo31 = do
-  let (c2, p2) = supercompile (read "gAdd(x, gAdd(y, z))", prog1)
+  let (c2, p2) = supercompile ([expr|gAdd(x, gAdd(y, z))|], prog1)
   putStrLn (show c2)
   putStrLn (show p2)
 
 -- supercompiled eqpressions are equal =>
 -- original expressions are equivalent
 demo32 =
-  supercompile (read "gAdd(x, gAdd(y, z))", prog1) == supercompile (read "gAdd(gAdd(x, y), z)", prog1)
+  supercompile ([expr|gAdd(x, gAdd(y, z))|], prog1) == supercompile ([expr|gAdd(gAdd(x, y), z)|], prog1)
 
 demo33 = do
-  let (c2, p2) = supercompile ((read "gEq(gHalf(gDouble(n)),n)"), prog3)
+  let (c2, p2) = supercompile ([expr|gEq(gHalf(gDouble(n)),n)|], prog3)
   putStrLn "supercompilation:\n"
   putStrLn (show c2)
   putStrLn (show p2)
@@ -243,12 +248,12 @@ demo33 = do
 -- all further stuff is for "benchmarking"
 -- set sizeBound=10 to get the same results as in the paper
 conf1 :: Expr
-conf1 = read "gEven(fSqr(x))"
+conf1 = [expr|gEven(fSqr(x))|]
 conf2 :: Expr
-conf2 = read "fMatch(Cons(A(), Cons(A(), Nil())), s)"
+conf2 = [expr|fMatch(Cons(A(), Cons(A(), Nil())), s)|]
 
 conf3 :: Expr
-conf3 = read "fMatch(Cons(A(), Nil()), s)"
+conf3 = [expr|fMatch(Cons(A(), Nil()), s)|]
 
 -- input task
 t1 = (conf1, prog1)

@@ -1,1 +1,3 @@
-/.project
+.stack-work/
+.idea/
+*.iml

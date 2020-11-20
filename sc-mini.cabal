@@ -1,0 +1,25 @@
+cabal-version: 3.0
+
+name:           sc-mini
+version:        1.0
+build-type:     Simple
+
+library
+  exposed-modules:
+      Data
+      DataIO
+      DataUtil
+      Deforester
+      Demonstration
+      Driving
+      Folding
+      Generator
+      Interpreter
+      Prototype
+      Supercompiler
+      TreeInterpreter
+  hs-source-dirs:
+      src
+  build-depends:
+      base >=4.13 && <5
+  default-language: Haskell2010

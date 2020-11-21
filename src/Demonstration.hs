@@ -148,10 +148,6 @@ demo14 =
 demo15 =
   putStrLn $ printTree $ foldTree $ buildTree (driveMachine prog1) [expr|gEven(fSqr(x))|]
 
--- successful folding (tex)
-demo15a =
-  putStrLn $ pprintLTree $ foldTree $ buildTree (driveMachine prog1) [expr|gEven(fSqr(x))|]
-
 -- an example of "not foldable" tree
 demo16 =
   putStrLn $ printTree $ foldTree $ buildTree (driveMachine prog1) [expr|gAdd1(x, y)|]
@@ -192,10 +188,6 @@ demo22 =
 -- KMP -- supercompile -- graph
 demo23 =
   putStrLn $ printTree $ foldTree $ buildFTree (addPropagation (driveMachine prog2)) conf2
-
--- KMP -- supercompile -- graph
-demo23Tex =
-  putStrLn $ pprintLTree $ simplify $ foldTree $ buildFTree (addPropagation (driveMachine prog2)) conf2
 
 g = simplify $ foldTree $ buildFTree (addPropagation (driveMachine prog2)) conf2
 
